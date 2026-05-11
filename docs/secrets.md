@@ -5,6 +5,7 @@ This repository is private but must still contain no secrets.
 Do not commit:
 
 - `~/.pi/agent/auth.json`
+- `~/.codex/auth.json`, `~/.codex/config.toml`, Codex logs/state/cache
 - API keys, OAuth refresh/access tokens, cookies
 - SSH private keys or deploy keys
 - Pi sessions/history/cache
