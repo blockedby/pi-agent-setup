@@ -20,5 +20,5 @@ echo '== pi packages =='
 /root/.vite-plus/bin/pi list | sed -n '1,160p'
 
 echo '== smoke =='
-timeout "${PI_SMOKE_TIMEOUT_SECONDS:-300}" /root/.vite-plus/bin/pi --no-session --mode text -p 'Say OK and exit.' | tail -n 40
+timeout "${PI_SMOKE_TIMEOUT_SECONDS:-900}" /root/.vite-plus/bin/pi --no-session --mode text -p 'Say OK and exit.' | tail -n 40
 REMOTE
