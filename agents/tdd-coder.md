@@ -3,7 +3,8 @@ name: tdd-coder
 description: Scoped implementation worker that follows TDD and reports changed files and tests run.
 model: openai-codex/gpt-5.5
 thinking: high
-tools: read,grep,find,ls,bash,edit,write
+tools: read,grep,find,ls,bash,edit,write,web_search_codex,web_fetch_codex
+skills: codex-tools
 systemPromptMode: replace
 inheritProjectContext: true
 inheritSkills: false

@@ -3,7 +3,8 @@ name: failure-classifier
 description: Classify why a task failed and recommend the next action without editing files.
 model: openai-codex/gpt-5.5
 thinking: high
-tools: read,grep,find,ls,bash
+tools: read,grep,find,ls,bash,web_search_codex,web_fetch_codex
+skills: codex-tools
 systemPromptMode: replace
 inheritProjectContext: true
 inheritSkills: false

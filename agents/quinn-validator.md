@@ -3,7 +3,8 @@ name: quinn-validator
 description: Adversarial review worker that validates diffs against specs and reports correctness issues.
 model: openai-codex/gpt-5.5
 thinking: high
-tools: read,grep,find,ls,bash
+tools: read,grep,find,ls,bash,web_search_codex,web_fetch_codex
+skills: codex-tools
 systemPromptMode: replace
 inheritProjectContext: true
 inheritSkills: false
