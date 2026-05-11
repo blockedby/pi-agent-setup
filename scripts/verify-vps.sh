@@ -10,6 +10,7 @@ echo '== vite/node/npm/pi =='
 /root/.vite-plus/bin/node --version
 /root/.vite-plus/bin/npm --version
 /root/.vite-plus/bin/pi --version
+/root/.vite-plus/bin/codex --version
 
 echo '== pi files =='
 test -f /root/.pi/agent/settings.json

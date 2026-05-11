@@ -4,7 +4,8 @@ Private non-secret bootstrap for running the same Pi agent stack on `nl-2-nvme`.
 
 ## What this installs
 
-- Pi CLI via Vite+ npm: `@earendil-works/pi-coding-agent@0.74.0`
+- Pi CLI via Vite+: `@earendil-works/pi-coding-agent@0.74.0`
+- OpenAI Codex CLI via Vite+: `@openai/codex@0.130.0`
 - User settings at `/root/.pi/agent/settings.json`
 - Custom executable subagents at `/root/.pi/agent/agents/`:
   - `tdd-coder`
@@ -21,11 +22,28 @@ no SSH private keys, no runtime state.
 
 Prerequisite: Vite+ already installed for root on the VPS.
 
+Optional version overrides:
+
+```bash
+PI_VERSION=0.74.0 CODEX_VERSION=0.130.0 TARGET_HOST=nl-2-nvme scripts/install-vps.sh
+```
+
 ```bash
 TARGET_HOST=nl-2-nvme scripts/install-vps.sh
 ```
 
-## Optional auth import
+## Codex login
+
+After install, log in interactively on the VPS when needed:
+
+```bash
+ssh nl-2-nvme
+/root/.vite-plus/bin/codex login
+```
+
+Do not commit Codex auth/session files to this repo.
+
+## Optional Pi auth import
 
 Only after explicit approval:
 
