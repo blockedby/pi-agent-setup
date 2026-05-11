@@ -1,0 +1,20 @@
+# dependencies/build
+node_modules/
+.generated/
+dist/
+*.log
+
+# secrets/runtime state - never commit
+.env
+.env.*
+!.env.example
+secrets/
+state/
+**/auth.json
+**/sessions/
+**/cache/
+*.PLAINTEXT.md
+id_rsa
+id_ed25519
+*.pem
+*.key

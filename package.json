@@ -1,0 +1,11 @@
+{
+  "name": "pi-agent-setup",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Private non-secret bootstrap for Pi agent setup on NL-2-NVMe.",
+  "scripts": {
+    "secrets:check": "bash scripts/secrets-check.sh",
+    "verify:nl2": "bash scripts/verify-vps.sh",
+    "install:nl2": "bash scripts/install-vps.sh"
+  }
+}

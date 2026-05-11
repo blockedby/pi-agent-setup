@@ -1,0 +1,38 @@
+{
+  "lastChangelogVersion": "0.74.0",
+  "defaultProvider": "openai-codex",
+  "defaultModel": "gpt-5.5",
+  "defaultThinkingLevel": "high",
+  "packages": [
+    "git:github.com/blockedby/pi-codex",
+    "git:github.com/blockedby/pi-subagents",
+    "npm:pi-smart-fetch",
+    "npm:pi-markdown-preview",
+    "npm:@ifi/oh-pi-themes",
+    "npm:pi-mcp-adapter",
+    "npm:pi-mermaid",
+    "npm:pi-docparser",
+    "npm:pi-btw",
+    "npm:pi-prompt-template-model",
+    "npm:@aliou/pi-processes",
+    "npm:@walterra/pi-charts",
+    "npm:@plannotator/pi-extension",
+    "npm:pi-powerline-footer",
+    "npm:pi-studio",
+    "npm:pi-schedule-prompt",
+    "npm:@apmantza/greedysearch-pi",
+    "npm:pi-zotero"
+  ],
+  "hideThinkingBlock": false,
+  "images": {
+    "blockImages": false
+  },
+  "terminal": {
+    "showTerminalProgress": true
+  },
+  "steeringMode": "all",
+  "followUpMode": "all",
+  "transport": "auto",
+  "theme": "pi-studio-dark",
+  "npmCommand": ["/root/.vite-plus/bin/npm"]
+}
