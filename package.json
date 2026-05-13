@@ -7,6 +7,9 @@
   "pi": {
     "skills": ["./skills"]
   },
+  "dependencies": {
+    "pi-subagents": "github:blockedby/pi-subagents"
+  },
   "scripts": {
     "secrets:check": "bash scripts/secrets-check.sh",
     "verify:nl2": "bash scripts/verify-vps.sh",
