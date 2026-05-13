@@ -15,7 +15,15 @@ echo '== vite/node/npm/pi =='
 echo '== pi files =='
 test -f /root/.pi/agent/settings.json
 test -d /root/.pi/agent/agents
+test -d /root/.pi/agent/skills
 find /root/.pi/agent/agents -maxdepth 1 -type f -name '*.md' -printf '%f\n' | sort
+find /root/.pi/agent/skills -maxdepth 2 -type f -path '*/SKILL.md' -printf '%h\n' | sed 's#^/root/.pi/agent/skills/##' | sort
+for required in aad-explorer.md aad-reviewer.md aad-slice-owner.md aad-test-auditor.md; do
+  test -f "/root/.pi/agent/agents/$required"
+done
+for required in aad-reporting aad-verification aad-slicing-and-delegation; do
+  test -f "/root/.pi/agent/skills/$required/SKILL.md"
+done
 
 echo '== pi packages =='
 /root/.vite-plus/bin/pi list | sed -n '1,160p'

@@ -7,10 +7,16 @@ Private non-secret bootstrap for running the same Pi agent stack on `nl-2-nvme`.
 - Pi CLI via Vite+: `@earendil-works/pi-coding-agent@0.74.0`
 - OpenAI Codex CLI via Vite+: `@openai/codex@0.130.0`
 - User settings at `/root/.pi/agent/settings.json`
-- Custom executable subagents at `/root/.pi/agent/agents/`:
+- Custom executable subagents and chains at `/root/.pi/agent/agents/`:
   - `tdd-coder`
   - `quinn-validator`
   - `failure-classifier`
+  - `aad-explorer`
+  - `aad-reviewer`
+  - `aad-slice-owner`
+  - `aad-test-auditor`
+  - AAD chains: `aad-discovery-plan`, `aad-owned-change`, `aad-parallel-investigation`
+- Shared AAD skills at `/root/.pi/agent/skills/aad-*`
 - Pi packages/extensions from `settings/pi-settings.vps.json`
 
 ## What is intentionally not stored here
@@ -69,3 +75,8 @@ TARGET_HOST=nl-2-nvme scripts/verify-vps.sh
 The older local stash at `~/.pi/agents` is not used by current `pi-subagents`
 discovery, so this repo stores normalized agent definitions with YAML
 frontmatter and deploys them to `/root/.pi/agent/agents`.
+
+Pi loads global skills from `~/.pi/agent/skills/`. This repo also declares
+`pi.skills` in `package.json`, so the `skills/` directory can be reused later as
+a git/npm Pi package, while the VPS bootstrap still installs the skills directly
+for deterministic availability.
