@@ -11,6 +11,8 @@ Do not commit:
 - Pi sessions/history/cache
 - Hermes config files containing secrets
 - plaintext server inventory/access handoff files
+- browser profile directories such as `~/.cache/browser-chrome/` or any Chrome user-data-dir
+- Chrome cookies, saved sessions, local storage, passwords, extension state, or DevTools runtime state
 
 Auth import is a separate explicit operation:
 

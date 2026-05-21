@@ -48,10 +48,52 @@ fi
 install -m 0644 "$TMP_DIR/settings/pi-settings.vps.json" "$REMOTE_USER_HOME/.pi/agent/settings.json"
 install -m 0644 "$TMP_DIR/agents/"*.md "$REMOTE_USER_HOME/.pi/agent/agents/"
 rsync -a "$TMP_DIR/skills/" "$REMOTE_USER_HOME/.pi/agent/skills/"
+
+BROWSER_CHROME_SKILL_DIR="$REMOTE_USER_HOME/.pi/agent/skills/browser-chrome"
+if [ -f "$BROWSER_CHROME_SKILL_DIR/scripts/mcp.sh" ]; then
+  chmod +x "$BROWSER_CHROME_SKILL_DIR/scripts/"*.sh
+  python3 - "$REMOTE_USER_HOME/.pi/agent/mcp.json" "$BROWSER_CHROME_SKILL_DIR/scripts/mcp.sh" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+mcp_path = Path(sys.argv[1])
+command = sys.argv[2]
+if mcp_path.exists():
+    with mcp_path.open() as f:
+        data = json.load(f)
+else:
+    data = {}
+servers = data.setdefault("mcpServers", {})
+common_env = {"CHROME_DEVTOOLS_MCP_NO_UPDATE_CHECKS": "1"}
+servers["browser-chrome-headed"] = {
+    "command": command,
+    "args": ["headed"],
+    "lifecycle": "lazy",
+    "env": common_env,
+}
+servers["browser-chrome-headless"] = {
+    "command": command,
+    "args": ["headless"],
+    "lifecycle": "lazy",
+    "idleTimeout": 1,
+    "env": common_env,
+}
+mcp_path.parent.mkdir(parents=True, exist_ok=True)
+if mcp_path.exists():
+    backup = mcp_path.with_suffix(mcp_path.suffix + ".bak")
+    backup.write_text(mcp_path.read_text())
+with mcp_path.open("w") as f:
+    json.dump(data, f, indent=2)
+    f.write("\n")
+PY
+fi
+
 chmod 700 "$REMOTE_USER_HOME/.pi" "$REMOTE_USER_HOME/.pi/agent" "$REMOTE_USER_HOME/.pi/agent/agents" "$REMOTE_USER_HOME/.pi/agent/skills"
 chmod 600 "$REMOTE_USER_HOME/.pi/agent/agents/"*.md "$REMOTE_USER_HOME/.pi/agent/settings.json"
 find "$REMOTE_USER_HOME/.pi/agent/skills" -type d -exec chmod 700 {} +
 find "$REMOTE_USER_HOME/.pi/agent/skills" -type f -exec chmod 600 {} +
+find "$REMOTE_USER_HOME/.pi/agent/skills/browser-chrome/scripts" -type f -name '*.sh' -exec chmod 700 {} + 2>/dev/null || true
 
 rm -rf "$TMP_DIR"
 "$PI_BIN" --version

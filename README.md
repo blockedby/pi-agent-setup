@@ -11,12 +11,17 @@ Private non-secret bootstrap for running the same Pi agent stack on `nl-2-nvme`.
   - `tdd-coder`
   - `quinn-validator`
   - `failure-classifier`
+  - `chrome-browser-agent`
   - `aad-explorer`
   - `aad-reviewer`
   - `aad-slice-owner`
   - `aad-test-auditor`
   - AAD chains: `aad-discovery-plan`, `aad-owned-change`, `aad-parallel-investigation`
 - Shared AAD skills at `/root/.pi/agent/skills/aad-*`
+- Browser Chrome skill at `/root/.pi/agent/skills/browser-chrome` via git submodule
+- Browser Chrome MCP entries in `/root/.pi/agent/mcp.json` pointing directly at skill scripts:
+  - `browser-chrome-headed`
+  - `browser-chrome-headless`
 - Pi packages/extensions from `settings/pi-settings.vps.json`
 
 ## What is intentionally not stored here
@@ -80,3 +85,28 @@ Pi loads global skills from `~/.pi/agent/skills/`. This repo also declares
 `pi.skills` in `package.json`, so the `skills/` directory can be reused later as
 a git/npm Pi package, while the VPS bootstrap still installs the skills directly
 for deterministic availability.
+
+## Browser Chrome
+
+`skills/browser-chrome` is a submodule pointing at
+`github.com/blockedby/browser-chrome-skill`. Clone/update with submodules before
+installing:
+
+```bash
+git submodule update --init --recursive
+```
+
+The `browser-chrome` skill chooses between:
+
+- `browser-chrome-headless` — disposable headless Chrome for public/simple/parallel checks.
+- `browser-chrome-headed` — headed persistent Chrome only for auth/session/profile tasks.
+
+The install script merges the two MCP servers into `~/.pi/agent/mcp.json` using
+absolute paths to the installed skill scripts. It does not add wrapper commands
+to `~/.local/bin`. The headed profile, Chrome cookies, saved sessions, and
+browser cache are not stored in this repository.
+
+For remote/VPS setups, headed and headless Chrome can both run on another host
+behind LAN/Tailscale/SSH tunnel. Configure the skill with environment variables
+such as `BROWSER_CHROME_HEADED_URL`, `BROWSER_CHROME_HEADED_START_COMMAND`,
+`BROWSER_CHROME_HEADLESS_START_COMMAND`, and `BROWSER_CHROME_HEADLESS_CLOSE_COMMAND`.
