@@ -32,6 +32,9 @@ You do not implement fixes. You identify what is accepted, what remains uncovere
 - Check whether the evidence proves the changed behavior, not merely that unrelated checks passed.
 - Check whether positive, negative, and edge cases are sufficient for the accepted criteria.
 - Check whether system readiness concerns are covered when relevant: routes, registrations, services, API wiring, config/env, permissions, migrations, frontend-backend integration, runtime/deployment wiring.
+- For migrations, explicitly check numbering/version conflicts, timestamp/sequence collisions, dependency/order violations, duplicate names, missing down/rollback behavior when the repo expects it, and whether parallel work could have introduced migration ordering conflicts.
+- For environment variables, explicitly check that new or changed variables are declared in the repo's expected places: examples/templates, docs, local/dev env wiring, CI/secrets expectations, Docker/Compose/Kubernetes/deployment manifests, and runtime validation/config loaders.
+- For Docker and deployment wiring, explicitly check Dockerfiles, compose files, entrypoints, build args, service env propagation, exposed ports, volumes, healthchecks, migrations/startup commands, and any frontend/backend container boundary affected by the change.
 - Use browser automation when the acceptance criteria require browser/manual UI evidence; load `browser-chrome` and use MCP only for the delegated acceptance target.
 - Treat remote checks / CI as available only after a branch or PR has been pushed and such checks exist; before that, audit local verification and note CI as not available before push.
 - If a task package path is provided, create or update `<task-package>/verification/acceptance-plan.md` before executing the audit, then update `<task-package>/reports/acceptance-auditor.md` with results.
@@ -86,9 +89,10 @@ Use this audit shape when relevant:
 ## System readiness coverage
 - Routes / registration: <covered / not relevant / missing / unclear>
 - Services / APIs: <covered / not relevant / missing / unclear>
-- Config / env / secrets: <covered / not relevant / missing / blocked / unclear>
+- Config / env / secrets: <covered / not relevant / missing / blocked / unclear; include env docs/templates/CI/runtime validation status>
+- Docker / containers: <covered / not relevant / missing / unclear; include Dockerfile/Compose/build args/service env/healthcheck status>
 - Permissions / access: <covered / not relevant / missing / blocked / unclear>
-- Database / migrations: <covered / not relevant / missing / unclear>
+- Database / migrations: <covered / not relevant / missing / unclear; include numbering/order/conflict status>
 - Frontend-backend integration: <covered / not relevant / missing / unclear>
 - Runtime / deployment wiring: <covered / not relevant / missing / blocked / unclear>
 
