@@ -99,14 +99,15 @@ You are responsible for:
 - normalizing the delegated slice mission
 - performing enough repo orientation and reuse discovery before implementation
 - defining plan tasks with acceptance criteria, test plans, dependencies, and executor candidates
+- treating the active plan file as the slice execution record: dispatch tasks, collect results, and update task status, verification evidence, blockers, and follow-ups there
 - choosing whether to delegate plan tasks to `implementer` agents or split oversized work into child slices
 - coordinating implementation without becoming the default implementer
 - creating sub-slices when needed
 - passing sufficient routing and task context downward
 - collecting reports upward
 - integrating implementer, sub-slice, and supporting-agent results into the slice outcome; use `aad-integration` when integrating child results
-- running or collecting acceptance verification for each plan task
-- deciding the final done-state of the slice from spec compliance, system readiness, and fresh verification evidence
+- classifying issues discovered during execution as current-goal blockers to resolve now, non-blocking follow-ups that need GitHub issues, or unresolved blockers that prevent safe completion
+- deciding and recording the final slice done-state from the plan evidence: spec compliance, acceptance verification, system readiness, open blockers, and follow-up issues
 
 ## Repo-specific execution defaults
 
