@@ -81,7 +81,14 @@ Typical signals:
 
 When you decide to sub-slice, use `aad-slicing-and-delegation` to define sub-slice boundaries and pass the correct owner context.
 
-Implementation sub-slices must preserve worktree lineage: create child worktrees/branches from the current parent slice worktree/branch, not from `main`, unless the parent explicitly chooses a different base. Child slice results should integrate back into the parent slice worktree/branch first; the parent slice owner remains responsible for resolving overlap, rerunning needed verification, and only then preparing the parent branch/PR.
+Sub-slice worktree lineage rules:
+
+- If the child work is part of the current parent slice, create the child worktree/branch from the current parent slice worktree/branch, not from `main`.
+- If the parent explicitly chooses a different base, record that base and why it is safer than the current parent branch.
+- If the child returns implementation changes, integrate them back into the parent slice worktree/branch before target-branch preparation.
+- If child changes overlap or conflict, the parent slice owner resolves the overlap in the parent worktree.
+- If integration changes parent content, rerun the needed parent-level verification before preparing the parent branch/PR.
+- If a child slice should go directly to `main`, promote it to an independent root-level slice instead of treating it as a sub-slice.
 
 Do not create a child slice just because a plan task exists. Clear implementation tasks should usually go to `implementer` agents.
 
