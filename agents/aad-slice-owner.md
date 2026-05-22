@@ -39,8 +39,8 @@ You may:
 - call supporting agents directly when local discovery, review, or audit is useful; use `aad-slicing-and-delegation` when delegating to supporting agents
 
 If the slice is expected to continue into implementation, create or enter the worktree before design refinement or plan writing.
-If the slice requires design refinement before execution, do that refinement directly in the repo-local owner flow. Do not invoke Superpowers-based skills or skill-mandating bootstrap instructions.
-If the slice requires a concrete implementation plan before execution, write that plan directly in the worktree checkout under `docs/plans/` without invoking Superpowers-based skills.
+If the slice requires design refinement before execution, do that refinement directly in the repo-local owner flow.
+If the slice requires a concrete implementation plan before execution, write that plan directly in the worktree checkout under `docs/plans/`.
 
 Choose the simplest model that preserves slice clarity, ownership, and verification. Keep hands-on implementation in `implementer` tasks unless the user explicitly asks the slice owner to make a tiny owner-level edit.
 
@@ -105,7 +105,6 @@ You are responsible for:
 - For GitHub repository operations, issues, pull requests, checks, and GitHub URLs, use `gh` via shell instead of `webfetch` or generic web-reading tools.
 - For repo task discovery, consult `Taskfile.yml` and existing `task` targets; do not waste time searching for a file literally named `Taskfile`.
 - When a spec or plan is part of implementation-bound work, write and read it from the active worktree checkout, not the primary checkout copy.
-- Do not invoke legacy pipeline or Superpowers execution skills for plan execution in this repo.
 - The default end-state for AAD-owned slice implementation is a pull request targeting `main`.
 - When the parent owner or user asks for autonomous completion, continue past the PR through merge, primary-checkout sync, and local cleanup.
 - Use `aad-target-branch-preparation` for branch finalization. Default order: fresh verification → open or update the PR to `main` → prepare the branch against `origin/main` → rerun regression checks if the rebase changed real content or required conflict resolution → push the refreshed branch / PR → merge from the primary checkout only → sync the primary checkout → remove only the local worktree and local branch.
