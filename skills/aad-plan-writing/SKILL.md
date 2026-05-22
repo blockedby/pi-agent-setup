@@ -128,7 +128,7 @@ Dependencies:
 - Can run parallel with: <none / task IDs>
 
 Executor:
-- <implementer / browser-agent / failure-classifier / child slice owner if too large>
+- <implementer / browser-agent / aad-failure-classifier / child slice owner if too large>
 ```
 
 No meaningful plan task should omit acceptance criteria or a verification plan. If a criterion cannot be automated, state the manual evidence expected.

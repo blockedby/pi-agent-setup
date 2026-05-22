@@ -10,7 +10,7 @@ Private non-secret bootstrap for running the same Pi agent stack on `nl-2-nvme`.
 - Custom executable subagents and chains at `/root/.pi/agent/agents/`:
   - `implementer`
   - `quinn-validator`
-  - `failure-classifier`
+  - `aad-failure-classifier`
   - `chrome-browser-agent`
   - `aad-explorer`
   - `aad-reviewer`

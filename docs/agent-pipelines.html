@@ -168,7 +168,7 @@
         </article>
         <article class="card">
           <h3>AAD worker agents</h3>
-          <p><code>implementer</code> implements scoped tasks, <code>quinn-validator</code> adversarially reviews diffs, and <code>failure-classifier</code> classifies failed attempts.</p>
+          <p><code>implementer</code> implements scoped tasks, <code>quinn-validator</code> adversarially reviews diffs, and <code>aad-failure-classifier</code> classifies failed attempts.</p>
         </article>
         <article class="card">
           <h3>Browser automation</h3>
@@ -195,7 +195,7 @@ flowchart TD
   DirectAgent --> Reviewer["aad-reviewer"]
   DirectAgent --> TestAuditor["aad-test-auditor"]
   DirectAgent --> Browser["chrome-browser-agent"]
-  DirectAgent --> Hermes["implementer / quinn-validator / failure-classifier"]
+  DirectAgent --> WorkerAgents["implementer / quinn-validator / aad-failure-classifier"]
         </pre>
       </div>
     </section>
@@ -259,7 +259,7 @@ flowchart LR
         <p class="caption">Typical implementation, validation, and failure classification flow.</p>
         <pre class="mermaid">
 flowchart TD
-  Hermes["AAD owner / orchestrator"] --> Story["scoped task + acceptance criteria + test commands"]
+  Owner["AAD owner / orchestrator"] --> Story["scoped task + acceptance criteria + test commands"]
   Story --> Impl["implementer\nimplement minimal change\nrun targeted tests"]
   Impl --> Result{"PI_RESULT"}
   Result -- "PASS" --> Quinn["quinn-validator\nadversarial diff/spec review"]
@@ -267,9 +267,9 @@ flowchart TD
   QResult -- "PASS" --> Done["ready for owner/user decision"]
   QResult -- "FAIL" --> Fix["send concrete findings back to implementation"]
   Fix --> Impl
-  Result -- "FAIL or BLOCKED" --> Classifier["failure-classifier\nCODE_BUG / TEST_CONTRACT / TEST_BUG / INFRA / SCOPE_GAP / AGENT_LOOP / SECURITY_BLOCKER"]
+  Result -- "FAIL or BLOCKED" --> Classifier["aad-failure-classifier\nCODE_BUG / TEST_CONTRACT / TEST_BUG / INFRA / SCOPE_GAP / AGENT_LOOP / SECURITY_BLOCKER"]
   Classifier --> Next["NEXT_ACTION\nretry, adjust scope, escalate model, or ask human"]
-  Next --> Hermes
+  Next --> Owner
         </pre>
       </div>
     </section>
@@ -338,10 +338,10 @@ flowchart TD
             <td><code>replace</code>, project context <span class="ok">on</span>, inherited skills off; injects <code>codex-tools</code></td>
           </tr>
           <tr>
-            <td><code>failure-classifier</code></td>
-            <td>Classify failed task attempts and recommend next action</td>
-            <td><span class="warn">Read-only unless explicitly asked for tiny diagnostic artifact</span></td>
-            <td><code>replace</code>, project context <span class="ok">on</span>, inherited skills off; injects <code>codex-tools</code></td>
+            <td><code>aad-failure-classifier</code></td>
+            <td>Narrow failure evidence classifier</td>
+            <td><span class="warn">Read-only for source/test/config; may write task-package report</span></td>
+            <td><code>replace</code>, project context <span class="ok">on</span>, inherited skills off; injects <code>codex-tools</code>, <code>aad-task-package</code>, <code>aad-failure-classification</code></td>
           </tr>
           <tr>
             <td><code>chrome-browser-agent</code></td>

@@ -36,7 +36,7 @@ docs/plans/YYYY-MM-DD-<task-slug>/
     implementer-<task-id>.md
     reviewer.md
     test-auditor.md
-    failure-classifier-<failure-id>.md
+    aad-failure-classifier-<failure-id>.md
     quinn-validator.md
     browser-<scope>.md
   verification/
@@ -112,7 +112,7 @@ If a report path is provided, write or update that file before returning. If no 
 - `implementer` progress → `progress/implementer-<task-id>.md`
 - `aad-reviewer` → `reports/reviewer.md`
 - `aad-test-auditor` → `reports/test-auditor.md` and `verification/test-plan.md` when it creates or updates the verification plan
-- `failure-classifier` → `reports/failure-classifier-<failure-id>.md`
+- `aad-failure-classifier` → `reports/aad-failure-classifier-<failure-id>.md`
 - `quinn-validator` → `reports/quinn-validator.md`
 - `chrome-browser-agent` → `reports/browser-<scope>.md` or `verification/browser.md`
 - owner final report → `final-report.md` or the final section of `plan.md`
