@@ -47,6 +47,7 @@ External context has two forms:
 Inspect connected external context only when relationship evidence confirms the connection to the current task. Examples of relationship evidence:
 
 - the owner provided a URL, path, account, service, or repo name
+- the owner explicitly asked for web research, external examples, or comparison with another implementation
 - local docs/config mention the external repo, service, API, or deployment
 - env/config contains a related endpoint, service name, package, or account identifier
 - code calls a client, endpoint, package, generated type, OpenAPI/protobuf schema, or SDK owned elsewhere
