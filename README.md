@@ -13,7 +13,6 @@ Private non-secret bootstrap for running the same Pi agent stack on `nl-2-nvme`.
   - `aad-failure-classifier`
   - `chrome-browser-agent`
   - `aad-explorer`
-  - `aad-reviewer`
   - `aad-slice-owner`
   - `aad-test-auditor`
   - AAD chains: `aad-discovery-plan`, `aad-owned-change`, `aad-problem-investigation`

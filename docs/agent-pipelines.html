@@ -164,7 +164,7 @@
       <div class="grid">
         <article class="card">
           <h3>AAD owner/support agents</h3>
-          <p><code>aad-slice-owner</code> owns scoped work. <code>aad-explorer</code>, <code>aad-reviewer</code>, and <code>aad-test-auditor</code> provide read-only evidence, review, and verification audit support.</p>
+          <p><code>aad-slice-owner</code> owns scoped work. <code>aad-explorer</code> and <code>aad-test-auditor</code> provide evidence and verification audit support.</p>
         </article>
         <article class="card">
           <h3>AAD worker agents</h3>
@@ -192,7 +192,6 @@ flowchart TD
   NeedPerspectives -- "yes" --> ParallelInvestigation["chain: aad-problem-investigation"]
   NeedPerspectives -- "no" --> DirectAgent{"Direct specialist"}
   DirectAgent --> Explorer["aad-explorer"]
-  DirectAgent --> Reviewer["aad-reviewer"]
   DirectAgent --> TestAuditor["aad-test-auditor"]
   DirectAgent --> Browser["chrome-browser-agent"]
   DirectAgent --> WorkerAgents["implementer / quinn-validator / aad-failure-classifier"]
@@ -220,15 +219,13 @@ flowchart LR
       <h2>AAD owned-change chain</h2>
       <p class="note"><code>agents/aad-owned-change.chain.md</code> is the main end-to-end implementation workflow.</p>
       <div class="diagram">
-        <p class="caption">The slice owner starts and finishes the workflow; reviewer and test auditor provide read-only gates.</p>
+        <p class="caption">The slice owner starts and finishes the workflow; test auditor provides the verification gate.</p>
         <pre class="mermaid">
 flowchart TD
-  Task["{task}: requested change"] --> Owner1["aad-slice-owner\nown change end-to-end\nworktree, implementation, verification"]
+  Task["{task}: requested change"] --> Owner1["aad-slice-owner\nown change end-to-end\ntask package, draft PR, implementation dispatch"]
   Owner1 --> SliceReport["{previous}: slice report / context"]
-  SliceReport --> Review["aad-reviewer\nread-only correctness + workflow review"]
-  Review --> ReviewReport["{previous}: reviewer findings"]
-  ReviewReport --> Audit["aad-test-auditor\nverification sufficiency audit"]
-  Audit --> Feedback["{previous}: review + audit feedback"]
+  SliceReport --> Audit["aad-test-auditor\nverification sufficiency audit"]
+  Audit --> Feedback["{previous}: audit feedback"]
   Feedback --> Owner2["aad-slice-owner\nintegrate feedback\nfix current-goal issues\nrerun verification"]
   Owner2 --> Final["final AAD report\nno merge unless explicitly asked"]
         </pre>
@@ -244,9 +241,8 @@ flowchart TD
         <p class="caption">Read-only support pipeline for producing a problem investigation packet. It does not implement a fix, though it may recommend a red/proving test.</p>
         <pre class="mermaid">
 flowchart LR
-  Task["{task}: problem / failing behavior"] --> Explorer["aad-explorer\nevidence + reproduction\nrelevant scope"]
-  Explorer --> Reviewer["aad-reviewer\nclassification candidate\ncorrectness + risk impact"]
-  Reviewer --> Auditor["aad-test-auditor\nverification story\nred/proving test recommendation"]
+  Task["{task}: problem / failing behavior"] --> Explorer["aad-explorer\nevidence + reproduction\nrisk signals + scope"]
+  Explorer --> Auditor["aad-test-auditor\nverification story\nred/proving test recommendation"]
   Auditor --> Output["problem packet\nblocker/follow-up/false alarm\nrecommended next action"]
         </pre>
       </div>
@@ -309,14 +305,8 @@ flowchart TD
           </tr>
           <tr>
             <td><code>aad-slice-owner</code></td>
-            <td>Own one slice end-to-end; plan, implement, verify, integrate feedback</td>
+            <td>Own one slice end-to-end; coordinate planning, delegation, verification, and integration</td>
             <td><span class="ok">Can edit/write</span></td>
-            <td><code>replace</code>, project context <span class="ok">on</span>, skills <span class="ok">on</span></td>
-          </tr>
-          <tr>
-            <td><code>aad-reviewer</code></td>
-            <td>Read-only correctness, verification, and workflow review</td>
-            <td><span class="warn">Prompt says read-only</span></td>
             <td><code>replace</code>, project context <span class="ok">on</span>, skills <span class="ok">on</span></td>
           </tr>
           <tr>
