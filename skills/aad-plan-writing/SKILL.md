@@ -27,25 +27,70 @@ A good AAD plan is operational: it states what will change, what will prove each
 5. Define the ownership model:
    - stays whole under one owner
    - or splits into named slices with clear boundaries
-6. Write an execution plan in `docs/superpowers/plans/` with:
+6. Write an execution plan in `docs/plans/` with:
    - goal
    - scope and do-not-touch boundaries
-   - reuse notes
-   - staged implementation plan
-   - dependency notes
-   - verification targets
-   - optional delegation points only where they are genuinely cheaper
+   - stage boundaries based on independently verifiable behavior
+   - acceptance criteria and test plan per stage
+   - dependencies and optional delegation points only where they are genuinely cheaper
 7. Keep the plan compact and directly executable.
+
+## Stage sizing
+
+A stage is the smallest independently verifiable behavior change.
+
+Do not size stages by file count, estimated minutes, or mechanical edit steps. Size them by the behavior they make true and the primary verification that can prove it.
+
+A good stage is:
+
+- small enough that one owner or delegated agent can implement it and return a complete acceptance verification report
+- large enough to represent meaningful behavior, not just "create file", "add import", or "change CSS class"
+- centered on one primary system boundary and one primary verification story
+- explicit about what existing pattern or implementation it will reuse
+
+Prefer stage boundaries around verification boundaries:
+
+- database schema, migration, or model behavior
+- backend service or API behavior
+- API client, SDK, or shared contract behavior
+- frontend page, component, hook, or state behavior
+- integration between components or services
+- browser, e2e, or final readiness behavior
+
+Split a stage when:
+
+- it needs a different primary test type or verification command
+- it crosses independent ownership boundaries
+- part of it can run in parallel with another part
+- one part blocks another
+- acceptance criteria no longer fit one coherent verification story
+
+Do not split a stage when:
+
+- the pieces are only mechanical file edits
+- no piece has independent acceptance criteria
+- verification only makes sense after the pieces are combined
+- splitting would create more coordination than clarity
 
 ## Stage format
 
 Every meaningful stage should use this structure:
 
 ```md
-### Stage N: <name>
+### Stage N: <independently verifiable behavior>
 
 Goal:
 - <what this stage makes true>
+
+Boundary:
+- System area: <backend/API/frontend/component/integration/etc>
+- Primary verification: <test suite/check/manual evidence that proves this stage>
+
+Existing pattern / reuse:
+- <existing file/symbol/pattern to follow or reuse>
+
+Missing change:
+- <minimal new behavior/code needed>
 
 Scope / likely files:
 - <files, areas, components, services, APIs, schemas, tests>
@@ -71,19 +116,6 @@ Owner candidate:
 
 No meaningful stage should omit acceptance criteria or a verification plan. If a criterion cannot be automated, state the manual evidence expected.
 
-## Slicing by system boundary
-
-For multi-component features, prefer stages that align with real system boundaries, for example:
-
-- database schema, migration, or model
-- backend service or API endpoint
-- API client, SDK, or shared contract
-- frontend page, component, hook, or state boundary
-- integration between components
-- browser, e2e, or final readiness verification
-
-Do not split cosmetic steps into separate slices unless doing so makes execution cheaper.
-
 ## Plan rules
 
 - Prefer one owner carrying the work when one owner can do it cheaply.
@@ -91,7 +123,7 @@ Do not split cosmetic steps into separate slices unless doing so makes execution
 - Make verification explicit for each meaningful checkpoint.
 - Tie acceptance criteria to tests or checks wherever possible.
 - Prefer TDD for stages where the repo has suitable test infrastructure.
-- Use checklist steps when that makes execution easier.
+- Use checklist steps inside a stage when that makes execution easier, but do not mistake mechanical checklist items for stages.
 - Record dependencies so the owner can later decide parallel execution waves.
 
 ## Common mistakes
@@ -99,6 +131,8 @@ Do not split cosmetic steps into separate slices unless doing so makes execution
 - turning the plan into generic advice
 - forcing delegation where direct execution is cheaper
 - leaving verification implicit
+- splitting by mechanical file edits instead of independently verifiable behavior
 - listing implementation tasks without acceptance criteria
 - writing acceptance criteria that cannot be checked
+- making stages so broad that they require unrelated verification stories
 - bloating the plan with workflow ceremony unrelated to the actual change
