@@ -30,9 +30,69 @@ Discovery should make implementation planning cheaper: identify project shape, e
 - Look for existing implementations before suggesting new code: components, pages, hooks, classes, services, methods, API routes, schemas, data models, utilities, tests, configs, and docs.
 - Separate what can be reused from what is genuinely missing.
 - Classify side observations as blocking for the owner goal or non-blocking follow-up candidates; do not expand the delegated scope to fix them.
+- Use external context only when it is narrowly justified; see External context rules below.
 - If the delegated investigation turns into unclear or contradictory behavior, use the situational AAD skill `aad-systematic-debugging`.
 - Before claiming that a result is established, use the core AAD skill `aad-verification`.
 - Before finalizing your report, use the core AAD skill `aad-reporting`.
+
+## External context rules
+
+Default to the delegated repository and local workspace.
+
+External context has two forms:
+
+1. Connected external context: another repo, service, API, account, deployment, generated contract, internal package, or docs tied to this project.
+2. Public reference context: official docs, release notes, migration guides, Stack Overflow answers, public GitHub examples, or open-source issues that clarify a technology used by this project.
+
+Inspect connected external context only when relationship evidence confirms the connection to the current task. Examples of relationship evidence:
+
+- the owner provided a URL, path, account, service, or repo name
+- local docs/config mention the external repo, service, API, or deployment
+- env/config contains a related endpoint, service name, package, or account identifier
+- code calls a client, endpoint, package, generated type, OpenAPI/protobuf schema, or SDK owned elsewhere
+- CI/deployment config references the external runtime or service
+- an issue, PR, task, or README links the external source
+
+Before inspecting connected external context, state:
+
+```md
+Connected context candidate:
+- Source: <repo/service/account/API/docs/path>
+- Relationship evidence: <exact local file/link/symbol/config proving the connection>
+- Question to answer: <what this source should clarify>
+- Decision it unblocks: <what the owner can decide after this>
+```
+
+If relationship evidence is missing, do not inspect it. Report it as a candidate instead.
+
+Use public reference context only when local evidence shows technology relevance, such as a package name/version, framework, error message, API, or tool used by this repo. Prefer official documentation. Use Stack Overflow and public examples only for concrete questions.
+
+Before using public references, state:
+
+```md
+Public reference candidate:
+- Source: <docs/SO/GitHub example/release notes>
+- Technology relevance: <package/framework/error/API from local evidence>
+- Question to answer: <what this source should clarify>
+- Decision it unblocks: <what the owner can decide after this>
+```
+
+Allowed methods are read-only:
+
+- `cd` into an existing local checkout
+- `gh`, GitLab CLI, or web fetch for files, issues, PRs, and docs
+- shallow temporary clone only when relationship evidence exists, the question is specific, and cheaper methods are insufficient
+- official package/library docs for API or version behavior
+
+Rules:
+
+- read-only only; do not edit external repos or services
+- do not fetch, print, or infer secrets or private credentials
+- do not turn external discovery into broad research
+- record exact URL/path/ref/commit/version when used
+- local project patterns win over public examples
+- stop once the concrete question is answered
+- if access is missing, report it as a blocker or needed context
 
 ## Output expectations
 
@@ -51,6 +111,19 @@ Use this discovery shape when relevant:
 
 ## Existing implementations and reuse candidates
 - <file/symbol/pattern>: <how it appears relevant>
+
+## External context checked
+- Source: <URL/path/repo/service/docs>
+  - Type: <connected / public reference>
+  - Relationship evidence or technology relevance: <exact evidence>
+  - Question: <what was checked>
+  - Finding: <what was learned>
+  - Ref: <commit/version/date/path when applicable>
+
+## External context candidates not checked
+- Source: <URL/path/repo/service/docs>
+  - Why it might matter: <short reason>
+  - Missing evidence/access: <why it was not inspected>
 
 ## Missing pieces
 - <behavior/file/contract/config that does not appear to exist yet>
