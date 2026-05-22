@@ -27,7 +27,7 @@ When a task package path is available, use `aad-task-package` and write the repo
 - Thread: <...>
 - Slice: <...>
 - Task name: <...>
-- Task package: <docs/plans/YYYY/MM/DD/slug or not provided>
+- Task package: <docs/plans/YYYY-MM-DD-slug or not provided>
 - Report path: <path written or not provided>
 - Worktree: <...>
 - Branch: <...>

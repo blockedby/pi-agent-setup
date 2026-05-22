@@ -27,7 +27,7 @@ A good AAD plan is operational: it states what will change, what will prove each
 5. Define the ownership model:
    - stays whole under one owner
    - or splits into named slices with clear boundaries
-6. Use `aad-task-package` to create or update the task package under `docs/plans/YYYY/MM/DD/<task-slug>/`.
+6. Use `aad-task-package` to create or update the task package under `docs/plans/YYYY-MM-DD-<task-slug>/`.
 7. Write the execution plan to `<task-package>/plan.md` with:
    - goal
    - scope and do-not-touch boundaries

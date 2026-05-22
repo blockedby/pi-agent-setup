@@ -14,13 +14,13 @@ A task package is the shared buffer between agents. It keeps the plan, delegated
 Default location:
 
 ```text
-docs/plans/YYYY/MM/DD/<task-slug>/
+docs/plans/YYYY-MM-DD-<task-slug>/
 ```
 
 Example:
 
 ```text
-docs/plans/2026/05/22/add-invoices-page/
+docs/plans/2026-05-22-add-invoices-page/
 ```
 
 ## Directory structure
@@ -28,7 +28,7 @@ docs/plans/2026/05/22/add-invoices-page/
 Use this structure unless the repo has a stricter convention:
 
 ```text
-docs/plans/YYYY/MM/DD/<task-slug>/
+docs/plans/YYYY-MM-DD-<task-slug>/
   README.md
   plan.md
   reports/
@@ -57,7 +57,7 @@ The slice owner creates the task package for implementation-bound work.
 Creation checklist:
 
 1. Choose a short, stable task slug from the task name.
-2. Create `docs/plans/YYYY/MM/DD/<task-slug>/` in the active worktree.
+2. Create `docs/plans/YYYY-MM-DD-<task-slug>/` in the active worktree.
 3. Create `README.md` with:
    - task name
    - status
@@ -94,7 +94,7 @@ Every delegated prompt should include:
 
 ```text
 Task name: <name>
-Task package: <docs/plans/YYYY/MM/DD/slug>
+Task package: <docs/plans/YYYY-MM-DD-slug>
 Report path: <task-package>/reports/<agent-or-task>.md
 Verification path: <task-package>/verification/<file>.md, when relevant
 ```
