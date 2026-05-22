@@ -32,14 +32,25 @@ The report is a continuation packet, not a diary.
 ## Verdict
 - Status: <success / partial / blocked / failed>
 - Goal state: <fully achieved / partially achieved / not achieved>
+- Final readiness: <ready / not ready / ready except explicit limitation / not applicable for supporting report>
 - Summary: <one short operational statement>
 
 ## Completed
 - <completed result>
   - Evidence: <short exact proof>
 
+## Spec compliance
+- Requirement / AC: <requirement or acceptance criterion>
+  - Status: <done / partial / missing / not applicable>
+  - Evidence: <test/check/file/artifact/decision>
+  - Gap if any: <none / exact missing work or blocker>
+
 ## Acceptance verification
 - AC1: <criterion>
+  - Covered by: <test/check/manual evidence>
+  - Result: <passed / failed / not run>
+  - Evidence: <command, file, artifact, or short output>
+- AC2: <criterion>
   - Covered by: <test/check/manual evidence>
   - Result: <passed / failed / not run>
   - Evidence: <command, file, artifact, or short output>
@@ -51,8 +62,18 @@ The report is a continuation packet, not a diary.
 - Permissions / access: <done / not relevant / missing / blocked>
 - Database / migrations: <done / not relevant / missing>
 - Frontend-backend integration: <done / not relevant / missing>
-- Local / full verification: <passed / failed / not run, with reason>
-- Remote checks / CI: <not available before push / passed / failed / not checked, with reason>
+- Runtime / deployment wiring: <done / not relevant / missing / blocked>
+
+## Verification run
+- Local / targeted checks:
+  - <command/check>: <passed / failed / not run>
+    - Evidence: <short output, artifact, or reason>
+- Local / full checks:
+  - <command/check>: <passed / failed / not run>
+    - Evidence: <short output, artifact, or reason>
+- Remote checks / CI:
+  - Status: <not available before push / passed / failed / not checked>
+  - Evidence: <PR/check URL, job name, or reason>
 
 ## Issues
 ### Issue R-01: <short title>
@@ -80,10 +101,6 @@ The report is a continuation packet, not a diary.
 - Blocking findings folded into active work: <none / list issue IDs>
 - Non-blocking findings tracked separately: <none / GitHub issue links>
 
-## Verification run
-- <command/check/job>: <passed / failed / not run>
-  - Evidence: <short output, URL, artifact, or reason>
-
 ## Next-agent brief
 - Objective: <what still needs to be achieved>
 - Target: <exact area / files / system>
@@ -93,7 +110,7 @@ The report is a continuation packet, not a diary.
 - Expected output: <what the next actor should return>
 ```
 
-Use optional sections only when they add useful continuation context. Owner-level and final reports should include acceptance verification and system readiness when the task has acceptance criteria or integration risk. Remote checks / CI should be reported only when a branch or PR has been pushed and such checks exist; before push, record it as not available rather than treating it as skipped verification.
+Use every section that applies to the report scope. Owner-level and final reports must fill `Spec compliance`, `Acceptance verification`, `System readiness`, `Verification run`, `Issues`, and `Side findings`. Supporting-agent reports may mark owner-only sections as `not applicable` when the delegated scope does not include them. Remote checks / CI should be reported only when a branch or PR has been pushed and such checks exist; before push, record it as `not available before push` rather than treating it as skipped verification.
 
 ## Fill rules
 
@@ -106,19 +123,6 @@ Use optional sections only when they add useful continuation context. Owner-leve
 - Non-blocking side findings should be grouped into a follow-up issue when that is cheaper than many small issues.
 - Keep each issue self-contained; do not scatter description, evidence, and outcome across sections.
 - Include `Next-agent brief` only when continuation is needed.
-
-## Final owner report additions
-
-For a final owner report, include:
-
-- spec compliance by requirement or acceptance criterion
-- acceptance verification matrix
-- system readiness checklist for wiring/config/runtime concerns
-- local/full verification status
-- remote check or CI status only after push/PR when available
-- follow-up issue links for non-blocking observations
-- blocker list if the goal is not ready
-- final verdict: `ready`, `not ready`, or `ready except <explicit limitation>`
 
 ## Finish-time checklist
 
