@@ -1,6 +1,6 @@
 ---
 name: aad-owned-change
-description: AAD owned implementation workflow: slice owner creates task package and draft PR, dispatches implementation, acceptance auditor audits verification, owner integrates.
+description: AAD owned implementation workflow: slice owner creates task package and draft PR, dispatches implementation, acceptance auditor audits, owner integrates, final acceptance auditor gates done-state.
 ---
 
 ## aad-slice-owner
@@ -23,5 +23,13 @@ Context:
 Integrate the acceptance-auditor feedback below. Fix only current-goal issues by updating the task package plan, dispatching `implementer` agents when needed, rerunning necessary verification, and producing the final AAD report in the task package. Do not merge unless explicitly asked.
 
 Feedback:
+
+{previous}
+
+## aad-acceptance-auditor
+
+Perform the final acceptance audit for the completed AAD slice after owner integration. Decide whether the task can be accepted as done from the final owner report, task package plan, verification artifacts, PR/check evidence, and any acceptance-auditor feedback already addressed. If a Task package path is present, update `<task-package>/verification/acceptance-plan.md` and write the final audit to `<task-package>/reports/final-acceptance-auditor.md` using `aad-task-package`. Do not implement fixes; report remaining blockers or acceptance limitations for the owner/user.
+
+Context:
 
 {previous}

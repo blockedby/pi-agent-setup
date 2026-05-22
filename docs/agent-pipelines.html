@@ -219,7 +219,7 @@ flowchart LR
       <h2>AAD owned-change chain</h2>
       <p class="note"><code>agents/aad-owned-change.chain.md</code> is the main end-to-end implementation workflow.</p>
       <div class="diagram">
-        <p class="caption">The slice owner starts and finishes the workflow; acceptance auditor provides the verification gate.</p>
+        <p class="caption">The slice owner starts and integrates the workflow; acceptance auditor provides both an audit pass and the final done-state gate.</p>
         <pre class="mermaid">
 flowchart TD
   Task["{task}: requested change"] --> Owner1["aad-slice-owner\nown change end-to-end\ntask package, draft PR, implementation dispatch"]
@@ -227,7 +227,9 @@ flowchart TD
   SliceReport --> Audit["aad-acceptance-auditor\nacceptance audit"]
   Audit --> Feedback["{previous}: audit feedback"]
   Feedback --> Owner2["aad-slice-owner\nintegrate feedback\nfix current-goal issues\nrerun verification"]
-  Owner2 --> Final["final AAD report\nno merge unless explicitly asked"]
+  Owner2 --> OwnerReport["final owner report\nno merge unless explicitly asked"]
+  OwnerReport --> FinalAudit["aad-acceptance-auditor\nfinal acceptance gate"]
+  FinalAudit --> Final["final acceptance verdict"]
         </pre>
       </div>
     </section>
