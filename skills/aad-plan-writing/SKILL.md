@@ -30,25 +30,25 @@ A good AAD plan is operational: it states what will change, what will prove each
 6. Write an execution plan in `docs/plans/` with:
    - goal
    - scope and do-not-touch boundaries
-   - stage boundaries based on independently verifiable behavior
-   - acceptance criteria and test plan per stage
+   - task boundaries based on independently verifiable behavior
+   - acceptance criteria and test plan per task
    - dependencies and optional delegation points only where they are genuinely cheaper
 7. Keep the plan compact and directly executable.
 
-## Stage sizing
+## Task sizing
 
-A stage is the smallest independently verifiable behavior change.
+A plan task is the smallest independently verifiable behavior change inside the current slice.
 
-Do not size stages by file count, estimated minutes, or mechanical edit steps. Size them by the behavior they make true and the primary verification that can prove it.
+Do not size plan tasks by file count, estimated minutes, or mechanical edit steps. Size them by the behavior they make true and the primary verification that can prove it.
 
-A good stage is:
+A good plan task is:
 
-- small enough that one owner or delegated agent can implement it and return a complete acceptance verification report
+- small enough that one implementer agent can execute it and return a complete acceptance verification report
 - large enough to represent meaningful behavior, not just "create file", "add import", or "change CSS class"
 - centered on one primary system boundary and one primary verification story
 - explicit about what existing pattern or implementation it will reuse
 
-Prefer stage boundaries around verification boundaries:
+Prefer task boundaries around verification boundaries:
 
 - database schema, migration, or model behavior
 - backend service or API behavior
@@ -57,7 +57,7 @@ Prefer stage boundaries around verification boundaries:
 - integration between components or services
 - browser, e2e, or final readiness behavior
 
-Split a stage when:
+Split a plan task when:
 
 - it needs a different primary test type or verification command
 - it crosses independent ownership boundaries
@@ -65,26 +65,34 @@ Split a stage when:
 - one part blocks another
 - acceptance criteria no longer fit one coherent verification story
 
-Do not split a stage when:
+Do not split a plan task when:
 
 - the pieces are only mechanical file edits
 - no piece has independent acceptance criteria
 - verification only makes sense after the pieces are combined
 - splitting would create more coordination than clarity
 
-## Stage format
+## Slices, tasks, and executors
 
-Every meaningful stage should use this structure:
+A slice is the ownership boundary. A plan task is the execution unit inside that slice.
+
+The parent slice owner remains responsible for the slice result even when tasks are delegated. Plan tasks do not create new ownership by default.
+
+Use an implementer agent for a delegated plan task when the task is already clear enough to execute. Escalate a task to a child slice owner only when it needs its own planning, decomposition, coordination, or integration.
+
+## Task format
+
+Every meaningful plan task should use this structure:
 
 ```md
-### Stage N: <independently verifiable behavior>
+### Task N: <independently verifiable behavior>
 
 Goal:
-- <what this stage makes true>
+- <what this task makes true>
 
 Boundary:
 - System area: <backend/API/frontend/component/integration/etc>
-- Primary verification: <test suite/check/manual evidence that proves this stage>
+- Primary verification: <test suite/check/manual evidence that proves this task>
 
 Existing pattern / reuse:
 - <existing file/symbol/pattern to follow or reuse>
@@ -106,15 +114,15 @@ Test plan:
 - Manual: <only when automation is not practical>
 
 Dependencies:
-- Depends on: <none / stage IDs / external decision>
-- Blocks: <none / stage IDs>
-- Can run parallel with: <none / stage IDs>
+- Depends on: <none / task IDs / external decision>
+- Blocks: <none / task IDs>
+- Can run parallel with: <none / task IDs>
 
-Owner candidate:
-- <current owner / sub-slice owner / supporting agent>
+Executor:
+- <inline / tdd-coder / browser-agent / failure-classifier / child slice owner if too large>
 ```
 
-No meaningful stage should omit acceptance criteria or a verification plan. If a criterion cannot be automated, state the manual evidence expected.
+No meaningful plan task should omit acceptance criteria or a verification plan. If a criterion cannot be automated, state the manual evidence expected.
 
 ## Plan rules
 
@@ -122,8 +130,8 @@ No meaningful stage should omit acceptance criteria or a verification plan. If a
 - Do not inject mandatory review loops or external workflow skills.
 - Make verification explicit for each meaningful checkpoint.
 - Tie acceptance criteria to tests or checks wherever possible.
-- Prefer TDD for stages where the repo has suitable test infrastructure.
-- Use checklist steps inside a stage when that makes execution easier, but do not mistake mechanical checklist items for stages.
+- Prefer TDD for plan tasks where the repo has suitable test infrastructure.
+- Use checklist steps inside a task when that makes execution easier, but do not mistake mechanical checklist items for plan tasks.
 - Record dependencies so the owner can later decide parallel execution waves.
 
 ## Common mistakes
@@ -134,5 +142,6 @@ No meaningful stage should omit acceptance criteria or a verification plan. If a
 - splitting by mechanical file edits instead of independently verifiable behavior
 - listing implementation tasks without acceptance criteria
 - writing acceptance criteria that cannot be checked
-- making stages so broad that they require unrelated verification stories
+- making tasks so broad that they require unrelated verification stories
+- delegating a clear execution task to a child slice owner when an implementer agent would be cheaper
 - bloating the plan with workflow ceremony unrelated to the actual change

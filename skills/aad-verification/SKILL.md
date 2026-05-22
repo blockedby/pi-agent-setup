@@ -25,7 +25,7 @@ Evidence comes before claims. Acceptance criteria should map to tests, checks, o
 
 ### Targeted verification
 
-Use targeted verification for a stage, slice, bug fix, or review finding.
+Use targeted verification for a plan task, slice, bug fix, or review finding.
 
 The target should prove the changed path directly:
 
@@ -92,7 +92,7 @@ If a proving check fails:
 
 - Fresh verification beats memory.
 - Narrow verification is fine when it directly proves the changed path.
-- Final readiness needs broader evidence than a local stage check.
+- Final readiness needs broader evidence than a local task check.
 - Acceptance criteria must be covered by tests or explicit manual checks wherever possible.
 - If the proving check fails, report failure instead of softening it.
 - Do not rely on earlier runs once new changes have been made.
