@@ -167,8 +167,8 @@
           <p><code>aad-slice-owner</code> owns scoped work. <code>aad-explorer</code>, <code>aad-reviewer</code>, and <code>aad-test-auditor</code> provide read-only evidence, review, and verification audit support.</p>
         </article>
         <article class="card">
-          <h3>Hermes worker agents</h3>
-          <p><code>tdd-coder</code> implements scoped tasks, <code>quinn-validator</code> adversarially reviews diffs, and <code>failure-classifier</code> classifies failed attempts.</p>
+          <h3>AAD worker agents</h3>
+          <p><code>implementer</code> implements scoped tasks, <code>quinn-validator</code> adversarially reviews diffs, and <code>failure-classifier</code> classifies failed attempts.</p>
         </article>
         <article class="card">
           <h3>Browser automation</h3>
@@ -195,7 +195,7 @@ flowchart TD
   DirectAgent --> Reviewer["aad-reviewer"]
   DirectAgent --> TestAuditor["aad-test-auditor"]
   DirectAgent --> Browser["chrome-browser-agent"]
-  DirectAgent --> Hermes["tdd-coder / quinn-validator / failure-classifier"]
+  DirectAgent --> Hermes["implementer / quinn-validator / failure-classifier"]
         </pre>
       </div>
     </section>
@@ -254,20 +254,20 @@ flowchart LR
     </section>
 
     <section>
-      <h2>Hermes-style worker loop</h2>
-      <p class="note">These are standalone agents rather than checked-in <code>.chain.md</code> pipelines, but their prompts define a common orchestration loop.</p>
+      <h2>AAD worker loop</h2>
+      <p class="note">These are standalone agents rather than checked-in <code>.chain.md</code> pipelines, but their prompts define a common owner/orchestrator loop.</p>
       <div class="diagram">
         <p class="caption">Typical implementation, validation, and failure classification flow.</p>
         <pre class="mermaid">
 flowchart TD
-  Hermes["Hermes / orchestrator"] --> Story["scoped story + test commands"]
-  Story --> TDD["tdd-coder\nimplement minimal change\nrun targeted tests"]
-  TDD --> Result{"PI_RESULT"}
+  Hermes["AAD owner / orchestrator"] --> Story["scoped task + acceptance criteria + test commands"]
+  Story --> Impl["implementer\nimplement minimal change\nrun targeted tests"]
+  Impl --> Result{"PI_RESULT"}
   Result -- "PASS" --> Quinn["quinn-validator\nadversarial diff/spec review"]
   Quinn --> QResult{"QUINN_RESULT"}
   QResult -- "PASS" --> Done["ready for owner/user decision"]
   QResult -- "FAIL" --> Fix["send concrete findings back to implementation"]
-  Fix --> TDD
+  Fix --> Impl
   Result -- "FAIL or BLOCKED" --> Classifier["failure-classifier\nCODE_BUG / TEST_CONTRACT / TEST_BUG / INFRA / SCOPE_GAP / AGENT_LOOP / SECURITY_BLOCKER"]
   Classifier --> Next["NEXT_ACTION\nretry, adjust scope, escalate model, or ask human"]
   Next --> Hermes
@@ -327,8 +327,8 @@ flowchart TD
             <td><code>replace</code>, project context <span class="ok">on</span>, skills <span class="ok">on</span></td>
           </tr>
           <tr>
-            <td><code>tdd-coder</code></td>
-            <td>Scoped TDD implementation worker</td>
+            <td><code>implementer</code></td>
+            <td>Scoped implementation worker with TDD loop</td>
             <td><span class="ok">Can edit/write</span></td>
             <td><code>replace</code>, project context <span class="ok">on</span>, inherited skills off; injects <code>codex-tools</code></td>
           </tr>

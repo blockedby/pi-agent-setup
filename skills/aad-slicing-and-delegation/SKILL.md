@@ -50,7 +50,7 @@ Task A: <name>
 - Depends on: []
 - Blocks: [C]
 - Can run parallel with: [B]
-- Owner: <slice-owner / sub-slice-owner / tdd-coder / support-agent>
+- Executor: <implementer / support-agent / sub-slice-owner if too large>
 
 Task B: <name>
 - Depends on: []

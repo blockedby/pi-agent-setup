@@ -8,7 +8,7 @@ Private non-secret bootstrap for running the same Pi agent stack on `nl-2-nvme`.
 - OpenAI Codex CLI via Vite+: `@openai/codex@0.130.0`
 - User settings at `/root/.pi/agent/settings.json`
 - Custom executable subagents and chains at `/root/.pi/agent/agents/`:
-  - `tdd-coder`
+  - `implementer`
   - `quinn-validator`
   - `failure-classifier`
   - `chrome-browser-agent`
