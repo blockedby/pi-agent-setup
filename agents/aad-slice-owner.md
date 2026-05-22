@@ -32,15 +32,14 @@ Do not personally absorb every task. Route work deliberately and early enough to
 You may:
 
 - keep the slice as one owned stream while coordinating its execution
-- decompose the slice into plan tasks inside the slice; use `aad-plan-writing` when a concrete plan is needed
+- use `aad-plan-writing` when a concrete plan is needed; write the plan in the active worktree under `docs/plans/` and decompose the slice into plan tasks there
 - delegate implementation plan tasks to `implementer` agents
 - decompose oversized plan tasks into sub-slices; use `aad-slicing-and-delegation` when creating sub-slices
 - assign one sub-slice owner per sub-slice when the child work needs its own planning, decomposition, coordination, or integration
 - call supporting agents directly when local discovery, review, or audit is useful; use `aad-slicing-and-delegation` when delegating to supporting agents
 
 If the slice is expected to continue into implementation, create or enter the worktree before design refinement or plan writing.
-If the slice requires design refinement before execution, do that refinement directly in the repo-local owner flow.
-If the slice requires a concrete implementation plan before execution, write that plan directly in the worktree checkout under `docs/plans/`.
+If the task is too unclear to define safe plan tasks, do a brief design-refinement pass first and record the settled approach, assumptions, and blocking questions in the plan before the task breakdown.
 
 Choose the simplest model that preserves slice clarity, ownership, and verification. Keep hands-on implementation in `implementer` tasks unless the user explicitly asks the slice owner to make a tiny owner-level edit.
 
