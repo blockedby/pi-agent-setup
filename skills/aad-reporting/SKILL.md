@@ -1,6 +1,6 @@
 ---
 name: aad-reporting
-description: Use when an AAD owner or supporting agent is finishing delegated work and needs to produce a compact, reusable report with the shared Task, Context, Verdict, Completed, Issues, and Next-agent brief structure.
+description: Use when an AAD owner or supporting agent is finishing delegated work and needs to produce a compact, reusable report with the shared Task, Context, Verdict, Completed, Issues, verification, and Next-agent brief structure.
 ---
 
 # AAD Reporting
@@ -38,6 +38,21 @@ The report is a continuation packet, not a diary.
 - <completed result>
   - Evidence: <short exact proof>
 
+## Acceptance verification
+- AC1: <criterion>
+  - Covered by: <test/check/manual evidence>
+  - Result: <passed / failed / not run>
+  - Evidence: <command, file, artifact, or short output>
+
+## System readiness
+- Routes / registration: <done / not relevant / missing>
+- Services / APIs: <done / not relevant / missing>
+- Config / env / secrets: <done / not relevant / missing / blocked>
+- Permissions / access: <done / not relevant / missing / blocked>
+- Database / migrations: <done / not relevant / missing>
+- Frontend-backend integration: <done / not relevant / missing>
+- CI / full checks: <passed / failed / not run, with reason>
+
 ## Issues
 ### Issue R-01: <short title>
 - Description: <what exactly was found>
@@ -60,6 +75,14 @@ The report is a continuation packet, not a diary.
 - Needed next: <exact next action>
 - Depends on: <none / ...>
 
+## Side findings
+- Blocking findings folded into active work: <none / list issue IDs>
+- Non-blocking findings tracked separately: <none / GitHub issue links>
+
+## Verification run
+- <command/check/job>: <passed / failed / not run>
+  - Evidence: <short output, URL, artifact, or reason>
+
 ## Next-agent brief
 - Objective: <what still needs to be achieved>
 - Target: <exact area / files / system>
@@ -69,6 +92,8 @@ The report is a continuation packet, not a diary.
 - Expected output: <what the next actor should return>
 ```
 
+Use optional sections only when they add useful continuation context. Owner-level and final reports should include acceptance verification and system readiness when the task has acceptance criteria or integration risk.
+
 ## Fill rules
 
 - Keep `Mission` operational, not vague.
@@ -76,13 +101,29 @@ The report is a continuation packet, not a diary.
 - Use `R-*` for issues fully resolved in the current work.
 - Use `F-*` for tracked follow-up; every `F-*` must carry a GitHub issue.
 - Use `U-*` only when the original goal is still unresolved and safe continuation stopped on a real boundary.
+- Blocking side findings must be added to active work or reported as `U-*`; they are not follow-ups.
+- Non-blocking side findings should be grouped into a follow-up issue when that is cheaper than many small issues.
 - Keep each issue self-contained; do not scatter description, evidence, and outcome across sections.
 - Include `Next-agent brief` only when continuation is needed.
+
+## Final owner report additions
+
+For a final owner report, include:
+
+- spec compliance by requirement or acceptance criterion
+- acceptance verification matrix
+- system readiness checklist for wiring/config/runtime concerns
+- full verification or CI status when applicable
+- follow-up issue links for non-blocking observations
+- blocker list if the goal is not ready
+- final verdict: `ready`, `not ready`, or `ready except <explicit limitation>`
 
 ## Finish-time checklist
 
 - [ ] My report is understandable without opening GitHub first.
 - [ ] Each completed item has short exact evidence.
+- [ ] Each acceptance criterion has a test, check, manual evidence, or explicit waiver.
+- [ ] System readiness gaps are listed when the task touches integration, config, runtime, or deployment wiring.
 - [ ] Each issue is self-contained.
 - [ ] Every `F-*` has a GitHub issue reference.
 - [ ] Every `U-*` reflects a real stop condition, not ordinary leftover work.
@@ -95,3 +136,5 @@ The report is a continuation packet, not a diary.
 - mixing unfinished work into `Completed`
 - creating `F-*` without a GitHub issue
 - using `U-*` when safe continuation still exists
+- claiming final readiness without acceptance verification
+- hiding skipped checks or CI failures
