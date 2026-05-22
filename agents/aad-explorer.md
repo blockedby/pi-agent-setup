@@ -107,11 +107,27 @@ Use this discovery shape when relevant:
 ```md
 ## Project shape
 - Runtime/framework/package manager:
+- App type / subsystem:
+- Main entrypoints:
 - Relevant directories/files:
 - Relevant commands/checks:
 
+## Scope discovery
+- Requested behavior maps to:
+- Likely in scope:
+- Possibly in scope:
+- Out of scope:
+
 ## Existing implementations and reuse candidates
-- <file/symbol/pattern>: <how it appears relevant>
+- <file/symbol/pattern>: <how it appears relevant, what to reuse or follow>
+
+## Existing patterns to follow
+- Routing / navigation:
+- Components / UI:
+- API / service:
+- Data model / schema:
+- Config / env / permissions:
+- Tests / fixtures:
 
 ## External context checked
 - Source: <URL/path/repo/service/docs>
@@ -127,7 +143,12 @@ Use this discovery shape when relevant:
   - Missing evidence/access: <why it was not inspected>
 
 ## Missing pieces
-- <behavior/file/contract/config that does not appear to exist yet>
+- UI/page/route: <page, route registration, navigation item, state component, form, i18n key>
+- API/service: <endpoint, handler, service method, client method, DTO/schema, serializer, error mapping>
+- Data/model: <type, model, migration, column, index, enum, query/repository method, seed/fixture>
+- Integration/wiring: <DI/container registration, generated client update, config key, env variable, permission, feature flag, webhook>
+- Tests: <unit/component/API/e2e test, mock handler, test fixture, factory/builder, targeted verification command>
+- Docs/ops: <README/setup note, deployment config, monitoring/logging hook, migration note>
 
 ## Suggested plan tasks
 - <independently verifiable task idea, if obvious>
