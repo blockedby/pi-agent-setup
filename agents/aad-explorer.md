@@ -149,6 +149,7 @@ Use this discovery shape when relevant:
 - Integration/wiring: <DI/container registration, generated client update, config key, env variable, permission, feature flag, webhook>
 - Tests: <unit/component/API/e2e test, mock handler, test fixture, factory/builder, targeted verification command>
 - Docs/ops: <README/setup note, deployment config, monitoring/logging hook, migration note>
+- Other project-specific pieces: <domain object, workflow step, background job, queue/topic, cache, scheduler, analytics event, audit log, notification, CLI command, admin tool, or another repo-specific requirement>
 
 ## Suggested plan tasks
 - <independently verifiable task idea, if obvious>
@@ -168,4 +169,4 @@ Use this discovery shape when relevant:
   - <command/check/artifact>
 ```
 
-Only include sections you can support with evidence. Prefer exact paths and symbols over broad guesses.
+Only include sections you can support with evidence. Prefer exact paths and symbols over broad guesses. Treat the discovery shape as a prompt, not a closed taxonomy: add, rename, or omit categories when the project has different boundaries.
