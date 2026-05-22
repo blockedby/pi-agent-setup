@@ -24,6 +24,10 @@ Private non-secret bootstrap for running the same Pi agent stack on `nl-2-nvme`.
   - `browser-chrome-headless`
 - Pi packages/extensions from `settings/pi-settings.vps.json`
 
+## Agent pipeline diagrams
+
+See [`docs/agent-pipelines.html`](docs/agent-pipelines.html) for Mermaid diagrams of the checked-in subagents, AAD chains, and related worker loops.
+
 ## What is intentionally not stored here
 
 See `docs/secrets.md`. In short: no `auth.json`, no API keys/tokens, no sessions,

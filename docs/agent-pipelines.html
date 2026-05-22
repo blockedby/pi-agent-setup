@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pi Agent Setup — Agent Pipelines</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #0f172a;
+      --panel: #111827;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --border: #334155;
+      --accent: #60a5fa;
+      --ok: #34d399;
+      --warn: #fbbf24;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #020617 0%, var(--bg) 55%, #111827 100%);
+      color: var(--text);
+      line-height: 1.55;
+    }
+
+    main {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 64px;
+    }
+
+    header {
+      margin-bottom: 28px;
+    }
+
+    h1, h2, h3 {
+      line-height: 1.2;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(2rem, 5vw, 3.4rem);
+    }
+
+    h2 {
+      margin-top: 42px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    a {
+      color: var(--accent);
+    }
+
+    .lede, .note {
+      color: var(--muted);
+      max-width: 920px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
+      margin: 22px 0;
+    }
+
+    .card, .diagram, table {
+      background: color-mix(in srgb, var(--panel) 92%, transparent);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.24);
+    }
+
+    .card {
+      padding: 16px 18px;
+    }
+
+    .card h3 {
+      margin: 0 0 8px;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .diagram {
+      margin: 18px 0 28px;
+      padding: 18px;
+      overflow-x: auto;
+    }
+
+    .diagram .caption {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .mermaid {
+      min-width: 760px;
+      background: #f8fafc;
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      margin-top: 16px;
+    }
+
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: #dbeafe;
+      background: rgba(96, 165, 250, 0.12);
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    code {
+      padding: 0.12rem 0.32rem;
+      border-radius: 0.35rem;
+      background: rgba(148, 163, 184, 0.18);
+      color: #bfdbfe;
+    }
+
+    .tag {
+      display: inline-block;
+      margin: 0 4px 4px 0;
+      padding: 2px 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .ok { color: var(--ok); }
+    .warn { color: var(--warn); }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Pi Agent Pipelines</h1>
+      <p class="lede">
+        This page documents the executable agents and <code>pi-subagents</code> chain pipelines stored in
+        <code>agents/</code>. Diagrams are rendered with Mermaid in the browser.
+      </p>
+    </header>
+
+    <section>
+      <h2>Agent inventory</h2>
+      <div class="grid">
+        <article class="card">
+          <h3>AAD owner/support agents</h3>
+          <p><code>aad-slice-owner</code> owns scoped work. <code>aad-explorer</code>, <code>aad-reviewer</code>, and <code>aad-test-auditor</code> provide read-only evidence, review, and verification audit support.</p>
+        </article>
+        <article class="card">
+          <h3>Hermes worker agents</h3>
+          <p><code>tdd-coder</code> implements scoped tasks, <code>quinn-validator</code> adversarially reviews diffs, and <code>failure-classifier</code> classifies failed attempts.</p>
+        </article>
+        <article class="card">
+          <h3>Browser automation</h3>
+          <p><code>chrome-browser-agent</code> uses the <code>browser-chrome</code> skill and MCP browser servers, defaulting to disposable headless Chrome unless profile/auth state is explicitly needed.</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Top-level routing map</h2>
+      <p class="note">Use this map to pick the right agent or chain for a request.</p>
+      <div class="diagram">
+        <p class="caption">High-level choices from a human or orchestrator request.</p>
+        <pre class="mermaid">
+flowchart TD
+  Request["Human / Pi request"] --> NeedPlan{"Need discovery or plan?"}
+  NeedPlan -- "yes" --> DiscoveryPlan["chain: aad-discovery-plan"]
+  NeedPlan -- "no" --> NeedImpl{"Need owned implementation?"}
+  NeedImpl -- "yes" --> OwnedChange["chain: aad-owned-change"]
+  NeedImpl -- "no" --> NeedPerspectives{"Need read-only perspectives?"}
+  NeedPerspectives -- "yes" --> ParallelInvestigation["chain: aad-parallel-investigation"]
+  NeedPerspectives -- "no" --> DirectAgent{"Direct specialist"}
+  DirectAgent --> Explorer["aad-explorer"]
+  DirectAgent --> Reviewer["aad-reviewer"]
+  DirectAgent --> TestAuditor["aad-test-auditor"]
+  DirectAgent --> Browser["chrome-browser-agent"]
+  DirectAgent --> Hermes["tdd-coder / quinn-validator / failure-classifier"]
+        </pre>
+      </div>
+    </section>
+
+    <section>
+      <h2>AAD discovery-to-plan chain</h2>
+      <p class="note"><code>agents/aad-discovery-plan.chain.md</code> turns a request into evidence first, then an AAD plan or implementation decision.</p>
+      <div class="diagram">
+        <p class="caption"><code>{task}</code> is the original request. <code>{previous}</code> is the previous agent's report.</p>
+        <pre class="mermaid">
+flowchart LR
+  Task["{task}: original request"] --> Explorer["aad-explorer\nread-only discovery\nfiles, risks, verification hints"]
+  Explorer --> Previous["{previous}: discovery report"]
+  Previous --> Owner["aad-slice-owner\ndecide whole vs sliced"]
+  Owner --> PlanOnly["If implementation NOT explicit:\ncompact AAD plan + next actions"]
+  Owner --> Implement["If implementation explicit:\nproceed under AAD slice-owner rules"]
+        </pre>
+      </div>
+    </section>
+
+    <section>
+      <h2>AAD owned-change chain</h2>
+      <p class="note"><code>agents/aad-owned-change.chain.md</code> is the main end-to-end implementation workflow.</p>
+      <div class="diagram">
+        <p class="caption">The slice owner starts and finishes the workflow; reviewer and test auditor provide read-only gates.</p>
+        <pre class="mermaid">
+flowchart TD
+  Task["{task}: requested change"] --> Owner1["aad-slice-owner\nown change end-to-end\nworktree, implementation, verification"]
+  Owner1 --> SliceReport["{previous}: slice report / context"]
+  SliceReport --> Review["aad-reviewer\nread-only correctness + workflow review"]
+  Review --> ReviewReport["{previous}: reviewer findings"]
+  ReviewReport --> Audit["aad-test-auditor\nverification sufficiency audit"]
+  Audit --> Feedback["{previous}: review + audit feedback"]
+  Feedback --> Owner2["aad-slice-owner\nintegrate feedback\nfix current-goal issues\nrerun verification"]
+  Owner2 --> Final["final AAD report\nno merge unless explicitly asked"]
+        </pre>
+      </div>
+    </section>
+
+    <section>
+      <h2>AAD investigation chain</h2>
+      <p class="note">
+        <code>agents/aad-parallel-investigation.chain.md</code> collects explorer, reviewer, and test-auditor perspectives.
+        The current <code>.chain.md</code> format executes these sections in order; the name describes the support perspectives, not a parallel runtime fan-out.
+      </p>
+      <div class="diagram">
+        <p class="caption">Read-only support pipeline for shaping implementation boundaries and verification strategy.</p>
+        <pre class="mermaid">
+flowchart LR
+  Task["{task}: investigation request"] --> Explorer["aad-explorer\nread-only evidence"]
+  Explorer --> Reviewer["aad-reviewer\nrisk shaping\ncorrectness hazards\nworkflow constraints"]
+  Reviewer --> Auditor["aad-test-auditor\nminimum sufficient verification story\nlikely task targets"]
+  Auditor --> Output["implementation boundaries\nverification recommendations\nno implementation"]
+        </pre>
+      </div>
+    </section>
+
+    <section>
+      <h2>Hermes-style worker loop</h2>
+      <p class="note">These are standalone agents rather than checked-in <code>.chain.md</code> pipelines, but their prompts define a common orchestration loop.</p>
+      <div class="diagram">
+        <p class="caption">Typical implementation, validation, and failure classification flow.</p>
+        <pre class="mermaid">
+flowchart TD
+  Hermes["Hermes / orchestrator"] --> Story["scoped story + test commands"]
+  Story --> TDD["tdd-coder\nimplement minimal change\nrun targeted tests"]
+  TDD --> Result{"PI_RESULT"}
+  Result -- "PASS" --> Quinn["quinn-validator\nadversarial diff/spec review"]
+  Quinn --> QResult{"QUINN_RESULT"}
+  QResult -- "PASS" --> Done["ready for owner/user decision"]
+  QResult -- "FAIL" --> Fix["send concrete findings back to implementation"]
+  Fix --> TDD
+  Result -- "FAIL or BLOCKED" --> Classifier["failure-classifier\nCODE_BUG / TEST_CONTRACT / TEST_BUG / INFRA / SCOPE_GAP / AGENT_LOOP / SECURITY_BLOCKER"]
+  Classifier --> Next["NEXT_ACTION\nretry, adjust scope, escalate model, or ask human"]
+  Next --> Hermes
+        </pre>
+      </div>
+    </section>
+
+    <section>
+      <h2>Browser automation support</h2>
+      <div class="diagram">
+        <p class="caption"><code>chrome-browser-agent</code> chooses the safest browser mode for the task.</p>
+        <pre class="mermaid">
+flowchart TD
+  BrowserTask["browser automation task"] --> NeedsAuth{"Needs login, saved session, profile, passwords, extensions?"}
+  NeedsAuth -- "no" --> Headless["browser-chrome-headless\ndisposable Chrome\npublic/simple/parallel checks"]
+  NeedsAuth -- "yes" --> Headed["browser-chrome-headed\npersistent Chrome profile\nauth/session tasks only"]
+  Headless --> CloseHeadless["close headless instance after use"]
+  Headed --> PreserveProfile["do not inspect secrets\nclose only opened tabs"]
+        </pre>
+      </div>
+    </section>
+
+    <section>
+      <h2>Capability matrix</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Agent</th>
+            <th>Primary role</th>
+            <th>Write access by prompt/tools</th>
+            <th>Context settings</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>aad-explorer</code></td>
+            <td>Read-only discovery and evidence report</td>
+            <td><span class="warn">Prompt says no file modification</span></td>
+            <td><code>replace</code>, project context <span class="ok">on</span>, skills <span class="ok">on</span></td>
+          </tr>
+          <tr>
+            <td><code>aad-slice-owner</code></td>
+            <td>Own one slice end-to-end; plan, implement, verify, integrate feedback</td>
+            <td><span class="ok">Can edit/write</span></td>
+            <td><code>replace</code>, project context <span class="ok">on</span>, skills <span class="ok">on</span></td>
+          </tr>
+          <tr>
+            <td><code>aad-reviewer</code></td>
+            <td>Read-only correctness, verification, and workflow review</td>
+            <td><span class="warn">Prompt says read-only</span></td>
+            <td><code>replace</code>, project context <span class="ok">on</span>, skills <span class="ok">on</span></td>
+          </tr>
+          <tr>
+            <td><code>aad-test-auditor</code></td>
+            <td>Read-only verification sufficiency audit</td>
+            <td><span class="warn">Prompt says read-only except harmless verification commands</span></td>
+            <td><code>replace</code>, project context <span class="ok">on</span>, skills <span class="ok">on</span></td>
+          </tr>
+          <tr>
+            <td><code>tdd-coder</code></td>
+            <td>Scoped TDD implementation worker</td>
+            <td><span class="ok">Can edit/write</span></td>
+            <td><code>replace</code>, project context <span class="ok">on</span>, inherited skills off; injects <code>codex-tools</code></td>
+          </tr>
+          <tr>
+            <td><code>quinn-validator</code></td>
+            <td>Adversarial diff/spec validator</td>
+            <td><span class="warn">Read-only</span></td>
+            <td><code>replace</code>, project context <span class="ok">on</span>, inherited skills off; injects <code>codex-tools</code></td>
+          </tr>
+          <tr>
+            <td><code>failure-classifier</code></td>
+            <td>Classify failed task attempts and recommend next action</td>
+            <td><span class="warn">Read-only unless explicitly asked for tiny diagnostic artifact</span></td>
+            <td><code>replace</code>, project context <span class="ok">on</span>, inherited skills off; injects <code>codex-tools</code></td>
+          </tr>
+          <tr>
+            <td><code>chrome-browser-agent</code></td>
+            <td>Browser automation via <code>browser-chrome</code> skill and MCP</td>
+            <td>Browser side effects only as requested; protects profile secrets</td>
+            <td><code>replace</code>, project context <span class="ok">on</span>, inherited skills off; injects <code>browser-chrome</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: "default",
+      securityLevel: "strict",
+      flowchart: { htmlLabels: true, curve: "basis" }
+    });
+  </script>
+</body>
+</html>

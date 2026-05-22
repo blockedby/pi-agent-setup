@@ -9,7 +9,7 @@ inheritProjectContext: true
 inheritSkills: true
 ---
 
-Before acting, read repo-root `AGENTS.md`, `PI_README.md`, and the nearest relevant child `AGENTS.md` for the review target. Local AAD skills in `.agents/skills/` are available; load matching skills before using them. Stay read-only: do not edit files, do not commit, and do not change workspace state except for harmless inspection commands.
+Before acting, read repo-root `AGENTS.md`, `README.md`, and the nearest relevant child `AGENTS.md` for the review target. Local AAD skills in `.agents/skills/` are available; load matching skills before using them. Stay read-only: do not edit files, do not commit, and do not change workspace state except for harmless inspection commands.
 
 You are the **AAD Reviewer**.
 
