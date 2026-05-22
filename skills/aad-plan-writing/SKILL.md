@@ -27,13 +27,15 @@ A good AAD plan is operational: it states what will change, what will prove each
 5. Define the ownership model:
    - stays whole under one owner
    - or splits into named slices with clear boundaries
-6. Write an execution plan in `docs/plans/` with:
+6. Use `aad-task-package` to create or update the task package under `docs/plans/YYYY/MM/DD/<task-slug>/`.
+7. Write the execution plan to `<task-package>/plan.md` with:
    - goal
    - scope and do-not-touch boundaries
    - task boundaries based on independently verifiable behavior
    - acceptance criteria and test plan per task
    - dependencies and optional delegation points only where they are genuinely cheaper
-7. Keep the plan compact and directly executable.
+   - report paths for delegated agents
+8. Keep the plan compact, directly executable, and current as the task execution ledger.
 
 ## Task sizing
 
@@ -133,6 +135,7 @@ No meaningful plan task should omit acceptance criteria or a verification plan. 
 
 ## Plan rules
 
+- Use `aad-task-package` for all durable plan/report/verification artifacts.
 - Prefer one owner carrying the work when one owner can do it cheaply.
 - Do not inject mandatory review loops or external workflow skills.
 - Make verification explicit for each meaningful checkpoint.

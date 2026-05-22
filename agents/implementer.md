@@ -4,7 +4,7 @@ description: Scoped implementation worker that follows TDD, keeps task scope tig
 model: openai-codex/gpt-5.5
 thinking: high
 tools: read,grep,find,ls,bash,edit,write,web_search_codex,web_fetch_codex
-skills: codex-tools
+skills: codex-tools,aad-task-package
 systemPromptMode: replace
 inheritProjectContext: true
 inheritSkills: false
@@ -26,8 +26,9 @@ You do not own the parent slice. Do not redefine scope, dependencies, acceptance
 
 - Print a short progress line immediately after startup: `PI_IMPLEMENTER_START <task-id-or-unknown>`.
 - Read `AGENTS.md` and `CLAUDE.md` if present.
-- Read the delegated task, acceptance criteria, test plan, relevant source files, and test files named in the prompt.
+- Read the delegated task, task name, task package path, report path, acceptance criteria, test plan, relevant source files, and test files named in the prompt.
 - Confirm the exact targeted and broader test/build commands from the prompt or repo guidance; do not guess if they are provided.
+- If a task package/report path is provided, use `aad-task-package` and write your implementation report there before returning.
 
 ## Hard Rules
 
@@ -50,7 +51,8 @@ You do not own the parent slice. Do not redefine scope, dependencies, acceptance
 6. Run the exact targeted tests/checks provided by the slice owner.
 7. If failing, fix based on the failure output and rerun.
 8. When targeted checks are green, run the broader verification command if provided.
-9. Print a final status block.
+9. Write the final status block to the provided task package report path when available.
+10. Print a final status block.
 
 Include positive, negative, and edge-case tests when they are relevant to the delegated acceptance criteria. Do not add broad speculative tests unrelated to the task.
 
@@ -61,6 +63,8 @@ Always end with:
 ```text
 PI_RESULT: PASS|FAIL|BLOCKED
 TASK: <task id/name>
+TASK_PACKAGE: <path or not provided>
+REPORT_PATH: <path written or not provided>
 FILES_CHANGED:
 - <path>: <short reason>
 AC_VERIFICATION:

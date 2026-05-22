@@ -29,6 +29,10 @@ Child sub-slice results should merge or otherwise integrate back into the parent
 
 Do not send a child sub-slice directly to `main` unless the parent explicitly promotes it to an independent root-level slice.
 
+## Implementation-bound task package
+
+For implementation-bound root slice work, the owner should create the task package in the new worktree, commit and push it, and open a draft PR early unless the user or repo policy says not to. Use `aad-task-package` for the task package layout.
+
 ## Defaults
 
 - Default base branch for root owned work: `main`, unless the delegated task or repo state requires a different base.

@@ -9,18 +9,20 @@ description: Use when an AAD root orchestrator or slice owner must integrate chi
 
 Use this skill when child results have returned and you need to decide what the parent scope now knows, what is done, what remains follow-up, and what stays unresolved.
 
-Integration is where overlap is resolved and parent done-state is decided.
+Integration is where overlap is resolved and parent done-state is decided. Use `aad-task-package` when child reports or verification artifacts belong in a task package.
 
 ## Integration steps
 
 1. Read child reports as continuation packets.
-2. Extract completed outcomes that now count for the parent scope.
-3. Merge or otherwise integrate child implementation results into the parent slice worktree/branch before target-branch preparation.
-4. Merge `R-*`, `F-*`, and `U-*` into the parent picture.
-5. Resolve overlap between child results without reopening unnecessary rediscovery.
-6. Rerun the parent-level verification needed after integration.
-7. Decide whether the parent goal is now fully achieved, partially achieved, or still not achieved.
-8. Produce a parent report with `aad-reporting`.
+2. Save or link child reports in the parent task package when a task package exists.
+3. Extract completed outcomes that now count for the parent scope.
+4. Merge or otherwise integrate child implementation results into the parent slice worktree/branch before target-branch preparation.
+5. Merge `R-*`, `F-*`, and `U-*` into the parent picture.
+6. Resolve overlap between child results without reopening unnecessary rediscovery.
+7. Update `<task-package>/plan.md` with integrated task status, verification evidence, blockers, and follow-ups when a task package exists.
+8. Rerun the parent-level verification needed after integration.
+9. Decide whether the parent goal is now fully achieved, partially achieved, or still not achieved.
+10. Produce a parent report with `aad-reporting`.
 
 ## Integration checklist
 

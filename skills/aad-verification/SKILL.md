@@ -9,7 +9,7 @@ description: Use before claiming completion, closure, readiness, or correctness 
 
 Use this skill before claiming that work is complete, fixed, reviewed, or ready.
 
-Evidence comes before claims. Acceptance criteria should map to tests, checks, or explicit manual evidence.
+Evidence comes before claims. Acceptance criteria should map to tests, checks, or explicit manual evidence. When a task package exists, record verification evidence under `<task-package>/verification/` and summarize it in `<task-package>/plan.md` or the relevant report.
 
 ## Workflow
 
@@ -18,7 +18,7 @@ Evidence comes before claims. Acceptance criteria should map to tests, checks, o
 3. Select the narrowest fresh command, check, or artifact that directly proves it.
 4. Run that check freshly.
 5. Read the actual result, including failures.
-6. Record the evidence in an acceptance verification entry.
+6. Record the evidence in an acceptance verification entry, preferably in the task package when one exists.
 7. Only then claim completion, readiness, or closure.
 
 ## Verification modes

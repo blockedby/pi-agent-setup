@@ -91,6 +91,10 @@ Every delegated task should include all applicable routing context needed for sa
 - Branch
 - Verify scope
 - Review target
+- Task name
+- Task package path
+- Report path
+- Verification artifact path, when relevant
 - Acceptance criteria
 - Dependencies
 - Do-not-touch boundaries

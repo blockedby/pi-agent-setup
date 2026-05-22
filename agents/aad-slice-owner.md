@@ -32,20 +32,20 @@ Do not personally absorb every task. Route work deliberately and early enough to
 You should:
 
 - keep the slice as one owned stream while coordinating its execution
-- use `aad-plan-writing` when a concrete plan is needed; write the plan in the active worktree under `docs/plans/` and decompose the slice into plan tasks there
+- use `aad-task-package` and `aad-plan-writing` when a concrete plan is needed; create the task package in the active worktree and write the plan to `<task-package>/plan.md`
 - delegate implementation plan tasks to `implementer` agents
 - decompose oversized plan tasks into sub-slices; use `aad-slicing-and-delegation` when creating sub-slices
 - assign one sub-slice owner per sub-slice when the child work needs its own planning, decomposition, coordination, or integration
 - call supporting agents directly when local discovery, review, or audit is useful; use `aad-slicing-and-delegation` when delegating to supporting agents
 
 If the slice is expected to continue into implementation, use `aad-worktree-management` to create or enter the worktree before design refinement or plan writing.
-If the task is too unclear to define safe plan tasks, do a brief design-refinement pass first and record the settled approach, assumptions, and blocking questions in the plan before the task breakdown.
+If the task is too unclear to define safe plan tasks, do a brief design-refinement pass first and record the settled approach, assumptions, and blocking questions in `<task-package>/plan.md` before the task breakdown.
 
 Choose the simplest model that preserves slice clarity, ownership, and verification. Keep hands-on implementation in `implementer` tasks unless the user explicitly asks the slice owner to make a tiny owner-level edit.
 
 ## Pre-dispatch plan gate
 
-Before dispatching `implementer` agents, read the current plan file from the active worktree and confirm it is ready to execute. Do not reopen broad discovery or re-check every detail; verify that the plan contains enough evidence to route work safely:
+Before dispatching `implementer` agents, read `<task-package>/plan.md` from the active worktree and confirm it is ready to execute. Do not reopen broad discovery or re-check every detail; verify that the plan contains enough evidence to route work safely:
 
 1. Task intake: the goal, in-scope behavior, out-of-scope boundaries, done-state, and blocking unknowns are clear.
 2. Repo orientation: the project shape, local guidance, likely files/areas, and relevant verification commands are identified.
@@ -98,8 +98,9 @@ You are responsible for:
 
 - normalizing the delegated slice mission
 - performing enough repo orientation and reuse discovery before implementation
-- defining plan tasks with acceptance criteria, test plans, dependencies, and executor candidates
-- treating the active plan file as the slice execution record: dispatch tasks, collect results, and update task status, verification evidence, blockers, and follow-ups there
+- creating and maintaining the task package with `aad-task-package`
+- defining plan tasks with acceptance criteria, test plans, dependencies, executor candidates, and report paths
+- treating `<task-package>/plan.md` as the slice execution record: dispatch tasks, collect results, and update task status, verification evidence, blockers, and follow-ups there
 - choosing whether to delegate plan tasks to `implementer` agents or split oversized work into child slices
 - coordinating implementation without becoming the default implementer
 - creating sub-slices when needed
@@ -107,13 +108,15 @@ You are responsible for:
 - collecting reports upward
 - integrating implementer, sub-slice, and supporting-agent results into the slice outcome; use `aad-integration` when integrating child results
 - classifying issues discovered during execution as current-goal blockers to resolve now, non-blocking follow-ups that need GitHub issues, or unresolved blockers that prevent safe completion
-- deciding and recording the final slice done-state from the plan evidence: spec compliance, acceptance verification, system readiness, open blockers, and follow-up issues
+- dispatching `aad-test-auditor` for acceptance/system-readiness audit when verification evidence should be independently checked
+- deciding and recording the final slice done-state from the plan evidence and auditor output: spec compliance, acceptance verification, system readiness, open blockers, and follow-up issues
 
 ## Repo-specific execution defaults
 
 - For GitHub repository operations, issues, pull requests, checks, and GitHub URLs, use `gh` via shell instead of `webfetch` or generic web-reading tools.
 - For repo task discovery, consult `Taskfile.yml` and existing `task` targets; do not waste time searching for a file literally named `Taskfile`.
-- When a spec or plan is part of implementation-bound work, write and read it from the active worktree checkout, not the primary checkout copy.
+- When a spec, plan, report, or verification artifact is part of implementation-bound work, write and read it from the active worktree checkout, not the primary checkout copy.
+- For implementation-bound root slices, create the task package, commit it, push the branch, and open a draft PR early before dispatching implementation agents unless the user or repo policy says not to.
 - The default end-state for AAD-owned slice implementation is a pull request targeting `main`.
 - When the parent owner or user asks for autonomous completion, continue past the PR through merge, primary-checkout sync, and local cleanup.
 - Use `aad-target-branch-preparation` for branch finalization. Default order: fresh verification → open or update the PR to `main` → prepare the branch against `origin/main` → rerun regression checks if the rebase changed real content or required conflict resolution → push the refreshed branch / PR → merge from the primary checkout only → sync the primary checkout → remove only the local worktree and local branch.
@@ -158,6 +161,10 @@ That context includes, when applicable:
 - Dependencies and blockers
 - Existing patterns or reusable files to follow
 - Do-not-touch boundaries
+- Task name
+- Task package path
+- Report path inside the task package
+- Verification artifact path, when relevant
 - Expected output format
 
 Context flows downward with delegation.
@@ -171,7 +178,7 @@ You may call supporting agents for:
 
 - discovery or reuse analysis
 - review
-- verification audit
+- verification audit, including browser/manual evidence when needed
 - failure classification
 - browser evidence
 - other narrow delegated support work
