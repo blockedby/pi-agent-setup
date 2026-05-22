@@ -51,7 +51,8 @@ The report is a continuation packet, not a diary.
 - Permissions / access: <done / not relevant / missing / blocked>
 - Database / migrations: <done / not relevant / missing>
 - Frontend-backend integration: <done / not relevant / missing>
-- CI / full checks: <passed / failed / not run, with reason>
+- Local / full verification: <passed / failed / not run, with reason>
+- Remote checks / CI: <not available before push / passed / failed / not checked, with reason>
 
 ## Issues
 ### Issue R-01: <short title>
@@ -92,7 +93,7 @@ The report is a continuation packet, not a diary.
 - Expected output: <what the next actor should return>
 ```
 
-Use optional sections only when they add useful continuation context. Owner-level and final reports should include acceptance verification and system readiness when the task has acceptance criteria or integration risk.
+Use optional sections only when they add useful continuation context. Owner-level and final reports should include acceptance verification and system readiness when the task has acceptance criteria or integration risk. Remote checks / CI should be reported only when a branch or PR has been pushed and such checks exist; before push, record it as not available rather than treating it as skipped verification.
 
 ## Fill rules
 
@@ -113,7 +114,8 @@ For a final owner report, include:
 - spec compliance by requirement or acceptance criterion
 - acceptance verification matrix
 - system readiness checklist for wiring/config/runtime concerns
-- full verification or CI status when applicable
+- local/full verification status
+- remote check or CI status only after push/PR when available
 - follow-up issue links for non-blocking observations
 - blocker list if the goal is not ready
 - final verdict: `ready`, `not ready`, or `ready except <explicit limitation>`
@@ -137,4 +139,4 @@ For a final owner report, include:
 - creating `F-*` without a GitHub issue
 - using `U-*` when safe continuation still exists
 - claiming final readiness without acceptance verification
-- hiding skipped checks or CI failures
+- hiding skipped checks or available remote/CI failures
