@@ -46,6 +46,9 @@ docs/plans/YYYY-MM-DD-<task-slug>/
     browser.md
     logs/
   artifacts/
+  progress/
+    slice-owner.md
+    implementer-<task-id>.md
 ```
 
 Add, rename, or omit files when the task shape demands it, but keep everything for the task under the task package directory.
@@ -104,7 +107,9 @@ If a report path is provided, write or update that file before returning. If no 
 ## Agent report defaults
 
 - `aad-explorer` → `reports/explorer.md`
+- `aad-slice-owner` progress → `progress/slice-owner.md`
 - `implementer` → `reports/implementer-<task-id>.md`
+- `implementer` progress → `progress/implementer-<task-id>.md`
 - `aad-reviewer` → `reports/reviewer.md`
 - `aad-test-auditor` → `reports/test-auditor.md` and `verification/test-plan.md` when it creates or updates the verification plan
 - `failure-classifier` → `reports/failure-classifier-<failure-id>.md`
@@ -120,6 +125,7 @@ If a report path is provided, write or update that file before returning. If no 
 - Large logs may go under `verification/logs/`; summarize the relevant lines in markdown.
 - Do not store secrets, tokens, cookies, private credentials, or sensitive local environment dumps.
 - Prefer appending/updating the relevant report over scattering new files.
+- Use `progress/` for internal agent progress notes; progress files are allowed to be rougher than final reports but must not contain secrets.
 - If a file already contains another agent's report, append a timestamped section instead of overwriting it.
 
 ## Early draft PR convention
