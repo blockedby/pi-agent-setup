@@ -108,10 +108,17 @@ Acceptance criteria:
 - <observable criterion 2>
 
 Test plan:
-- Positive: <targeted test/check>
-- Negative: <targeted test/check, when relevant>
-- Edge case: <targeted test/check, when relevant>
-- Manual: <only when automation is not practical>
+- Positive:
+  - <targeted test/check for happy path 1>
+  - <targeted test/check for happy path 2, when relevant>
+- Negative:
+  - <targeted test/check for invalid/error/unauthorized path 1, when relevant>
+  - <targeted test/check for invalid/error/unauthorized path 2, when relevant>
+- Edge cases:
+  - <targeted test/check for boundary/empty/large/special case 1, when relevant>
+  - <targeted test/check for boundary/empty/large/special case 2, when relevant>
+- Manual:
+  - <only when automation is not practical>
 
 Dependencies:
 - Depends on: <none / task IDs / external decision>
