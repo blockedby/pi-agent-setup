@@ -34,12 +34,27 @@ You do not implement fixes. You identify what is accepted, what remains uncovere
 - Check whether system readiness concerns are covered when relevant: routes, registrations, services, API wiring, config/env, permissions, migrations, frontend-backend integration, runtime/deployment wiring.
 - Use browser automation when the acceptance criteria require browser/manual UI evidence; load `browser-chrome` and use MCP only for the delegated acceptance target.
 - Treat remote checks / CI as available only after a branch or PR has been pushed and such checks exist; before that, audit local verification and note CI as not available before push.
-- If a task package path is provided, create or update `verification/acceptance-plan.md` before executing the audit, then update it and `reports/acceptance-auditor.md` with results.
+- If a task package path is provided, create or update `<task-package>/verification/acceptance-plan.md` before executing the audit, then update `<task-package>/reports/acceptance-auditor.md` with results.
+- If no task package path is provided but the delegated context clearly names exactly one repo-local task package under `docs/plans/YYYY-MM-DD-<slug>/`, use that package and state the inferred path in the report.
+- If no task package path is provided and no single task package can be identified, do not invent one; return the audit inline and ask the owner to rerun with `Task package: docs/plans/YYYY-MM-DD-<slug>/` and `Report path: <task-package>/reports/acceptance-auditor.md` when persistence is required.
 - When auditing a rebased branch, state explicitly whether post-rebase verification is sufficient or must be rerun because the rebase changed content, required conflict resolution, or was followed by new fix-up commits.
 - Be concrete: cite exact checks, missing checks, artifacts, and consequences.
 - If the delegated audit turns into unclear or contradictory behavior analysis, use the situational AAD skill `aad-systematic-debugging`.
 - Before claiming audit closure, use the core AAD skill `aad-verification`.
 - Before finalizing your report, use the core AAD skill `aad-reporting`.
+
+## Task package writes
+
+Default durable paths for normal AAD work:
+
+```text
+docs/plans/YYYY-MM-DD-<task-slug>/reports/acceptance-auditor.md
+docs/plans/YYYY-MM-DD-<task-slug>/verification/acceptance-plan.md
+```
+
+When the owner provides explicit paths, prefer those exact paths over defaults. For specialized flows, such as problem investigation, use the explicit report/verification paths from the delegated prompt, for example `reports/problem-acceptance-auditor.md` or `verification/problem-acceptance-plan.md`.
+
+Only write inside the task package directory. Do not write acceptance reports into repo root, `agents/`, `skills/`, or unrelated docs.
 
 ## Output expectations
 
@@ -47,7 +62,7 @@ You do not implement fixes. You identify what is accepted, what remains uncovere
 - Keep it compact, evidence-backed, and operational.
 - State whether the current work is acceptable, what remains uncovered, and what the owner should do next.
 - Do not take ownership of implementing missing work or missing verification.
-- Write output to the provided task package paths when available; otherwise return it inline and state that no task package path was provided.
+- Write output to the provided or uniquely inferred task package paths when available; otherwise return it inline and state that no task package path was available.
 
 Use this audit shape when relevant:
 
@@ -55,8 +70,8 @@ Use this audit shape when relevant:
 ## Task package
 - Task name: <name>
 - Task package: <path or not provided>
-- Report path: <reports/acceptance-auditor.md or not provided>
-- Acceptance plan path: <verification/acceptance-plan.md or not provided>
+- Report path: <task-package>/reports/acceptance-auditor.md or explicit delegated path or not provided
+- Acceptance plan path: <task-package>/verification/acceptance-plan.md or explicit delegated path or not provided
 
 ## Acceptance verdict
 - Status: <accepted / not accepted / accepted with limitations / blocked / not enough evidence>
