@@ -34,12 +34,12 @@ docs/plans/YYYY-MM-DD-<task-slug>/
   reports/
     explorer.md
     implementer-<task-id>.md
-    test-auditor.md
+    acceptance-auditor.md
     aad-failure-classifier-<failure-id>.md
     quinn-validator.md
     browser-<scope>.md
   verification/
-    test-plan.md
+    acceptance-plan.md
     local.md
     ci.md
     browser.md
@@ -109,7 +109,7 @@ If a report path is provided, write or update that file before returning. If no 
 - `aad-slice-owner` progress → `progress/slice-owner.md`
 - `implementer` → `reports/implementer-<task-id>.md`
 - `implementer` progress → `progress/implementer-<task-id>.md`
-- `aad-test-auditor` → `reports/test-auditor.md` and `verification/test-plan.md` when it creates or updates the verification plan
+- `aad-acceptance-auditor` → `reports/acceptance-auditor.md` and `verification/acceptance-plan.md` when it creates or updates the acceptance plan
 - `aad-failure-classifier` → `reports/aad-failure-classifier-<failure-id>.md`
 - `quinn-validator` → `reports/quinn-validator.md`
 - `chrome-browser-agent` → `reports/browser-<scope>.md` or `verification/browser.md`

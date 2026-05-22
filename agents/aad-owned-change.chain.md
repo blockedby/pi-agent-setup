@@ -1,6 +1,6 @@
 ---
 name: aad-owned-change
-description: AAD owned implementation workflow: slice owner creates task package and draft PR, dispatches implementation, test auditor audits verification, owner integrates.
+description: AAD owned implementation workflow: slice owner creates task package and draft PR, dispatches implementation, acceptance auditor audits verification, owner integrates.
 ---
 
 ## aad-slice-owner
@@ -10,9 +10,9 @@ Own this change end-to-end under repo AAD rules. Use `aad-worktree-management`, 
 Task name: {task}
 Request: {task}
 
-## aad-test-auditor
+## aad-acceptance-auditor
 
-Audit whether the verification evidence is sufficient for the completed AAD slice. Check acceptance coverage, system readiness, missing or too-narrow checks, and browser/manual evidence when relevant. If a Task package path is present, create/update `<task-package>/verification/test-plan.md` and write your audit to `<task-package>/reports/test-auditor.md` using `aad-task-package`. Use browser automation when acceptance criteria require browser/manual UI evidence.
+Audit whether the completed AAD slice has enough evidence to be accepted as done. Check acceptance coverage, system readiness, missing or too-narrow checks, and browser/manual evidence when relevant. If a Task package path is present, create/update `<task-package>/verification/acceptance-plan.md` and write your audit to `<task-package>/reports/acceptance-auditor.md` using `aad-task-package`. Use browser automation when acceptance criteria require browser/manual UI evidence.
 
 Context:
 
@@ -20,7 +20,7 @@ Context:
 
 ## aad-slice-owner
 
-Integrate the test-auditor feedback below. Fix only current-goal issues by updating the task package plan, dispatching `implementer` agents when needed, rerunning necessary verification, and producing the final AAD report in the task package. Do not merge unless explicitly asked.
+Integrate the acceptance-auditor feedback below. Fix only current-goal issues by updating the task package plan, dispatching `implementer` agents when needed, rerunning necessary verification, and producing the final AAD report in the task package. Do not merge unless explicitly asked.
 
 Feedback:
 

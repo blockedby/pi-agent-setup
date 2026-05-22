@@ -18,7 +18,7 @@ test -d /root/.pi/agent/agents
 test -d /root/.pi/agent/skills
 find /root/.pi/agent/agents -maxdepth 1 -type f -name '*.md' -printf '%f\n' | sort
 find /root/.pi/agent/skills -maxdepth 2 -type f -path '*/SKILL.md' -printf '%h\n' | sed 's#^/root/.pi/agent/skills/##' | sort
-for required in aad-explorer.md aad-slice-owner.md aad-test-auditor.md implementer.md aad-failure-classifier.md; do
+for required in aad-explorer.md aad-slice-owner.md aad-acceptance-auditor.md implementer.md aad-failure-classifier.md; do
   test -f "/root/.pi/agent/agents/$required"
 done
 for required in aad-reporting aad-verification aad-slicing-and-delegation; do

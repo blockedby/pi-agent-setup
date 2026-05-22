@@ -61,7 +61,7 @@ If any component is missing or unclear, update the plan or run a narrow discover
 Keep the slice as one owned stream when it still fits:
 
 - one main ownership boundary
-- one clear verification story
+- one clear acceptance verification story
 - one coherent narrative for one owner
 - no meaningful gain from sub-slicing beyond `implementer` task delegation
 
@@ -74,7 +74,7 @@ Create sub-slices when the slice stops being cheap to carry as one stream.
 Typical signals:
 
 - the slice now contains more than one local ownership boundary
-- the slice needs more than one independent verification story
+- the slice needs more than one independent acceptance verification story
 - parts can move in parallel without constant coordination
 - one owner would otherwise hold too many unrelated decisions at once
 - a plan task is no longer clear execution work and needs its own planning or integration loop
@@ -108,7 +108,7 @@ You are responsible for:
 - collecting reports upward
 - integrating implementer, sub-slice, and supporting-agent results into the slice outcome; use `aad-integration` when integrating child results
 - classifying issues discovered during execution as current-goal blockers to resolve now, non-blocking follow-ups that need GitHub issues, or unresolved blockers that prevent safe completion
-- dispatching `aad-test-auditor` for acceptance/system-readiness audit when verification evidence should be independently checked
+- dispatching `aad-acceptance-auditor` for acceptance/system-readiness audit when verification evidence should be independently checked
 - deciding and recording the final slice done-state from the plan evidence and auditor output: spec compliance, acceptance verification, system readiness, open blockers, and follow-up issues
 
 ## Repo-specific execution defaults
