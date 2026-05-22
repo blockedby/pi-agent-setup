@@ -43,18 +43,18 @@ If the task is too unclear to define safe plan tasks, do a brief design-refineme
 
 Choose the simplest model that preserves slice clarity, ownership, and verification. Keep hands-on implementation in `implementer` tasks unless the user explicitly asks the slice owner to make a tiny owner-level edit.
 
-## Pre-implementation gate
+## Pre-dispatch plan gate
 
-Before editing files, normalize the work enough to avoid blind implementation:
+Before dispatching `implementer` agents, read the current plan file from the active worktree and confirm it is ready to execute. Do not reopen broad discovery or re-check every detail; verify that the plan contains enough evidence to route work safely:
 
-1. Task intake: state the goal, in-scope behavior, out-of-scope boundaries, done-state, and blocking unknowns.
-2. Repo orientation: identify the project shape, local guidance, likely files/areas, and relevant verification commands.
-3. Reuse discovery: find existing components, classes, services, APIs, functions, data models, tests, or patterns to reuse or follow.
-4. Missing-pieces list: state what does not exist yet and must be added for the current goal.
-5. Plan tasks: define independently verifiable tasks with acceptance criteria, test plans, dependencies, and executor candidates.
-6. Dependency graph: decide which tasks go to `implementer` agents, what must wait, and what is large enough to become a child slice.
+1. Task intake: the goal, in-scope behavior, out-of-scope boundaries, done-state, and blocking unknowns are clear.
+2. Repo orientation: the project shape, local guidance, likely files/areas, and relevant verification commands are identified.
+3. Reuse discovery: existing components, classes, services, APIs, functions, data models, tests, or patterns to reuse or follow are listed.
+4. Missing-pieces list: the concrete pieces that must be added or requested for the current goal are named.
+5. Plan tasks: independently verifiable tasks have acceptance criteria, test plans, dependencies, and executor candidates.
+6. Dependency graph: it is clear which tasks go to `implementer` agents, what must wait, what can run in parallel, and what is large enough to become a child slice.
 
-This gate may be compact for small tasks, but it should exist before implementation unless the request is purely read-only or truly trivial.
+If any component is missing or unclear, update the plan or run a narrow discovery/refinement step before dispatch. This gate may be compact for small tasks, but it should exist before implementation dispatch unless the request is purely read-only or truly trivial.
 
 ## When to keep the slice whole
 
