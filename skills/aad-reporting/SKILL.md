@@ -1,6 +1,6 @@
 ---
 name: aad-reporting
-description: Use when an AAD owner or supporting agent is finishing delegated work and needs to produce a compact, reusable report with the shared Task, Context, Verdict, Completed, Issues, verification, and Next-agent brief structure.
+description: Use when an AAD owner or supporting agent is finishing delegated work and needs to produce a compact, reusable report with the shared Task, Context, evidence, Issues, Verdict, and Next-agent brief structure.
 ---
 
 # AAD Reporting
@@ -28,16 +28,6 @@ The report is a continuation packet, not a diary.
 - Branch: <...>
 - Verify scope: <...>
 - Review target: <...>
-
-## Verdict
-- Status: <success / partial / blocked / failed>
-- Goal state: <fully achieved / partially achieved / not achieved>
-- Final readiness: <ready / not ready / ready except explicit limitation / not applicable for supporting report>
-- Summary: <one short operational statement>
-
-## Completed
-- <completed result>
-  - Evidence: <short exact proof>
 
 ## Spec compliance
 - Requirement / AC: <requirement or acceptance criterion>
@@ -101,6 +91,12 @@ The report is a continuation packet, not a diary.
 - Blocking findings folded into active work: <none / list issue IDs>
 - Non-blocking findings tracked separately: <none / GitHub issue links>
 
+## Verdict
+- Status: <success / partial / blocked / failed>
+- Goal state: <fully achieved / partially achieved / not achieved>
+- Final readiness: <ready / not ready / ready except explicit limitation / not applicable for supporting report>
+- Summary: <one short operational statement based on the evidence above>
+
 ## Next-agent brief
 - Objective: <what still needs to be achieved>
 - Target: <exact area / files / system>
@@ -115,7 +111,7 @@ Use every section that applies to the report scope. Owner-level and final report
 ## Fill rules
 
 - Keep `Mission` operational, not vague.
-- Put only actual completed outcomes in `Completed`, with short exact evidence.
+- Put completed outcomes into `Spec compliance`, `Acceptance verification`, `System readiness`, or `Issues` instead of duplicating them in a separate summary section.
 - Use `R-*` for issues fully resolved in the current work.
 - Use `F-*` for tracked follow-up; every `F-*` must carry a GitHub issue.
 - Use `U-*` only when the original goal is still unresolved and safe continuation stopped on a real boundary.
@@ -127,7 +123,7 @@ Use every section that applies to the report scope. Owner-level and final report
 ## Finish-time checklist
 
 - [ ] My report is understandable without opening GitHub first.
-- [ ] Each completed item has short exact evidence.
+- [ ] Each completed outcome is represented in spec compliance, acceptance verification, system readiness, or resolved issues with short exact evidence.
 - [ ] Each acceptance criterion has a test, check, manual evidence, or explicit waiver.
 - [ ] System readiness gaps are listed when the task touches integration, config, runtime, or deployment wiring.
 - [ ] Each issue is self-contained.
@@ -139,7 +135,7 @@ Use every section that applies to the report scope. Owner-level and final report
 
 - turning the report into a narrative story
 - using vague mission or target descriptions
-- mixing unfinished work into `Completed`
+- adding a duplicate completed-summary section instead of filling the evidence sections
 - creating `F-*` without a GitHub issue
 - using `U-*` when safe continuation still exists
 - claiming final readiness without acceptance verification
