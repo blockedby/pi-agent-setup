@@ -83,21 +83,42 @@ Only create waves when parallel execution is actually useful. For small work, a 
 
 ## Routing packet
 
-Every delegated task should include all applicable routing context needed for safe execution:
+Every delegated task should include all applicable routing context needed for safe execution.
 
-- Thread
-- Slice
-- Worktree
-- Branch
-- Verify scope
-- Review target
-- Task name
-- Task package path
-- Report path
-- Verification artifact path, when relevant
-- Acceptance criteria
-- Dependencies
-- Do-not-touch boundaries
+Use this packet shape and fill all applicable fields:
+
+```md
+## Routing context
+- Thread: <thread/request context>
+- Slice: <parent slice / child slice name>
+- Worktree: <path>
+- Branch: <branch>
+- Verify scope: <what evidence should prove this task>
+- Review target: <diff/files/behavior to review, when relevant>
+
+## Task package
+- Task name: <task name>
+- Task package path: <docs/plans/YYYY-MM-DD-slug>
+- Plan path: <task-package>/plan.md
+- Report path: <task-package>/reports/<agent-or-task>.md
+- Progress path: <task-package>/progress/<agent-or-task>.md, when relevant
+- Verification artifact path: <task-package>/verification/<file>.md, when relevant
+
+## Execution target
+- Plan task goal: <specific delegated goal>
+- Acceptance criteria: <criteria or plan references>
+- Test plan: <positive/negative/edge/manual checks or plan references>
+- Dependencies and blockers: <upstream/downstream dependencies>
+- Existing patterns or reusable files to follow: <paths/symbols>
+- Do-not-touch boundaries: <files/areas/scope limits>
+- Expected output format: <report/status format>
+
+## pi-subagents options
+- reads: <plan/report files to pass into the agent>
+- progress: <true for implementer or long-running work>
+- async: <true only for long-running work with report path and completion signal>
+- worktree: <avoid for AAD implementation slices; use aad-worktree-management instead>
+```
 
 Pass all applicable fields. Supporting agents may refine their local target, but they do not redefine routing or ownership boundaries.
 

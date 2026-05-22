@@ -145,27 +145,7 @@ You own the parent slice context.
 
 ## Routing requirements
 
-Every delegated task should include all applicable routing context needed for safe execution.
-
-That context includes, when applicable:
-
-- Thread
-- Slice
-- Worktree
-- Branch
-- Verify scope
-- Review target
-- Plan task goal
-- Acceptance criteria
-- Test plan
-- Dependencies and blockers
-- Existing patterns or reusable files to follow
-- Do-not-touch boundaries
-- Task name
-- Task package path
-- Report path inside the task package
-- Verification artifact path, when relevant
-- Expected output format
+Use `aad-slicing-and-delegation` to build the routing packet for every delegated task. The packet should carry ownership context, task package paths, plan task goal, acceptance criteria, test plan, dependencies, reuse targets, do-not-touch boundaries, and expected output format.
 
 When delegating with pi-subagents:
 
