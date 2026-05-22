@@ -188,8 +188,8 @@ flowchart TD
   NeedPlan -- "yes" --> DiscoveryPlan["chain: aad-discovery-plan"]
   NeedPlan -- "no" --> NeedImpl{"Need owned implementation?"}
   NeedImpl -- "yes" --> OwnedChange["chain: aad-owned-change"]
-  NeedImpl -- "no" --> NeedPerspectives{"Need read-only perspectives?"}
-  NeedPerspectives -- "yes" --> ParallelInvestigation["chain: aad-parallel-investigation"]
+  NeedImpl -- "no" --> NeedPerspectives{"Need problem investigation?"}
+  NeedPerspectives -- "yes" --> ParallelInvestigation["chain: aad-problem-investigation"]
   NeedPerspectives -- "no" --> DirectAgent{"Direct specialist"}
   DirectAgent --> Explorer["aad-explorer"]
   DirectAgent --> Reviewer["aad-reviewer"]
@@ -236,19 +236,18 @@ flowchart TD
     </section>
 
     <section>
-      <h2>AAD investigation chain</h2>
+      <h2>AAD problem-investigation chain</h2>
       <p class="note">
-        <code>agents/aad-parallel-investigation.chain.md</code> collects explorer, reviewer, and test-auditor perspectives.
-        The current <code>.chain.md</code> format executes these sections in order; the name describes the support perspectives, not a parallel runtime fan-out.
+        <code>agents/aad-problem-investigation.chain.md</code> investigates a bug, failing test, suspicious behavior, or side finding before the owner decides whether it is a blocker, follow-up, false alarm, or scoped fix task.
       </p>
       <div class="diagram">
-        <p class="caption">Read-only support pipeline for shaping implementation boundaries and verification strategy.</p>
+        <p class="caption">Read-only support pipeline for producing a problem investigation packet. It does not implement a fix, though it may recommend a red/proving test.</p>
         <pre class="mermaid">
 flowchart LR
-  Task["{task}: investigation request"] --> Explorer["aad-explorer\nread-only evidence"]
-  Explorer --> Reviewer["aad-reviewer\nrisk shaping\ncorrectness hazards\nworkflow constraints"]
-  Reviewer --> Auditor["aad-test-auditor\nminimum sufficient verification story\nlikely task targets"]
-  Auditor --> Output["implementation boundaries\nverification recommendations\nno implementation"]
+  Task["{task}: problem / failing behavior"] --> Explorer["aad-explorer\nevidence + reproduction\nrelevant scope"]
+  Explorer --> Reviewer["aad-reviewer\nclassification candidate\ncorrectness + risk impact"]
+  Reviewer --> Auditor["aad-test-auditor\nverification story\nred/proving test recommendation"]
+  Auditor --> Output["problem packet\nblocker/follow-up/false alarm\nrecommended next action"]
         </pre>
       </div>
     </section>

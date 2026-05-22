@@ -16,7 +16,7 @@ Private non-secret bootstrap for running the same Pi agent stack on `nl-2-nvme`.
   - `aad-reviewer`
   - `aad-slice-owner`
   - `aad-test-auditor`
-  - AAD chains: `aad-discovery-plan`, `aad-owned-change`, `aad-parallel-investigation`
+  - AAD chains: `aad-discovery-plan`, `aad-owned-change`, `aad-problem-investigation`
 - Shared AAD skills at `/root/.pi/agent/skills/aad-*`
 - Browser Chrome skill at `/root/.pi/agent/skills/browser-chrome` via git submodule
 - Browser Chrome MCP entries in `/root/.pi/agent/mcp.json` pointing directly at skill scripts:
