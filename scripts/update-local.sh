@@ -26,7 +26,10 @@ if [ ! -d "$CODEX_SUBMODULE/node_modules/@mozilla/readability" ]; then
   fi
 
   echo "Installing packages/pi-codex runtime dependencies with $NPM_BIN"
-  (cd "$CODEX_SUBMODULE" && "$NPM_BIN" install --omit=dev --package-lock=false)
+  (
+    cd "$CODEX_SUBMODULE"
+    "$NPM_BIN" ci --omit=dev || "$NPM_BIN" install --omit=dev --package-lock=false
+  )
 fi
 
 mkdir -p "$AGENT_DIR/agents" "$AGENT_DIR/skills"
