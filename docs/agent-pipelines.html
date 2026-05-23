@@ -168,7 +168,7 @@
         </article>
         <article class="card">
           <h3>AAD worker agents</h3>
-          <p><code>aad-implementer</code> implements scoped tasks, <code>quinn-validator</code> adversarially reviews diffs, and <code>aad-failure-classifier</code> classifies failed attempts.</p>
+          <p><code>aad-implementer</code> implements scoped tasks and <code>aad-failure-classifier</code> classifies failed attempts.</p>
         </article>
         <article class="card">
           <h3>Browser automation</h3>
@@ -194,7 +194,7 @@ flowchart TD
   DirectAgent --> Explorer["aad-explorer"]
   DirectAgent --> AcceptanceAuditor["aad-acceptance-auditor"]
   DirectAgent --> Browser["chrome-browser-agent"]
-  DirectAgent --> WorkerAgents["aad-implementer / quinn-validator / aad-failure-classifier"]
+  DirectAgent --> WorkerAgents["aad-implementer / aad-failure-classifier"]
         </pre>
       </div>
     </section>
@@ -254,17 +254,13 @@ flowchart LR
       <h2>AAD worker loop</h2>
       <p class="note">These are standalone agents rather than checked-in <code>.chain.md</code> pipelines, but their prompts define a common owner/orchestrator loop.</p>
       <div class="diagram">
-        <p class="caption">Typical implementation, validation, and failure classification flow.</p>
+        <p class="caption">Typical implementation and failure classification flow. Acceptance remains with the owner and acceptance auditor.</p>
         <pre class="mermaid">
 flowchart TD
   Owner["AAD owner / orchestrator"] --> Story["scoped task + acceptance criteria + test commands"]
-  Story --> Impl["aad-implementer\nimplement minimal change\nrun targeted tests"]
+  Story --> Impl["aad-implementer\nred-green-refactor\nrun targeted checks"]
   Impl --> Result{"PI_RESULT"}
-  Result -- "PASS" --> Quinn["quinn-validator\nadversarial diff/spec review"]
-  Quinn --> QResult{"QUINN_RESULT"}
-  QResult -- "PASS" --> Done["ready for owner/user decision"]
-  QResult -- "FAIL" --> Fix["send concrete findings back to implementation"]
-  Fix --> Impl
+  Result -- "PASS" --> Done["implementation evidence\nready for owner/auditor decision"]
   Result -- "FAIL or BLOCKED" --> Classifier["aad-failure-classifier\nCODE_BUG / TEST_CONTRACT / TEST_BUG / INFRA / SCOPE_GAP / AGENT_LOOP / SECURITY_BLOCKER"]
   Classifier --> Next["NEXT_ACTION\nretry, adjust scope, escalate model, or ask human"]
   Next --> Owner
@@ -321,12 +317,6 @@ flowchart TD
             <td><code>aad-implementer</code></td>
             <td>Scoped implementation worker with TDD loop</td>
             <td><span class="ok">Can edit/write</span></td>
-            <td><code>replace</code>, project context <span class="ok">on</span>, inherited skills off; injects <code>codex-tools</code></td>
-          </tr>
-          <tr>
-            <td><code>quinn-validator</code></td>
-            <td>Adversarial diff/spec validator</td>
-            <td><span class="warn">Read-only</span></td>
             <td><code>replace</code>, project context <span class="ok">on</span>, inherited skills off; injects <code>codex-tools</code></td>
           </tr>
           <tr>

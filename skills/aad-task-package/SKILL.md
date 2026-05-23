@@ -36,7 +36,6 @@ docs/plans/YYYY-MM-DD-<task-slug>/
     aad-implementer-<task-id>.md
     acceptance-auditor.md
     aad-failure-classifier-<failure-id>.md
-    quinn-validator.md
     browser-<scope>.md
   verification/
     acceptance-plan.md
@@ -111,7 +110,6 @@ If a report path is provided, write or update that file before returning. If no 
 - `aad-implementer` progress → `progress/aad-implementer-<task-id>.md`
 - `aad-acceptance-auditor` → `reports/acceptance-auditor.md` and `verification/acceptance-plan.md` when it creates or updates the acceptance plan
 - `aad-failure-classifier` → `reports/aad-failure-classifier-<failure-id>.md`
-- `quinn-validator` → `reports/quinn-validator.md`
 - `chrome-browser-agent` → `reports/browser-<scope>.md` or `verification/browser.md`
 - owner final report → `final-report.md` or the final section of `plan.md`
 
