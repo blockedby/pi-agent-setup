@@ -3,7 +3,7 @@ name: aad-slice-owner
 description: AAD slice owner for scoped implementation in an isolated worktree.
 model: openai-codex/gpt-5.5
 thinking: low
-tools: read, write, edit, bash, web_search_codex, web_fetch_codex, apply_patch_codex, codex_task
+tools: read, write, edit, bash, web_search_codex, web_fetch_codex, apply_patch_codex
 systemPromptMode: replace
 inheritProjectContext: true
 inheritSkills: true

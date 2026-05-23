@@ -3,7 +3,7 @@ name: aad-acceptance-auditor
 description: AAD acceptance auditor that decides whether a task or slice has enough evidence to be accepted as done.
 model: openai-codex/gpt-5.4-mini
 thinking: medium
-tools: read, write, edit, bash, mcp, web_search_codex, web_fetch_codex, apply_patch_codex, codex_task
+tools: read, write, edit, bash, mcp, web_search_codex, web_fetch_codex, apply_patch_codex
 systemPromptMode: replace
 inheritProjectContext: true
 inheritSkills: true
