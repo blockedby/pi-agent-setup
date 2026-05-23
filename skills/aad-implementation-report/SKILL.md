@@ -48,6 +48,14 @@ AC_VERIFICATION:
 - <AC>: <test/check/manual evidence> — <passed/failed/not run>
 TESTS_RUN:
 - <command/check>: <passed/failed/not run>
+QUALITY_CHECKS:
+- <formatter/lint/typecheck/build/static check>: <passed/failed/not run + reason>
+QUALITY_NOTES:
+- Readability/reuse: <followed existing pattern / extracted helper / no duplication concern / limitation>
+- Error handling/logging: <preserved convention / changed with reason / not relevant>
+- Security: <no sensitive logging or validation/auth weakening / concern>
+- Concurrency/idempotency: <checked / not relevant / concern>
+- Compatibility/performance: <preserved / not relevant / concern>
 SIDE_FINDINGS:
 - Blocking: <none / exact blocker>
 - Non-blocking follow-up candidates: <none / concise list>
@@ -66,4 +74,6 @@ NOTES: <concise notes for the slice owner>
 - For skipped checks, state why they were not run.
 - Do not claim acceptance; say what implementation evidence exists.
 - Mention any env/config/migration/docker changes explicitly so the acceptance auditor can focus on readiness risks.
+- Use `QUALITY_CHECKS` for command evidence such as formatter, lint, typecheck, static analysis, affected build, or skipped-check reasons.
+- Use `QUALITY_NOTES` for non-command quality evidence: readability, reuse/deduplication, existing logging/error conventions, security basics, idempotency/concurrency, compatibility, and performance.
 - Keep side findings concise and separate from current-scope work.

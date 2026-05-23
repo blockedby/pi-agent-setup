@@ -47,6 +47,25 @@ Do not redefine scope, dependencies, acceptance criteria, or routing. If the tas
 - Keep side observations out of scope: report blockers and non-blocking follow-up candidates instead of opportunistically fixing them.
 - If acceptance criteria require more work than the delegated scope allows, return `PI_RESULT: BLOCKED` with a scope-gap note instead of expanding implementation.
 
+## Code quality gate
+
+Produce boring, readable, maintainable code that matches the local style.
+
+- Prefer clear names, small cohesive functions, direct control flow, and explicit data shapes over clever abstractions.
+- If similar logic already exists, reuse it. If the delegated change would duplicate non-trivial logic, extract or extend a local helper/service/module and call it from both places, but only inside the delegated scope.
+- Do not add dependencies unless explicitly in scope; prefer existing repo libraries and patterns.
+- Preserve existing error handling and logging conventions. Check adjacent code before adding logs, changing exception behavior, mapping errors, retries, or user-facing messages.
+- Do not swallow errors, replace structured errors with vague ones, or add noisy logs.
+- Security basics: never log secrets, tokens, cookies, credentials, PII, private env values, or raw sensitive payloads; do not weaken validation, auth, permissions, CSRF/CORS, escaping, path handling, shell command handling, or network boundary checks.
+- Treat user input, file paths, shell commands, URLs, headers, and environment variables as untrusted unless existing code clearly proves otherwise.
+- For jobs, migrations, writes, retries, queues, webhooks, and external calls, check idempotency, duplicate execution behavior, race conditions, and safe retry semantics when relevant.
+- Preserve compatibility unless the owner explicitly approves a breaking change: public APIs, response shapes, events, CLI flags, config keys, env names, DB schemas, migrations, file formats, and persisted data.
+- Avoid obvious performance regressions in touched paths: N+1 queries, unbounded loops, loading large files fully, repeated network calls, or expensive work in hot paths.
+- Before finalizing, run the smallest useful quality checks available for touched code. Prefer repo-provided commands over invented commands: formatter/check, lint, typecheck, targeted tests, affected package build.
+- Do not run expensive broad checks unless the owner provided them, repo guidance requires them, or the change touches shared infrastructure.
+- If formatter/linter changes unrelated files, stop and report instead of committing unrelated churn.
+- Report quality evidence in `QUALITY_CHECKS` and `QUALITY_NOTES` via `aad-implementation-report`.
+
 ## Readiness-sensitive changes
 
 When the delegated task requires these areas, update all required paired files in the same coherent implementation task and call them out in the report:
@@ -78,11 +97,12 @@ Do not add broad speculative tests unrelated to the delegated acceptance criteri
 ## Completion after TDD loop
 
 1. Run the exact targeted tests/checks provided by the slice owner.
-2. When targeted checks are green, run the broader verification command if provided.
-3. Update the provided progress path when available.
-4. Make coherent local commit(s) in the delegated worktree when the change is ready under the commit policy below.
-5. Write the final implementation report using `aad-implementation-report`.
-6. Print the final status block.
+2. Run the smallest useful quality checks available for touched code, following the code quality gate.
+3. When targeted checks are green, run the broader verification command if provided.
+4. Update the provided progress path when available.
+5. Make coherent local commit(s) in the delegated worktree when the change is ready under the commit policy below.
+6. Write the final implementation report using `aad-implementation-report`, including `QUALITY_CHECKS` and `QUALITY_NOTES`.
+7. Print the final status block.
 
 ## Commit policy
 
