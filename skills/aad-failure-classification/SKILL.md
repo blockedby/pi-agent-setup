@@ -18,7 +18,7 @@ Use when there is concrete failure evidence:
 - failing test output
 - failing CI job
 - failed command
-- failed implementer attempt
+- failed aad-implementer attempt
 - error log or stack trace
 - repeated agent loop or stalled attempt
 

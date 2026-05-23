@@ -5,7 +5,7 @@ description: AAD owned implementation workflow: slice owner creates task package
 
 ## aad-slice-owner
 
-Own this change end-to-end under repo AAD rules. Use `aad-worktree-management`, create a task package under `docs/plans/YYYY-MM-DD-<slug>/`, write the initial plan to `<task-package>/plan.md`, commit/push it, and open an early draft PR when implementation is needed. Pass Task name, Task package path, per-agent report paths, progress paths, and `reads` inputs to delegated agents. Use progress tracking for non-trivial owner/implementer work. Remember async delegated work is available for long-running tasks when there is a clear report path and completion signal. Do not merge unless explicitly asked.
+Own this change end-to-end under repo AAD rules. Use `aad-worktree-management`, create a task package under `docs/plans/YYYY-MM-DD-<slug>/`, write the initial plan to `<task-package>/plan.md`, commit/push it, and open an early draft PR when implementation is needed. Pass Task name, Task package path, per-agent report paths, progress paths, and `reads` inputs to delegated agents. Use progress tracking for non-trivial owner/aad-implementer work. Remember async delegated work is available for long-running tasks when there is a clear report path and completion signal. Do not merge unless explicitly asked.
 
 Task name: {task}
 Request: {task}
@@ -20,7 +20,7 @@ Context:
 
 ## aad-slice-owner
 
-Integrate the acceptance-auditor feedback below. Fix only current-goal issues by updating the task package plan, dispatching `implementer` agents when needed, rerunning necessary verification, and producing the final AAD report in the task package. Do not merge unless explicitly asked.
+Integrate the acceptance-auditor feedback below. Fix only current-goal issues by updating the task package plan, dispatching `aad-implementer` agents when needed, rerunning necessary verification, and producing the final AAD report in the task package. Do not merge unless explicitly asked.
 
 Feedback:
 

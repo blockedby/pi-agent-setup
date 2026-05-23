@@ -45,7 +45,7 @@ Do not size plan tasks by file count, estimated minutes, or mechanical edit step
 
 A good plan task is:
 
-- small enough that one implementer agent can execute it and return a complete acceptance verification report
+- small enough that one aad-implementer agent can execute it and return a complete acceptance verification report
 - large enough to represent meaningful behavior, not just "create file", "add import", or "change CSS class"
 - centered on one primary system boundary and one primary verification story
 - explicit about what existing pattern or implementation it will reuse
@@ -80,7 +80,7 @@ A slice is the ownership boundary. A plan task is the execution unit inside that
 
 The parent slice owner remains responsible for the slice result even when tasks are delegated. Plan tasks do not create new ownership by default.
 
-Use an implementer agent for a delegated plan task when the task is already clear enough to execute. Escalate a task to a child slice owner only when it needs its own planning, decomposition, coordination, or integration.
+Use an aad-implementer agent for a delegated plan task when the task is already clear enough to execute. Escalate a task to a child slice owner only when it needs its own planning, decomposition, coordination, or integration.
 
 ## Task format
 
@@ -128,7 +128,7 @@ Dependencies:
 - Can run parallel with: <none / task IDs>
 
 Executor:
-- <implementer / browser-agent / aad-failure-classifier / child slice owner if too large>
+- <aad-implementer / browser-agent / aad-failure-classifier / child slice owner if too large>
 ```
 
 No meaningful plan task should omit acceptance criteria or a verification plan. If a criterion cannot be automated, state the manual evidence expected.
@@ -153,5 +153,5 @@ No meaningful plan task should omit acceptance criteria or a verification plan. 
 - listing implementation tasks without acceptance criteria
 - writing acceptance criteria that cannot be checked
 - making tasks so broad that they require unrelated verification stories
-- delegating a clear execution task to a child slice owner when an implementer agent would be cheaper
+- delegating a clear execution task to a child slice owner when an aad-implementer agent would be cheaper
 - bloating the plan with workflow ceremony unrelated to the actual change

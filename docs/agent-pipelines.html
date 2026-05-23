@@ -168,7 +168,7 @@
         </article>
         <article class="card">
           <h3>AAD worker agents</h3>
-          <p><code>implementer</code> implements scoped tasks, <code>quinn-validator</code> adversarially reviews diffs, and <code>aad-failure-classifier</code> classifies failed attempts.</p>
+          <p><code>aad-implementer</code> implements scoped tasks, <code>quinn-validator</code> adversarially reviews diffs, and <code>aad-failure-classifier</code> classifies failed attempts.</p>
         </article>
         <article class="card">
           <h3>Browser automation</h3>
@@ -194,7 +194,7 @@ flowchart TD
   DirectAgent --> Explorer["aad-explorer"]
   DirectAgent --> AcceptanceAuditor["aad-acceptance-auditor"]
   DirectAgent --> Browser["chrome-browser-agent"]
-  DirectAgent --> WorkerAgents["implementer / quinn-validator / aad-failure-classifier"]
+  DirectAgent --> WorkerAgents["aad-implementer / quinn-validator / aad-failure-classifier"]
         </pre>
       </div>
     </section>
@@ -258,7 +258,7 @@ flowchart LR
         <pre class="mermaid">
 flowchart TD
   Owner["AAD owner / orchestrator"] --> Story["scoped task + acceptance criteria + test commands"]
-  Story --> Impl["implementer\nimplement minimal change\nrun targeted tests"]
+  Story --> Impl["aad-implementer\nimplement minimal change\nrun targeted tests"]
   Impl --> Result{"PI_RESULT"}
   Result -- "PASS" --> Quinn["quinn-validator\nadversarial diff/spec review"]
   Quinn --> QResult{"QUINN_RESULT"}
@@ -318,7 +318,7 @@ flowchart TD
             <td><code>replace</code>, project context <span class="ok">on</span>, skills <span class="ok">on</span></td>
           </tr>
           <tr>
-            <td><code>implementer</code></td>
+            <td><code>aad-implementer</code></td>
             <td>Scoped implementation worker with TDD loop</td>
             <td><span class="ok">Can edit/write</span></td>
             <td><code>replace</code>, project context <span class="ok">on</span>, inherited skills off; injects <code>codex-tools</code></td>

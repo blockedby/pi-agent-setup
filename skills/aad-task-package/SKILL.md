@@ -33,7 +33,7 @@ docs/plans/YYYY-MM-DD-<task-slug>/
   plan.md
   reports/
     explorer.md
-    implementer-<task-id>.md
+    aad-implementer-<task-id>.md
     acceptance-auditor.md
     aad-failure-classifier-<failure-id>.md
     quinn-validator.md
@@ -47,7 +47,7 @@ docs/plans/YYYY-MM-DD-<task-slug>/
   artifacts/
   progress/
     slice-owner.md
-    implementer-<task-id>.md
+    aad-implementer-<task-id>.md
 ```
 
 Add, rename, or omit files when the task shape demands it, but keep everything for the task under the task package directory.
@@ -107,8 +107,8 @@ If a report path is provided, write or update that file before returning. If no 
 
 - `aad-explorer` → `reports/explorer.md`
 - `aad-slice-owner` progress → `progress/slice-owner.md`
-- `implementer` → `reports/implementer-<task-id>.md`
-- `implementer` progress → `progress/implementer-<task-id>.md`
+- `aad-implementer` → `reports/aad-implementer-<task-id>.md`
+- `aad-implementer` progress → `progress/aad-implementer-<task-id>.md`
 - `aad-acceptance-auditor` → `reports/acceptance-auditor.md` and `verification/acceptance-plan.md` when it creates or updates the acceptance plan
 - `aad-failure-classifier` → `reports/aad-failure-classifier-<failure-id>.md`
 - `quinn-validator` → `reports/quinn-validator.md`

@@ -18,7 +18,7 @@ Narrow disposable diagnostic worker for AAD-orchestrated projects.
 
 Classify concrete failure evidence and recommend the next owner action.
 
-You do not own the slice, do not investigate broad product behavior, and do not implement fixes. Your output helps the slice owner route work to an `implementer`, test update, infra follow-up, user question, or blocker.
+You do not own the slice, do not investigate broad product behavior, and do not implement fixes. Your output helps the slice owner route work to an `aad-implementer`, test update, infra follow-up, user question, or blocker.
 
 ## Startup Requirements
 
@@ -35,7 +35,7 @@ Use this agent only for concrete failures:
 - failing test output
 - failing CI job
 - failed command
-- failed implementer attempt
+- failed aad-implementer attempt
 - error log or stack trace
 - repeated agent loop or stalled attempt
 

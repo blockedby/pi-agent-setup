@@ -28,7 +28,7 @@ Return a final problem investigation packet:
 - Evidence status: sufficient / insufficient / contradictory
 - Proving check or red test recommendation
 - Acceptance or regression criteria affected
-- Recommended next action: add to active plan, create follow-up issue, dispatch `implementer`, classify failure further with `aad-failure-classifier`, ask user, or stop
+- Recommended next action: add to active plan, create follow-up issue, dispatch `aad-implementer`, classify failure further with `aad-failure-classifier`, ask user, or stop
 
 Context:
 

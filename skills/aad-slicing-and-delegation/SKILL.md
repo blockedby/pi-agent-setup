@@ -50,7 +50,7 @@ Task A: <name>
 - Depends on: []
 - Blocks: [C]
 - Can run parallel with: [B]
-- Executor: <implementer / support-agent / sub-slice-owner if too large>
+- Executor: <aad-implementer / support-agent / sub-slice-owner if too large>
 
 Task B: <name>
 - Depends on: []
@@ -115,7 +115,7 @@ Use this packet shape and fill all applicable fields:
 
 ## pi-subagents options
 - reads: <plan/report files to pass into the agent>
-- progress: <true for implementer or long-running work>
+- progress: <true for aad-implementer or long-running work>
 - async: <true only for long-running work with report path and completion signal>
 - worktree: <avoid for AAD implementation slices; use aad-worktree-management instead>
 ```
