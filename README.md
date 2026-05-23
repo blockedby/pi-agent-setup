@@ -31,6 +31,16 @@ See [`docs/agent-pipelines.html`](docs/agent-pipelines.html) for Mermaid diagram
 See `docs/secrets.md`. In short: no `auth.json`, no API keys/tokens, no sessions,
 no SSH private keys, no runtime state.
 
+## Update local Pi setup
+
+Use the local update script after changing checked-in agents or the vendored `pi-codex` submodule:
+
+```bash
+scripts/update-local.sh
+```
+
+It installs `agents/*.md` into `~/.pi/agent/agents/`, removes stale renamed agents/chains, rewrites the local Pi package entry for `pi-codex` to `packages/pi-codex`, backs up `~/.pi/agent/settings.json`, and verifies that installed AAD agents do not expose `codex_task`.
+
 ## Install on NL-2-NVMe
 
 Prerequisite: Vite+ already installed for the remote install user on the VPS. Set `REMOTE_USER_HOME=/path/to/home` to override auto-detection; if no usable user home is found, scripts fall back to `/root`.
