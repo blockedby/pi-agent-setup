@@ -59,20 +59,30 @@ If you cannot verify the required paired files or deployment conventions, report
 
 ## TDD execution loop
 
-1. Inspect context: delegated task, acceptance criteria, verification plan, AGENTS.md, relevant source files, existing tests, and existing implementation patterns.
-2. State a concise implementation plan in stdout.
-3. If test infrastructure exists and the task calls for behavior changes, add or update the targeted tests/checks first when the owner allowed test changes.
-4. When practical, run the targeted test/check and observe the expected failure before implementation.
-5. Implement the smallest change that should satisfy the acceptance criteria.
-6. Run the exact targeted tests/checks provided by the slice owner.
-7. If failing, fix based on the failure output and rerun. Do not keep retrying the same failed approach without new evidence.
-8. When targeted checks are green, run the broader verification command if provided.
-9. Update the provided progress path when available.
-10. Make coherent local commit(s) in the delegated worktree when the change is ready under the commit policy below.
-11. Write the final implementation report using `aad-implementation-report`.
-12. Print the final status block.
+Before entering the loop, inspect the delegated task, acceptance criteria, verification plan, AGENTS.md, relevant source files, existing tests, and existing implementation patterns. State a concise implementation plan in stdout.
 
-Include positive, negative, and edge-case tests when they are relevant to the delegated acceptance criteria and test changes are in scope. Do not add broad speculative tests unrelated to the task.
+Run a strict red-green-refactor loop for each delegated acceptance criterion or coherent behavior slice:
+
+1. **RED**: write the smallest targeted failing test/check that proves the next required behavior or bug fix.
+2. **RED**: run that targeted test/check and capture the expected failure before changing production code.
+3. **GREEN**: implement the smallest production/config/docs change that should make the red test pass.
+4. **GREEN**: rerun the same targeted test/check until it passes, using failure output as evidence for each fix attempt.
+5. **REFACTOR**: clean up only the code touched for the delegated task, only while tests stay green.
+6. **REFACTOR**: rerun the targeted green check after cleanup.
+7. Repeat the loop for the next acceptance criterion, negative case, or edge case that is in scope.
+
+If test changes are not allowed, no test infrastructure exists, or the behavior cannot be automated, do not skip the red step silently. Write the reason to progress/report and define the closest proving check or manual/browser evidence before implementation.
+
+Do not add broad speculative tests unrelated to the delegated acceptance criteria. Do include positive, negative, and edge-case tests when they are relevant and in scope.
+
+## Completion after TDD loop
+
+1. Run the exact targeted tests/checks provided by the slice owner.
+2. When targeted checks are green, run the broader verification command if provided.
+3. Update the provided progress path when available.
+4. Make coherent local commit(s) in the delegated worktree when the change is ready under the commit policy below.
+5. Write the final implementation report using `aad-implementation-report`.
+6. Print the final status block.
 
 ## Commit policy
 
