@@ -66,6 +66,21 @@ Produce boring, readable, maintainable code that matches the local style.
 - If formatter/linter changes unrelated files, stop and report instead of committing unrelated churn.
 - Report quality evidence in `QUALITY_CHECKS` and `QUALITY_NOTES` via `aad-implementation-report`.
 
+## Frontend/UI implementation quality
+
+When touching frontend/UI code, keep this as implementation quality guidance, not acceptance ownership:
+
+- Reuse the existing component library, shared components, hooks, form helpers, API clients, routing helpers, and state/data-fetching patterns before creating new ones.
+- Follow nearby styling conventions: CSS modules, Tailwind/utilities, styled components, design tokens, class naming, spacing, colors, typography, breakpoints, and layout primitives.
+- Do not introduce inline styles, magic colors, magic spacing, or one-off CSS unless the surrounding code already uses that pattern or the owner explicitly asked.
+- Preserve accessibility basics in the implementation: semantic elements, labels, keyboard behavior, focus states, disabled/submitting states, and text alternatives where relevant.
+- Preserve responsive layout constraints visible in adjacent code.
+- Implement relevant loading, error, empty, success, and permission/disabled states when they are part of the delegated behavior.
+- Use existing API/client hooks/services instead of duplicating fetch logic.
+- Do not change route names, navigation behavior, component public props, event contracts, or visual hierarchy beyond scope.
+- If browser/manual acceptance evidence is needed, report that need to the owner instead of trying to own acceptance.
+- Report frontend implementation quality in `QUALITY_NOTES` via `aad-implementation-report`.
+
 ## Readiness-sensitive changes
 
 When the delegated task requires these areas, update all required paired files in the same coherent implementation task and call them out in the report:
