@@ -1,28 +1,35 @@
 ---
 name: aad-owned-change
-description: AAD owned implementation workflow: slice owner implements, reviewer reviews, test auditor audits, owner integrates.
+description: AAD owned implementation workflow: slice owner creates task package and draft PR, dispatches implementation, acceptance auditor audits, owner integrates, final acceptance auditor gates done-state.
 ---
 
 ## aad-slice-owner
 
-Own this change end-to-end under repo AAD rules. Create or enter the appropriate repo-local worktree if implementation is needed, keep scope tight, make reasonable commits, and run fresh verification. Do not merge unless explicitly asked. Request: {task}
+Own this change end-to-end under repo AAD rules. Use `aad-worktree-management`, create a task package under `docs/plans/YYYY-MM-DD-<slug>/`, write the initial plan to `<task-package>/plan.md`, commit/push it, and open an early draft PR when implementation is needed. Pass Task name, Task package path, per-agent report paths, progress paths, and `reads` inputs to delegated agents. Use progress tracking for non-trivial owner/aad-implementer work. Remember async delegated work is available for long-running tasks when there is a clear report path and completion signal. Do not merge unless explicitly asked.
 
-## aad-reviewer
+Task name: {task}
+Request: {task}
 
-Review the completed AAD slice read-only. Check correctness, workflow drift, verification gaps, and risky assumptions. Use the slice report/context below:
+## aad-acceptance-auditor
 
-{previous}
+Audit whether the completed AAD slice has enough evidence to be accepted as done. From the owner context, identify the Task package path; when present, read `<task-package>/plan.md`, relevant `<task-package>/reports/*`, and `<task-package>/verification/*` artifacts before deciding. Check acceptance coverage, system readiness, missing or too-narrow checks, and browser/manual evidence when relevant. If a Task package path is present, create/update `<task-package>/verification/acceptance-plan.md` and write your audit to `<task-package>/reports/acceptance-auditor.md` using `aad-task-package`. Use browser automation when acceptance criteria require browser/manual UI evidence.
 
-## aad-test-auditor
-
-Audit whether the verification evidence is sufficient for the completed AAD slice and reviewer findings. Identify missing or too-narrow checks. Context:
+Context:
 
 {previous}
 
 ## aad-slice-owner
 
-Integrate the AAD reviewer and test-auditor feedback below. Fix only current-goal issues, rerun necessary verification, and produce the final AAD report. Do not merge unless explicitly asked.
+Integrate the acceptance-auditor feedback below. Fix only current-goal issues by updating the task package plan, dispatching `aad-implementer` agents when needed, rerunning necessary verification, and producing the final AAD report in the task package. Do not merge unless explicitly asked.
 
 Feedback:
+
+{previous}
+
+## aad-acceptance-auditor
+
+Perform the final acceptance audit for the completed AAD slice after owner integration. From the final owner context, identify the Task package path; when present, read `<task-package>/plan.md`, relevant `<task-package>/reports/*`, and `<task-package>/verification/*` artifacts before deciding. Decide whether the task can be accepted as done from the final owner report, task package plan, verification artifacts, PR/check evidence, and any acceptance-auditor feedback already addressed. If a Task package path is present, update `<task-package>/verification/acceptance-plan.md` and write the final audit to `<task-package>/reports/final-acceptance-auditor.md` using `aad-task-package`. Do not implement fixes; report remaining blockers or acceptance limitations for the owner/user.
+
+Context:
 
 {previous}

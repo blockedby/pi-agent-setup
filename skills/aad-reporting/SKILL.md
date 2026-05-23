@@ -11,6 +11,8 @@ Use this skill when you are finishing work in Advanced Agent Development and nee
 
 The report is a continuation packet, not a diary.
 
+When a task package path is available, use `aad-task-package` and write the report to the provided report path before returning. The chat response may summarize the same report briefly.
+
 ## Use this report structure
 
 ```md
@@ -24,6 +26,9 @@ The report is a continuation packet, not a diary.
 ## Context
 - Thread: <...>
 - Slice: <...>
+- Task name: <...>
+- Task package: <docs/plans/YYYY-MM-DD-slug or not provided>
+- Report path: <path written or not provided>
 - Worktree: <...>
 - Branch: <...>
 - Verify scope: <...>
@@ -110,6 +115,7 @@ Use every section that applies to the report scope. Owner-level and final report
 
 ## Fill rules
 
+- If a task package/report path is provided, write the report there and mention the path in `Context`.
 - Keep `Mission` operational, not vague.
 - Put completed outcomes into `Spec compliance`, `Acceptance verification`, `System readiness`, or `Issues` instead of duplicating them in a separate summary section.
 - Use `R-*` for issues fully resolved in the current work.
@@ -122,6 +128,7 @@ Use every section that applies to the report scope. Owner-level and final report
 
 ## Finish-time checklist
 
+- [ ] If a task package/report path was provided, I wrote or updated that file.
 - [ ] My report is understandable without opening GitHub first.
 - [ ] Each completed outcome is represented in spec compliance, acceptance verification, system readiness, or resolved issues with short exact evidence.
 - [ ] Each acceptance criterion has a test, check, manual evidence, or explicit waiver.

@@ -27,13 +27,15 @@ A good AAD plan is operational: it states what will change, what will prove each
 5. Define the ownership model:
    - stays whole under one owner
    - or splits into named slices with clear boundaries
-6. Write an execution plan in `docs/plans/` with:
+6. Use `aad-task-package` to create or update the task package under `docs/plans/YYYY-MM-DD-<task-slug>/`.
+7. Write the execution plan to `<task-package>/plan.md` with:
    - goal
    - scope and do-not-touch boundaries
    - task boundaries based on independently verifiable behavior
    - acceptance criteria and test plan per task
    - dependencies and optional delegation points only where they are genuinely cheaper
-7. Keep the plan compact and directly executable.
+   - report paths for delegated agents
+8. Keep the plan compact, directly executable, and current as the task execution ledger.
 
 ## Task sizing
 
@@ -43,7 +45,7 @@ Do not size plan tasks by file count, estimated minutes, or mechanical edit step
 
 A good plan task is:
 
-- small enough that one implementer agent can execute it and return a complete acceptance verification report
+- small enough that one aad-implementer agent can execute it and return a complete acceptance verification report
 - large enough to represent meaningful behavior, not just "create file", "add import", or "change CSS class"
 - centered on one primary system boundary and one primary verification story
 - explicit about what existing pattern or implementation it will reuse
@@ -78,7 +80,7 @@ A slice is the ownership boundary. A plan task is the execution unit inside that
 
 The parent slice owner remains responsible for the slice result even when tasks are delegated. Plan tasks do not create new ownership by default.
 
-Use an implementer agent for a delegated plan task when the task is already clear enough to execute. Escalate a task to a child slice owner only when it needs its own planning, decomposition, coordination, or integration.
+Use an aad-implementer agent for a delegated plan task when the task is already clear enough to execute. Escalate a task to a child slice owner only when it needs its own planning, decomposition, coordination, or integration.
 
 ## Task format
 
@@ -126,13 +128,14 @@ Dependencies:
 - Can run parallel with: <none / task IDs>
 
 Executor:
-- <inline / tdd-coder / browser-agent / failure-classifier / child slice owner if too large>
+- <aad-implementer / browser-agent / aad-failure-classifier / child slice owner if too large>
 ```
 
 No meaningful plan task should omit acceptance criteria or a verification plan. If a criterion cannot be automated, state the manual evidence expected.
 
 ## Plan rules
 
+- Use `aad-task-package` for all durable plan/report/verification artifacts.
 - Prefer one owner carrying the work when one owner can do it cheaply.
 - Do not inject mandatory review loops or external workflow skills.
 - Make verification explicit for each meaningful checkpoint.
@@ -150,5 +153,5 @@ No meaningful plan task should omit acceptance criteria or a verification plan. 
 - listing implementation tasks without acceptance criteria
 - writing acceptance criteria that cannot be checked
 - making tasks so broad that they require unrelated verification stories
-- delegating a clear execution task to a child slice owner when an implementer agent would be cheaper
+- delegating a clear execution task to a child slice owner when an aad-implementer agent would be cheaper
 - bloating the plan with workflow ceremony unrelated to the actual change

@@ -6,20 +6,18 @@ Private non-secret bootstrap for running the same Pi agent stack on `nl-2-nvme`.
 
 - Pi CLI via Vite+: `@earendil-works/pi-coding-agent@0.74.0`
 - OpenAI Codex CLI via Vite+: `@openai/codex@0.130.0`
-- User settings at `/root/.pi/agent/settings.json`
-- Custom executable subagents and chains at `/root/.pi/agent/agents/`:
-  - `tdd-coder`
-  - `quinn-validator`
-  - `failure-classifier`
+- User settings at `~/.pi/agent/settings.json` on the remote install user, falling back to root when needed
+- Custom executable subagents and chains at `~/.pi/agent/agents/`:
+  - `aad-implementer`
+  - `aad-failure-classifier`
   - `chrome-browser-agent`
   - `aad-explorer`
-  - `aad-reviewer`
   - `aad-slice-owner`
-  - `aad-test-auditor`
-  - AAD chains: `aad-discovery-plan`, `aad-owned-change`, `aad-parallel-investigation`
-- Shared AAD skills at `/root/.pi/agent/skills/aad-*`
-- Browser Chrome skill at `/root/.pi/agent/skills/browser-chrome` via git submodule
-- Browser Chrome MCP entries in `/root/.pi/agent/mcp.json` pointing directly at skill scripts:
+  - `aad-acceptance-auditor`
+  - AAD chains: `aad-discovery-plan`, `aad-owned-change`, `aad-problem-investigation`
+- Shared AAD skills at `~/.pi/agent/skills/aad-*`
+- Browser Chrome skill at `~/.pi/agent/skills/browser-chrome` via git submodule
+- Browser Chrome MCP entries in `~/.pi/agent/mcp.json` pointing directly at skill scripts:
   - `browser-chrome-headed`
   - `browser-chrome-headless`
 - Pi packages/extensions from `settings/pi-settings.vps.json`
@@ -35,7 +33,7 @@ no SSH private keys, no runtime state.
 
 ## Install on NL-2-NVMe
 
-Prerequisite: Vite+ already installed for root on the VPS.
+Prerequisite: Vite+ already installed for the remote install user on the VPS. Set `REMOTE_USER_HOME=/path/to/home` to override auto-detection; if no usable user home is found, scripts fall back to `/root`.
 
 Optional version overrides:
 
@@ -53,14 +51,14 @@ After install, log in interactively on the VPS when needed:
 
 ```bash
 ssh nl-2-nvme
-/root/.vite-plus/bin/codex login
+~/.vite-plus/bin/codex login
 ```
 
 Do not commit Codex auth/session files to this repo.
 
 ## Optional Pi auth import
 
-Only after explicit approval:
+Only after explicit approval. Uses the same remote home resolution as install/verify unless `REMOTE_AUTH` is set explicitly:
 
 ```bash
 CONFIRM_COPY_PI_AUTH=1 TARGET_HOST=nl-2-nvme scripts/import-auth-vps.sh
@@ -83,7 +81,7 @@ TARGET_HOST=nl-2-nvme scripts/verify-vps.sh
 
 The older local stash at `~/.pi/agents` is not used by current `pi-subagents`
 discovery, so this repo stores normalized agent definitions with YAML
-frontmatter and deploys them to `/root/.pi/agent/agents`.
+frontmatter and deploys them to `~/.pi/agent/agents` on the remote install user.
 
 Pi loads global skills from `~/.pi/agent/skills/`. This repo also declares
 `pi.skills` in `package.json`, so the `skills/` directory can be reused later as

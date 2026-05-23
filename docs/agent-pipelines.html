@@ -164,11 +164,11 @@
       <div class="grid">
         <article class="card">
           <h3>AAD owner/support agents</h3>
-          <p><code>aad-slice-owner</code> owns scoped work. <code>aad-explorer</code>, <code>aad-reviewer</code>, and <code>aad-test-auditor</code> provide read-only evidence, review, and verification audit support.</p>
+          <p><code>aad-slice-owner</code> owns scoped work. <code>aad-explorer</code> and <code>aad-acceptance-auditor</code> provide evidence and verification audit support.</p>
         </article>
         <article class="card">
-          <h3>Hermes worker agents</h3>
-          <p><code>tdd-coder</code> implements scoped tasks, <code>quinn-validator</code> adversarially reviews diffs, and <code>failure-classifier</code> classifies failed attempts.</p>
+          <h3>AAD worker agents</h3>
+          <p><code>aad-implementer</code> implements scoped tasks and <code>aad-failure-classifier</code> classifies failed attempts.</p>
         </article>
         <article class="card">
           <h3>Browser automation</h3>
@@ -188,14 +188,13 @@ flowchart TD
   NeedPlan -- "yes" --> DiscoveryPlan["chain: aad-discovery-plan"]
   NeedPlan -- "no" --> NeedImpl{"Need owned implementation?"}
   NeedImpl -- "yes" --> OwnedChange["chain: aad-owned-change"]
-  NeedImpl -- "no" --> NeedPerspectives{"Need read-only perspectives?"}
-  NeedPerspectives -- "yes" --> ParallelInvestigation["chain: aad-parallel-investigation"]
+  NeedImpl -- "no" --> NeedPerspectives{"Need problem investigation?"}
+  NeedPerspectives -- "yes" --> ParallelInvestigation["chain: aad-problem-investigation"]
   NeedPerspectives -- "no" --> DirectAgent{"Direct specialist"}
   DirectAgent --> Explorer["aad-explorer"]
-  DirectAgent --> Reviewer["aad-reviewer"]
-  DirectAgent --> TestAuditor["aad-test-auditor"]
+  DirectAgent --> AcceptanceAuditor["aad-acceptance-auditor"]
   DirectAgent --> Browser["chrome-browser-agent"]
-  DirectAgent --> Hermes["tdd-coder / quinn-validator / failure-classifier"]
+  DirectAgent --> WorkerAgents["aad-implementer / aad-failure-classifier"]
         </pre>
       </div>
     </section>
@@ -220,57 +219,51 @@ flowchart LR
       <h2>AAD owned-change chain</h2>
       <p class="note"><code>agents/aad-owned-change.chain.md</code> is the main end-to-end implementation workflow.</p>
       <div class="diagram">
-        <p class="caption">The slice owner starts and finishes the workflow; reviewer and test auditor provide read-only gates.</p>
+        <p class="caption">The slice owner starts and integrates the workflow; acceptance auditor provides both an audit pass and the final done-state gate.</p>
         <pre class="mermaid">
 flowchart TD
-  Task["{task}: requested change"] --> Owner1["aad-slice-owner\nown change end-to-end\nworktree, implementation, verification"]
+  Task["{task}: requested change"] --> Owner1["aad-slice-owner\nown change end-to-end\ntask package, draft PR, implementation dispatch"]
   Owner1 --> SliceReport["{previous}: slice report / context"]
-  SliceReport --> Review["aad-reviewer\nread-only correctness + workflow review"]
-  Review --> ReviewReport["{previous}: reviewer findings"]
-  ReviewReport --> Audit["aad-test-auditor\nverification sufficiency audit"]
-  Audit --> Feedback["{previous}: review + audit feedback"]
+  SliceReport --> Audit["aad-acceptance-auditor\nacceptance audit"]
+  Audit --> Feedback["{previous}: audit feedback"]
   Feedback --> Owner2["aad-slice-owner\nintegrate feedback\nfix current-goal issues\nrerun verification"]
-  Owner2 --> Final["final AAD report\nno merge unless explicitly asked"]
+  Owner2 --> OwnerReport["final owner report\nno merge unless explicitly asked"]
+  OwnerReport --> FinalAudit["aad-acceptance-auditor\nfinal acceptance gate"]
+  FinalAudit --> Final["final acceptance verdict"]
         </pre>
       </div>
     </section>
 
     <section>
-      <h2>AAD investigation chain</h2>
+      <h2>AAD problem-investigation chain</h2>
       <p class="note">
-        <code>agents/aad-parallel-investigation.chain.md</code> collects explorer, reviewer, and test-auditor perspectives.
-        The current <code>.chain.md</code> format executes these sections in order; the name describes the support perspectives, not a parallel runtime fan-out.
+        <code>agents/aad-problem-investigation.chain.md</code> investigates a bug, failing test, suspicious behavior, or side finding before the owner decides whether it is a blocker, follow-up, false alarm, or scoped fix task.
       </p>
       <div class="diagram">
-        <p class="caption">Read-only support pipeline for shaping implementation boundaries and verification strategy.</p>
+        <p class="caption">Read-only support pipeline for producing a problem investigation packet. It does not implement a fix, though it may recommend a red/proving test.</p>
         <pre class="mermaid">
 flowchart LR
-  Task["{task}: investigation request"] --> Explorer["aad-explorer\nread-only evidence"]
-  Explorer --> Reviewer["aad-reviewer\nrisk shaping\ncorrectness hazards\nworkflow constraints"]
-  Reviewer --> Auditor["aad-test-auditor\nminimum sufficient verification story\nlikely task targets"]
-  Auditor --> Output["implementation boundaries\nverification recommendations\nno implementation"]
+  Task["{task}: problem / failing behavior"] --> Explorer["aad-explorer\nevidence + reproduction\nrisk signals + scope"]
+  Explorer --> Auditor["aad-acceptance-auditor\nacceptance verification story\nred/proving test recommendation"]
+  Auditor --> Output["problem packet\nblocker/follow-up/false alarm\nrecommended next action"]
         </pre>
       </div>
     </section>
 
     <section>
-      <h2>Hermes-style worker loop</h2>
-      <p class="note">These are standalone agents rather than checked-in <code>.chain.md</code> pipelines, but their prompts define a common orchestration loop.</p>
+      <h2>AAD worker loop</h2>
+      <p class="note">These are standalone agents rather than checked-in <code>.chain.md</code> pipelines, but their prompts define a common owner/orchestrator loop.</p>
       <div class="diagram">
-        <p class="caption">Typical implementation, validation, and failure classification flow.</p>
+        <p class="caption">Typical implementation and failure classification flow. Acceptance remains with the owner and acceptance auditor.</p>
         <pre class="mermaid">
 flowchart TD
-  Hermes["Hermes / orchestrator"] --> Story["scoped story + test commands"]
-  Story --> TDD["tdd-coder\nimplement minimal change\nrun targeted tests"]
-  TDD --> Result{"PI_RESULT"}
-  Result -- "PASS" --> Quinn["quinn-validator\nadversarial diff/spec review"]
-  Quinn --> QResult{"QUINN_RESULT"}
-  QResult -- "PASS" --> Done["ready for owner/user decision"]
-  QResult -- "FAIL" --> Fix["send concrete findings back to implementation"]
-  Fix --> TDD
-  Result -- "FAIL or BLOCKED" --> Classifier["failure-classifier\nCODE_BUG / TEST_CONTRACT / TEST_BUG / INFRA / SCOPE_GAP / AGENT_LOOP / SECURITY_BLOCKER"]
+  Owner["AAD owner / orchestrator"] --> Story["scoped task + acceptance criteria + test commands"]
+  Story --> Impl["aad-implementer\nred-green-refactor\nrun targeted checks"]
+  Impl --> Result{"PI_RESULT"}
+  Result -- "PASS" --> Done["implementation evidence\nready for owner/auditor decision"]
+  Result -- "FAIL or BLOCKED" --> Classifier["aad-failure-classifier\nCODE_BUG / TEST_CONTRACT / TEST_BUG / INFRA / SCOPE_GAP / AGENT_LOOP / SECURITY_BLOCKER"]
   Classifier --> Next["NEXT_ACTION\nretry, adjust scope, escalate model, or ask human"]
-  Next --> Hermes
+  Next --> Owner
         </pre>
       </div>
     </section>
@@ -310,39 +303,27 @@ flowchart TD
           </tr>
           <tr>
             <td><code>aad-slice-owner</code></td>
-            <td>Own one slice end-to-end; plan, implement, verify, integrate feedback</td>
+            <td>Own one slice end-to-end; coordinate planning, delegation, verification, and integration</td>
             <td><span class="ok">Can edit/write</span></td>
             <td><code>replace</code>, project context <span class="ok">on</span>, skills <span class="ok">on</span></td>
           </tr>
           <tr>
-            <td><code>aad-reviewer</code></td>
-            <td>Read-only correctness, verification, and workflow review</td>
-            <td><span class="warn">Prompt says read-only</span></td>
-            <td><code>replace</code>, project context <span class="ok">on</span>, skills <span class="ok">on</span></td>
-          </tr>
-          <tr>
-            <td><code>aad-test-auditor</code></td>
-            <td>Read-only verification sufficiency audit</td>
+            <td><code>aad-acceptance-auditor</code></td>
+            <td>Read-only acceptance audit</td>
             <td><span class="warn">Prompt says read-only except harmless verification commands</span></td>
             <td><code>replace</code>, project context <span class="ok">on</span>, skills <span class="ok">on</span></td>
           </tr>
           <tr>
-            <td><code>tdd-coder</code></td>
-            <td>Scoped TDD implementation worker</td>
+            <td><code>aad-implementer</code></td>
+            <td>Scoped implementation worker with TDD loop</td>
             <td><span class="ok">Can edit/write</span></td>
             <td><code>replace</code>, project context <span class="ok">on</span>, inherited skills off; injects <code>codex-tools</code></td>
           </tr>
           <tr>
-            <td><code>quinn-validator</code></td>
-            <td>Adversarial diff/spec validator</td>
-            <td><span class="warn">Read-only</span></td>
-            <td><code>replace</code>, project context <span class="ok">on</span>, inherited skills off; injects <code>codex-tools</code></td>
-          </tr>
-          <tr>
-            <td><code>failure-classifier</code></td>
-            <td>Classify failed task attempts and recommend next action</td>
-            <td><span class="warn">Read-only unless explicitly asked for tiny diagnostic artifact</span></td>
-            <td><code>replace</code>, project context <span class="ok">on</span>, inherited skills off; injects <code>codex-tools</code></td>
+            <td><code>aad-failure-classifier</code></td>
+            <td>Narrow failure evidence classifier</td>
+            <td><span class="warn">Read-only for source/test/config; may write task-package report</span></td>
+            <td><code>replace</code>, project context <span class="ok">on</span>, inherited skills off; injects <code>codex-tools</code>, <code>aad-task-package</code>, <code>aad-failure-classification</code></td>
           </tr>
           <tr>
             <td><code>chrome-browser-agent</code></td>
