@@ -21,7 +21,7 @@ Problem request: {task}
 
 ## aad-acceptance-auditor
 
-Using the investigation context below, define the acceptance verification story for the problem and produce the final problem investigation packet. This workflow does not implement a fix. It may recommend a red/proving test or exact check that should fail before the fix and pass after the fix. If a Task package path is present, create/update `<task-package>/verification/problem-acceptance-plan.md` and write the audit to `<task-package>/reports/problem-acceptance-auditor.md` using `aad-task-package`.
+Using the investigation context below, define the acceptance verification story for the problem and produce the final problem investigation packet. If a Task package path is present, read `<task-package>/plan.md`, relevant `<task-package>/reports/*`, and `<task-package>/verification/*` artifacts before deciding. This workflow does not implement a fix. It may recommend a red/proving test or exact check that should fail before the fix and pass after the fix. If a Task package path is present, create/update `<task-package>/verification/problem-acceptance-plan.md` and write the audit to `<task-package>/reports/problem-acceptance-auditor.md` using `aad-task-package`.
 
 Return a final problem investigation packet:
 - Problem classification: blocker / follow-up / false alarm / needs more info

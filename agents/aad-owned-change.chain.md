@@ -12,7 +12,7 @@ Request: {task}
 
 ## aad-acceptance-auditor
 
-Audit whether the completed AAD slice has enough evidence to be accepted as done. Check acceptance coverage, system readiness, missing or too-narrow checks, and browser/manual evidence when relevant. If a Task package path is present, create/update `<task-package>/verification/acceptance-plan.md` and write your audit to `<task-package>/reports/acceptance-auditor.md` using `aad-task-package`. Use browser automation when acceptance criteria require browser/manual UI evidence.
+Audit whether the completed AAD slice has enough evidence to be accepted as done. From the owner context, identify the Task package path; when present, read `<task-package>/plan.md`, relevant `<task-package>/reports/*`, and `<task-package>/verification/*` artifacts before deciding. Check acceptance coverage, system readiness, missing or too-narrow checks, and browser/manual evidence when relevant. If a Task package path is present, create/update `<task-package>/verification/acceptance-plan.md` and write your audit to `<task-package>/reports/acceptance-auditor.md` using `aad-task-package`. Use browser automation when acceptance criteria require browser/manual UI evidence.
 
 Context:
 
@@ -28,7 +28,7 @@ Feedback:
 
 ## aad-acceptance-auditor
 
-Perform the final acceptance audit for the completed AAD slice after owner integration. Decide whether the task can be accepted as done from the final owner report, task package plan, verification artifacts, PR/check evidence, and any acceptance-auditor feedback already addressed. If a Task package path is present, update `<task-package>/verification/acceptance-plan.md` and write the final audit to `<task-package>/reports/final-acceptance-auditor.md` using `aad-task-package`. Do not implement fixes; report remaining blockers or acceptance limitations for the owner/user.
+Perform the final acceptance audit for the completed AAD slice after owner integration. From the final owner context, identify the Task package path; when present, read `<task-package>/plan.md`, relevant `<task-package>/reports/*`, and `<task-package>/verification/*` artifacts before deciding. Decide whether the task can be accepted as done from the final owner report, task package plan, verification artifacts, PR/check evidence, and any acceptance-auditor feedback already addressed. If a Task package path is present, update `<task-package>/verification/acceptance-plan.md` and write the final audit to `<task-package>/reports/final-acceptance-auditor.md` using `aad-task-package`. Do not implement fixes; report remaining blockers or acceptance limitations for the owner/user.
 
 Context:
 

@@ -2,13 +2,9 @@
 set -euo pipefail
 
 TARGET_HOST="${TARGET_HOST:-nl-2-nvme}"
-REMOTE_USER_HOME="${REMOTE_USER_HOME:-/root}"
+REMOTE_USER_HOME="${REMOTE_USER_HOME:-}"
 PI_VERSION="${PI_VERSION:-0.74.0}"
 CODEX_VERSION="${CODEX_VERSION:-0.130.0}"
-VP_BIN="$REMOTE_USER_HOME/.vite-plus/bin/vp"
-NPM_BIN="$REMOTE_USER_HOME/.vite-plus/bin/npm"
-PI_BIN="$REMOTE_USER_HOME/.vite-plus/bin/pi"
-CODEX_BIN="$REMOTE_USER_HOME/.vite-plus/bin/codex"
 TMP_DIR="/tmp/pi-agent-setup.$$"
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -18,41 +14,69 @@ rsync -a "$repo_root/agents/" "$TARGET_HOST:$TMP_DIR/agents/"
 rsync -a "$repo_root/settings/pi-settings.vps.json" "$TARGET_HOST:$TMP_DIR/settings/pi-settings.vps.json"
 rsync -a "$repo_root/skills/" "$TARGET_HOST:$TMP_DIR/skills/"
 
-ssh "$TARGET_HOST" bash -s -- "$REMOTE_USER_HOME" "$PI_VERSION" "$CODEX_VERSION" "$VP_BIN" "$NPM_BIN" "$PI_BIN" "$CODEX_BIN" "$TMP_DIR" <<'REMOTE'
+ssh "$TARGET_HOST" bash -s -- "$REMOTE_USER_HOME" "$PI_VERSION" "$CODEX_VERSION" "$TMP_DIR" <<'REMOTE'
 set -euo pipefail
-REMOTE_USER_HOME="$1"
+REQUESTED_REMOTE_USER_HOME="$1"
 PI_VERSION="$2"
 CODEX_VERSION="$3"
-VP_BIN="$4"
-NPM_BIN="$5"
-PI_BIN="$6"
-CODEX_BIN="$7"
-TMP_DIR="$8"
+TMP_DIR="$4"
+
+if [ -n "$REQUESTED_REMOTE_USER_HOME" ]; then
+  if [ -d "$REQUESTED_REMOTE_USER_HOME" ]; then
+    REMOTE_USER_HOME="$REQUESTED_REMOTE_USER_HOME"
+  else
+    REMOTE_USER_HOME="/root"
+  fi
+elif [ -n "${HOME:-}" ] && [ -d "$HOME" ]; then
+  REMOTE_USER_HOME="$HOME"
+else
+  REMOTE_USER_HOME="/root"
+fi
+
+VP_BIN="$REMOTE_USER_HOME/.vite-plus/bin/vp"
+NPM_BIN="$REMOTE_USER_HOME/.vite-plus/bin/npm"
+PI_BIN="$REMOTE_USER_HOME/.vite-plus/bin/pi"
+CODEX_BIN="$REMOTE_USER_HOME/.vite-plus/bin/codex"
+AGENT_DIR="$REMOTE_USER_HOME/.pi/agent"
 
 if [ ! -x "$NPM_BIN" ]; then
-  echo "Vite+ npm not found at $NPM_BIN; install Vite+ first." >&2
+  echo "Vite+ npm not found at $NPM_BIN; install Vite+ first or set REMOTE_USER_HOME to the home containing .vite-plus." >&2
   exit 1
 fi
 if [ ! -x "$VP_BIN" ]; then
-  echo "Vite+ vp not found at $VP_BIN; install Vite+ first." >&2
+  echo "Vite+ vp not found at $VP_BIN; install Vite+ first or set REMOTE_USER_HOME to the home containing .vite-plus." >&2
   exit 1
 fi
 
 "$VP_BIN" install -g "@earendil-works/pi-coding-agent@$PI_VERSION"
 "$VP_BIN" install -g "@openai/codex@$CODEX_VERSION"
 
-mkdir -p "$REMOTE_USER_HOME/.pi/agent/agents" "$REMOTE_USER_HOME/.pi/agent/skills"
-if [ -f "$REMOTE_USER_HOME/.pi/agent/settings.json" ]; then
-  cp -a "$REMOTE_USER_HOME/.pi/agent/settings.json" "$REMOTE_USER_HOME/.pi/agent/settings.json.bak.$(date -u +%Y%m%dT%H%M%SZ)"
+mkdir -p "$AGENT_DIR/agents" "$AGENT_DIR/skills"
+if [ -f "$AGENT_DIR/settings.json" ]; then
+  cp -a "$AGENT_DIR/settings.json" "$AGENT_DIR/settings.json.bak.$(date -u +%Y%m%dT%H%M%SZ)"
 fi
-install -m 0644 "$TMP_DIR/settings/pi-settings.vps.json" "$REMOTE_USER_HOME/.pi/agent/settings.json"
-install -m 0644 "$TMP_DIR/agents/"*.md "$REMOTE_USER_HOME/.pi/agent/agents/"
-rsync -a "$TMP_DIR/skills/" "$REMOTE_USER_HOME/.pi/agent/skills/"
+install -m 0644 "$TMP_DIR/settings/pi-settings.vps.json" "$AGENT_DIR/settings.json"
 
-BROWSER_CHROME_SKILL_DIR="$REMOTE_USER_HOME/.pi/agent/skills/browser-chrome"
+# Remove known renamed/disabled agents and chains so old executable files do not
+# survive across upgrades in ~/.pi/agent/agents.
+for stale in \
+  tdd-coder.md \
+  implementer.md \
+  failure-classifier.md \
+  aad-test-auditor.md \
+  aad-reviewer.md \
+  quinn-validator.md \
+  aad-parallel-investigation.chain.md; do
+  rm -f "$AGENT_DIR/agents/$stale" "$REMOTE_USER_HOME/.agents/$stale"
+done
+
+install -m 0644 "$TMP_DIR/agents/"*.md "$AGENT_DIR/agents/"
+rsync -a --delete "$TMP_DIR/skills/" "$AGENT_DIR/skills/"
+
+BROWSER_CHROME_SKILL_DIR="$AGENT_DIR/skills/browser-chrome"
 if [ -f "$BROWSER_CHROME_SKILL_DIR/scripts/mcp.sh" ]; then
   chmod +x "$BROWSER_CHROME_SKILL_DIR/scripts/"*.sh
-  python3 - "$REMOTE_USER_HOME/.pi/agent/mcp.json" "$BROWSER_CHROME_SKILL_DIR/scripts/mcp.sh" <<'PY'
+  python3 - "$AGENT_DIR/mcp.json" "$BROWSER_CHROME_SKILL_DIR/scripts/mcp.sh" <<'PY'
 import json
 import sys
 from pathlib import Path
@@ -89,13 +113,17 @@ with mcp_path.open("w") as f:
 PY
 fi
 
-chmod 700 "$REMOTE_USER_HOME/.pi" "$REMOTE_USER_HOME/.pi/agent" "$REMOTE_USER_HOME/.pi/agent/agents" "$REMOTE_USER_HOME/.pi/agent/skills"
-chmod 600 "$REMOTE_USER_HOME/.pi/agent/agents/"*.md "$REMOTE_USER_HOME/.pi/agent/settings.json"
-find "$REMOTE_USER_HOME/.pi/agent/skills" -type d -exec chmod 700 {} +
-find "$REMOTE_USER_HOME/.pi/agent/skills" -type f -exec chmod 600 {} +
-find "$REMOTE_USER_HOME/.pi/agent/skills/browser-chrome/scripts" -type f -name '*.sh' -exec chmod 700 {} + 2>/dev/null || true
+chmod 700 "$REMOTE_USER_HOME/.pi" "$AGENT_DIR" "$AGENT_DIR/agents" "$AGENT_DIR/skills"
+chmod 600 "$AGENT_DIR/agents/"*.md "$AGENT_DIR/settings.json"
+find "$AGENT_DIR/skills" -type d -exec chmod 700 {} +
+find "$AGENT_DIR/skills" -type f -exec chmod 600 {} +
+find "$AGENT_DIR/skills/browser-chrome/scripts" -type f -name '*.sh' -exec chmod 700 {} + 2>/dev/null || true
+if [ -f "$AGENT_DIR/mcp.json" ]; then
+  chmod 600 "$AGENT_DIR/mcp.json"
+fi
 
 rm -rf "$TMP_DIR"
+echo "Installed Pi agent setup under $AGENT_DIR"
 "$PI_BIN" --version
 "$CODEX_BIN" --version
 REMOTE

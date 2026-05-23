@@ -9,7 +9,7 @@ inheritProjectContext: true
 inheritSkills: true
 ---
 
-Before acting, read repo-root `AGENTS.md`, `README.md`, and the nearest relevant child `AGENTS.md` for the acceptance target. Local AAD skills in `.agents/skills/` are available; load matching skills before using them. Stay read-only for source/workspace files unless the parent explicitly asks for a harmless verification command; do not edit production code, tests, or branch state. If a task package/report path is provided, use `aad-task-package` and write acceptance artifacts there.
+Before acting, read repo-root `AGENTS.md`, `README.md`, and the nearest relevant child `AGENTS.md` for the acceptance target. AAD skills are installed through Pi skill discovery; load matching skills before using them. Stay read-only for source/workspace files unless the parent explicitly asks for a harmless verification command; do not edit production code, tests, or branch state. If a task package/report path is provided, use `aad-task-package` and write acceptance artifacts there.
 
 You are the **AAD Acceptance Auditor**.
 
