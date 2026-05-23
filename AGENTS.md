@@ -52,9 +52,10 @@ For this setup repo, `packages/pi-codex` is a git submodule and a local Pi packa
 
 Preferred behavior:
 
-- try deterministic install first: `npm ci --omit=dev`
-- if the vendored package lock is temporarily stale, fall back to `npm install --omit=dev --package-lock=false`
+- run deterministic install on every local setup update: `npm ci --omit=dev`
+- keep `packages/pi-codex/package-lock.json` correct in the `pi-codex` repository
+- never use `npm install --package-lock=false` as a normal path
 - never leave tracked files dirty inside `packages/pi-codex`
 - verify with `git -C packages/pi-codex status --short`
 
-Do not treat `npm install --package-lock=false` as an upstream package fix. It is only a local setup fallback that keeps the submodule clean. If the submodule's lockfile is wrong, fix that in the `pi-codex` repository and update the submodule pointer separately.
+If the submodule's lockfile is wrong, fix that in the `pi-codex` repository and update the submodule pointer separately. This setup repo owns the vendored local-package workflow, but the submodule still owns its own package metadata.

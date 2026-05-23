@@ -39,7 +39,7 @@ Use the local update script after changing checked-in agents or the vendored `pi
 scripts/update-local.sh
 ```
 
-It installs `agents/*.md` into `~/.pi/agent/agents/`, syncs checked-in skills into `~/.pi/agent/skills/`, installs the vendored `packages/pi-codex` runtime dependencies when needed, removes stale renamed agents/chains, rewrites the local Pi package entry for `pi-codex` to `packages/pi-codex`, backs up `~/.pi/agent/settings.json`, and verifies that installed AAD agents do not expose `codex_task`.
+It installs `agents/*.md` into `~/.pi/agent/agents/`, syncs checked-in skills into `~/.pi/agent/skills/`, reinstalls the vendored `packages/pi-codex` runtime dependencies with `npm ci`, removes stale renamed agents/chains, rewrites the local Pi package entry for `pi-codex` to `packages/pi-codex`, backs up `~/.pi/agent/settings.json`, and verifies that installed AAD agents do not expose `codex_task`.
 
 ## Install on NL-2-NVMe
 

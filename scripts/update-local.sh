@@ -12,25 +12,23 @@ if [ ! -f "$CODEX_SUBMODULE/package.json" ]; then
   git -C "$repo_root" submodule update --init packages/pi-codex
 fi
 
-if [ ! -d "$CODEX_SUBMODULE/node_modules/@mozilla/readability" ]; then
-  NPM_BIN="${NPM_BIN:-}"
-  if [ -z "$NPM_BIN" ] && [ -x "$LOCAL_USER_HOME/.vite-plus/bin/npm" ]; then
-    NPM_BIN="$LOCAL_USER_HOME/.vite-plus/bin/npm"
-  fi
-  if [ -z "$NPM_BIN" ]; then
-    NPM_BIN="$(command -v npm || true)"
-  fi
-  if [ -z "$NPM_BIN" ]; then
-    echo "npm not found; cannot install packages/pi-codex runtime dependencies" >&2
-    exit 1
-  fi
-
-  echo "Installing packages/pi-codex runtime dependencies with $NPM_BIN"
-  (
-    cd "$CODEX_SUBMODULE"
-    "$NPM_BIN" ci --omit=dev || "$NPM_BIN" install --omit=dev --package-lock=false
-  )
+NPM_BIN="${NPM_BIN:-}"
+if [ -z "$NPM_BIN" ] && [ -x "$LOCAL_USER_HOME/.vite-plus/bin/npm" ]; then
+  NPM_BIN="$LOCAL_USER_HOME/.vite-plus/bin/npm"
 fi
+if [ -z "$NPM_BIN" ]; then
+  NPM_BIN="$(command -v npm || true)"
+fi
+if [ -z "$NPM_BIN" ]; then
+  echo "npm not found; cannot install packages/pi-codex runtime dependencies" >&2
+  exit 1
+fi
+
+# packages/pi-codex is our vendored local Pi package. Reinstall dependencies on
+# every local setup update so the local path package is deterministic and cannot
+# keep stale node_modules after the submodule pointer changes.
+echo "Installing packages/pi-codex runtime dependencies with $NPM_BIN"
+(cd "$CODEX_SUBMODULE" && "$NPM_BIN" ci --omit=dev)
 
 mkdir -p "$AGENT_DIR/agents" "$AGENT_DIR/skills"
 install -m 0600 "$repo_root/agents/"*.md "$AGENT_DIR/agents/"
