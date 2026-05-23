@@ -12,8 +12,28 @@ if [ ! -f "$CODEX_SUBMODULE/package.json" ]; then
   git -C "$repo_root" submodule update --init packages/pi-codex
 fi
 
-mkdir -p "$AGENT_DIR/agents"
+if [ ! -d "$CODEX_SUBMODULE/node_modules/@mozilla/readability" ]; then
+  NPM_BIN="${NPM_BIN:-}"
+  if [ -z "$NPM_BIN" ] && [ -x "$LOCAL_USER_HOME/.vite-plus/bin/npm" ]; then
+    NPM_BIN="$LOCAL_USER_HOME/.vite-plus/bin/npm"
+  fi
+  if [ -z "$NPM_BIN" ]; then
+    NPM_BIN="$(command -v npm || true)"
+  fi
+  if [ -z "$NPM_BIN" ]; then
+    echo "npm not found; cannot install packages/pi-codex runtime dependencies" >&2
+    exit 1
+  fi
+
+  echo "Installing packages/pi-codex runtime dependencies with $NPM_BIN"
+  (cd "$CODEX_SUBMODULE" && "$NPM_BIN" install --omit=dev --package-lock=false)
+fi
+
+mkdir -p "$AGENT_DIR/agents" "$AGENT_DIR/skills"
 install -m 0600 "$repo_root/agents/"*.md "$AGENT_DIR/agents/"
+rsync -a "$repo_root/skills/" "$AGENT_DIR/skills/"
+find "$AGENT_DIR/skills" -type d -exec chmod 700 {} +
+find "$AGENT_DIR/skills" -type f -exec chmod 600 {} +
 
 # Remove known renamed/disabled agents and chains so old executable files do not
 # survive across local setup updates.

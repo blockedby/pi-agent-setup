@@ -1,3 +1,8 @@
+---
+name: aad-implementation-report
+description: Use this skill when an AAD implementer is finishing a delegated implementation task or needs to persist progress/status in a task package.
+---
+
 # AAD Implementation Report
 
 Use this skill when an `aad-implementer` is finishing a delegated implementation task or needs to persist progress/status in a task package.
