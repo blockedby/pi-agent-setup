@@ -5,7 +5,7 @@ REPORT_PATH: docs/plans/2026-05-24-browser-chrome-persistent-headed/reports/impl
 PROGRESS_PATH: progress.md
 COMMITS:
 - 64edc90545bcf358c6355697b01518e51dfbfd4f: Add browser Chrome control MCP
-- parent worktree commit: pending at report write; final response records the actual parent commit that adds this report/progress and updates the submodule pointer.
+- 838889ca0af417b898af61ff0501dff337c90438: Wire browser Chrome control MCP task package
 FILES_CHANGED:
 - skills/browser-chrome/control-mcp/server.mjs: added focused stdio JSON-RPC/MCP control server with `browser_chrome_status`, `browser_chrome_acquire_session`, `browser_chrome_assert_persistent`, and `browser_chrome_release`.
 - skills/browser-chrome/control-mcp/server.test.mjs: added node:test coverage for MCP initialize, tools/list, status, policy enforcement, headed-persistent lock contention/release, assert behavior, and headless guidance without real Chrome/auth.
@@ -49,4 +49,4 @@ QUALITY_NOTES:
 SIDE_FINDINGS:
 - Blocking: none.
 - Non-blocking follow-up candidates: future Phase 2 could proxy DevTools MCP if owner decides the two-server workflow is too costly; stale lock recovery policy may need an explicit owner decision if agents die while holding a lease.
-NOTES: Implementation intentionally excludes full `chrome-devtools-mcp` proxying and environment-specific Hermes/KCNC paths. The parent repo sees `skills/browser-chrome` as a submodule; implementation is committed inside that submodule and the parent commit will update the submodule pointer plus task-package report/progress.
+NOTES: Implementation intentionally excludes full `chrome-devtools-mcp` proxying and environment-specific Hermes/KCNC paths. The parent repo sees `skills/browser-chrome` as a submodule; implementation is committed inside that submodule and the parent commit updates the submodule pointer plus task-package report/progress.

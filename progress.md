@@ -8,3 +8,4 @@
 - 2026-05-25: GREEN config/install/docs: added `scripts/control-mcp.sh`, example/installer `browser-chrome-control` entry, headed port validation, and control-first docs. `node --test skills/browser-chrome/control-mcp/config.test.mjs` passes (2/2); combined syntax/check/unit command passes.
 - 2026-05-25: Verification before commit passed: `bash -n skills/browser-chrome/scripts/*.sh`; `node --check skills/browser-chrome/control-mcp/server.mjs`; `node --test skills/browser-chrome/control-mcp/*.test.mjs`; stdio initialize/tools-list smoke; invalid headed port shell check.
 - 2026-05-25: Committed browser-chrome submodule implementation: `64edc90545bcf358c6355697b01518e51dfbfd4f Add browser Chrome control MCP`. Preparing parent report/progress commit.
+- 2026-05-25: Parent commit created: `838889ca0af417b898af61ff0501dff337c90438 Wire browser Chrome control MCP task package`; updated implementation report with commit evidence.
