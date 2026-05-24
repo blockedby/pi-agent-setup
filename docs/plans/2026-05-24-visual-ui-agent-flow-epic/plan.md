@@ -31,9 +31,9 @@ AAD default flow stays lightweight. A visual/UI lane is activated only when the 
 
 ### T1 — Add visual/UI acceptance rubric to shared repo guidance
 
-Status: pending
-Owner: current agent
-Files likely touched:
+Status: done by T1 implementer; evidence in `reports/aad-implementer-t1.md`
+Owner: T1 implementer agent
+Files touched:
 - `AGENTS.md`
 
 Acceptance:
@@ -43,9 +43,9 @@ Acceptance:
 
 ### T2 — Strengthen `chrome-browser-agent` for screenshot-first visual review
 
-Status: pending
+Status: done by T2 implementer; evidence in `reports/aad-implementer-t2.md`
 Depends on: T1
-Files likely touched:
+Files touched:
 - `agents/chrome-browser-agent.md`
 
 Acceptance:
@@ -56,10 +56,10 @@ Acceptance:
 
 ### T3 — Add read-only visual critic agent
 
-Status: pending
+Status: done by T3 implementer; evidence in `reports/aad-implementer-t3.md`
 Depends on: T1
-Files likely touched:
-- `agents/visual-critic.md` or `agents/wedding-visual-critic.md`
+Files touched:
+- `agents/visual-critic.md`
 
 Acceptance:
 - Agent is read-only and screenshot/product-quality focused.
@@ -69,9 +69,9 @@ Acceptance:
 
 ### T4 — Update acceptance auditor for visual/UI tasks
 
-Status: pending
+Status: done by T4 implementer; evidence in `reports/aad-implementer-t4.md`
 Depends on: T1, T3
-Files likely touched:
+Files touched:
 - `agents/aad-acceptance-auditor.md`
 
 Acceptance:
@@ -82,9 +82,9 @@ Acceptance:
 
 ### T5 — Add slice-owner design gate for visual/UI implementation
 
-Status: pending
+Status: done by T5 implementer; evidence in `reports/aad-implementer-t5.md`
 Depends on: T1
-Files likely touched:
+Files touched:
 - `agents/aad-slice-owner.md`
 
 Acceptance:
@@ -94,10 +94,10 @@ Acceptance:
 
 ### T6 — Add optional visual-change chain only if still useful
 
-Status: pending
+Status: done by T6 implementer; evidence in `reports/aad-implementer-t6.md`
 Depends on: T2, T3, T4, T5
-Files likely touched:
-- `agents/*visual*.chain.md` if added
+Files touched:
+- `agents/visual-ui-change.chain.md`
 
 Acceptance:
 - Decide whether a chain adds value or whether owner instructions are enough.
@@ -106,7 +106,7 @@ Acceptance:
 
 ### T7 — Verify local setup and document final usage
 
-Status: done by implementer; awaiting owner/auditor acceptance
+Status: done by T7 implementer; awaiting final acceptance audit
 Depends on: T1-T6
 Files likely touched:
 - `README.md` if user-facing instructions are needed
