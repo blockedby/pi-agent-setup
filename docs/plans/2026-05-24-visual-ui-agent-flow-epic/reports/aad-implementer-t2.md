@@ -4,7 +4,7 @@ TASK_PACKAGE: docs/plans/2026-05-24-visual-ui-agent-flow-epic
 REPORT_PATH: docs/plans/2026-05-24-visual-ui-agent-flow-epic/reports/aad-implementer-t2.md
 PROGRESS_PATH: docs/plans/2026-05-24-visual-ui-agent-flow-epic/progress/aad-implementer-t2.md
 COMMITS:
-- not committed yet: pending local commit after report write
+- 0d3d839: Add browser visual review mode
 FILES_CHANGED:
 - agents/chrome-browser-agent.md: added explicit screenshot-first visual review mode instructions.
 - docs/plans/2026-05-24-visual-ui-agent-flow-epic/progress/aad-implementer-t2.md: recorded implementation progress and check evidence.

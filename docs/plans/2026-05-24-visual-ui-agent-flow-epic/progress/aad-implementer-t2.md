@@ -7,3 +7,4 @@
 - 2026-05-24: Targeted T2 phrase check and grep evidence passed for `agents/chrome-browser-agent.md`.
 - 2026-05-24: Quality checks passed: `git diff --check`; `npm run secrets:check`.
 - 2026-05-24: Wrote implementation report and delegated output report. Preparing local commit for T2 only.
+- 2026-05-24: Local commit created: `0d3d839 Add browser visual review mode`. Updating reports with commit evidence.
