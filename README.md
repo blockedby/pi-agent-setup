@@ -14,7 +14,8 @@ Private non-secret bootstrap for running the same Pi agent stack on `nl-2-nvme`.
   - `aad-explorer`
   - `aad-slice-owner`
   - `aad-acceptance-auditor`
-  - AAD chains: `aad-discovery-plan`, `aad-owned-change`, `aad-problem-investigation`
+  - `visual-critic`
+  - AAD chains: `aad-discovery-plan`, `aad-owned-change`, `aad-problem-investigation`, `visual-ui-change`
 - Shared AAD skills at `~/.pi/agent/skills/aad-*`
 - Browser Chrome skill at `~/.pi/agent/skills/browser-chrome` via git submodule
 - Browser Chrome MCP entries in `~/.pi/agent/mcp.json` pointing directly at skill scripts:
@@ -25,6 +26,10 @@ Private non-secret bootstrap for running the same Pi agent stack on `nl-2-nvme`.
 ## Agent pipeline diagrams
 
 See [`docs/agent-pipelines.html`](docs/agent-pipelines.html) for Mermaid diagrams of the checked-in subagents, AAD chains, and related worker loops.
+
+## Visual/UI lane
+
+For future public page visual work, landing pages, templates, hero sections, marketing blocks, or other product-quality UI surfaces, activate the optional `visual-ui-change` lane instead of the generic AAD flow. The slice owner should record a concise design/composition decision, route implementation with screenshot-first acceptance criteria, collect browser screenshots for the relevant viewports, identify the worst screenshot, and use `visual-critic` evidence before the acceptance auditor decides final status. DOM metrics, bounding boxes, and intersection checks remain supporting evidence only.
 
 ## What is intentionally not stored here
 

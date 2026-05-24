@@ -44,6 +44,10 @@ docs/plans/YYYY-MM-DD-<task-slug>/
     browser.md
     logs/
   artifacts/
+    screenshots/
+      <scope>/
+        <run-id>/
+          <viewport>-<section-or-scroll>.png
   progress/
     slice-owner.md
     aad-implementer-<task-id>.md
@@ -110,7 +114,8 @@ If a report path is provided, write or update that file before returning. If no 
 - `aad-implementer` progress → `progress/aad-implementer-<task-id>.md`
 - `aad-acceptance-auditor` → `reports/acceptance-auditor.md` and `verification/acceptance-plan.md` when it creates or updates the acceptance plan
 - `aad-failure-classifier` → `reports/aad-failure-classifier-<failure-id>.md`
-- `chrome-browser-agent` → `reports/browser-<scope>.md` or `verification/browser.md`
+- `chrome-browser-agent` → `reports/browser-<scope>.md` or `verification/browser.md`; visual screenshots under `artifacts/screenshots/<scope>/<run-id>/<viewport>-<section-or-scroll>.png`
+- `visual-critic` → `reports/visual-critic-<scope>.md` when delegated separately
 - owner final report → `final-report.md` or the final section of `plan.md`
 
 ## Writing rules

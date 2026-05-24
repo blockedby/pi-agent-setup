@@ -1,5 +1,11 @@
 # Pi Agent Setup Guidance
 
+## Visual/UI acceptance rubric
+
+For tasks that touch public page visuals, landing pages, templates, hero sections, marketing blocks, or product-quality UI surfaces, acceptance is screenshot-first. Require current screenshots for the relevant viewport set, identify the worst screenshot, and make a human-obvious-fail check before relying on technical metrics.
+
+Reject visual/UI work when screenshots show concise anti-patterns such as clipped or overlapping content, broken responsive layout, collage/debug-looking composition, generic low-premium template output, weak hierarchy/typography/spacing, or unreadable contrast. DOM metrics, bounding boxes, and intersection checks are supporting evidence only; they do not override an obvious visual failure in the screenshot.
+
 ## Local Pi setup debugging
 
 When a local `/reload` or Pi startup reports skill conflicts or extension load issues after changing this repo, debug the installed local setup, not just the checked-in files.
