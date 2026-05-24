@@ -8,4 +8,5 @@
 - 2026-05-24: Explicit forbidden exposure check passed: `rg -n "codex_task" ~/.pi/agent/agents agents || true` produced no matches.
 - 2026-05-24: Required Pi smoke test passed: `timeout 120 "$HOME/.vite-plus/bin/pi" --no-session --mode text -p 'Say OK and exit.'` returned `OK`.
 - 2026-05-24: Updated task package ledger/index and confirmed final README/plan usage docs mention `visual-ui-change`, `visual-critic`, screenshot-first evidence, and worst screenshot.
-- 2026-05-24: Running final quality checks (`git diff --check`, `npm run secrets:check`, submodule status).
+- 2026-05-24: Final quality checks passed: `git diff --check`, `npm run secrets:check`, `git -C packages/pi-codex status --short` (clean), and README/plan activation-doc content check.
+- 2026-05-24: Committed implementation/docs as `07d5bf1 Document visual UI lane local usage`; writing final T7 reports for a separate evidence commit.
