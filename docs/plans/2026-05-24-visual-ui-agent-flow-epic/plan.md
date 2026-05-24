@@ -106,7 +106,7 @@ Acceptance:
 
 ### T7 — Verify local setup and document final usage
 
-Status: pending
+Status: done by implementer; awaiting owner/auditor acceptance
 Depends on: T1-T6
 Files likely touched:
 - `README.md` if user-facing instructions are needed
@@ -118,6 +118,12 @@ Acceptance:
   `timeout 120 "$HOME/.vite-plus/bin/pi" --no-session --mode text -p 'Say OK and exit.'`
 - Installed local agents contain no forbidden `codex_task` exposure.
 - Final note explains how to activate visual/UI lane in future tasks.
+
+Implementation evidence:
+- `scripts/update-local.sh` passed locally and reported installed local agents lack `codex_task`.
+- `rg -n "codex_task" ~/.pi/agent/agents agents || true` produced no matches.
+- `timeout 120 "$HOME/.vite-plus/bin/pi" --no-session --mode text -p 'Say OK and exit.'` returned `OK`.
+- `README.md` now documents the optional `visual-ui-change` lane and `visual-critic` usage for future public page visual work.
 
 ## Execution order
 
@@ -133,7 +139,11 @@ Work one task at a time:
 
 ## Current next task
 
-Next: **T1 — Add visual/UI acceptance rubric to shared repo guidance**.
+Next: **Owner/auditor review of T7 evidence and final epic status**.
+
+## Final usage note
+
+For future public page visual work, landing pages, templates, hero sections, marketing blocks, or other product-quality UI surfaces, activate the optional `visual-ui-change` lane. The slice owner should record a concise design/composition decision, pass screenshot-first acceptance criteria to implementers, collect browser screenshots for the relevant viewports, identify the worst screenshot, and use `visual-critic` evidence before `aad-acceptance-auditor` decides final acceptance. Use the normal AAD owner flow for backend/config/docs-only/copy-only or other non-visual tasks.
 
 ## Notes from retrospective
 

@@ -9,3 +9,5 @@
 
 - Plan / execution ledger: [`plan.md`](plan.md)
 - Progress: [`progress/slice-owner.md`](progress/slice-owner.md)
+- T7 implementation report: [`reports/aad-implementer-t7.md`](reports/aad-implementer-t7.md)
+- T7 delegated output: [`reports/subagent-t7-output.md`](reports/subagent-t7-output.md)
