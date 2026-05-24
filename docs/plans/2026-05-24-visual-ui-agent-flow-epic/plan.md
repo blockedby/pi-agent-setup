@@ -106,7 +106,7 @@ Acceptance:
 
 ### T7 — Verify local setup and document final usage
 
-Status: done by T7 implementer; awaiting final acceptance audit
+Status: done and accepted
 Depends on: T1-T6
 Files likely touched:
 - `README.md` if user-facing instructions are needed
@@ -139,7 +139,7 @@ Work one task at a time:
 
 ## Current next task
 
-Next: **Owner/auditor review of T7 evidence and final epic status**.
+Done. Final acceptance audit accepted the epic with no required follow-up.
 
 ## Final usage note
 
