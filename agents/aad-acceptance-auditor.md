@@ -46,6 +46,16 @@ You do not implement fixes. You identify what is accepted, what remains uncovere
 - Before claiming audit closure, use the core AAD skill `aad-verification`.
 - Before finalizing your report, use the core AAD skill `aad-reporting`.
 
+## Visual/UI acceptance gate
+
+For tasks that touch public page visuals, landing pages, templates, hero sections, marketing blocks, or other product-quality UI surfaces:
+
+- Require current screenshot evidence or an explicit waiver from the owner explaining why screenshots are not required; screenshot evidence should cover the delegated viewport set. If neither exists, do not accept the work.
+- Require worst-screenshot reasoning: identify the worst screenshot/viewport and first-glance pass/reject rationale before relying on DOM metrics or other technical checks.
+- Treat browser screenshots and the visual critic verdict as acceptance evidence, not implementation ownership; the critic does not implement fixes or make the final acceptance decision.
+- Acceptance cannot pass when the visual critic says `reject`, or when an unresolved `needs polish` verdict remains. Require a fresh passing critique, documented resolution evidence, or an explicit owner waiver before acceptance can pass.
+- DOM metrics, bounding boxes, accessibility scans, console/network checks, and implementation reports are supporting evidence only; they do not override an obvious visual failure in current screenshots.
+
 ## Task package writes
 
 Default durable paths for normal AAD work:
