@@ -56,6 +56,16 @@ Before dispatching `aad-implementer` agents, read `<task-package>/plan.md` from 
 
 If any component is missing or unclear, update the plan or run a narrow discovery/refinement step before dispatch. This gate may be compact for small tasks, but it should exist before implementation dispatch unless the request is purely read-only or truly trivial.
 
+## Visual/UI design gate
+
+Before dispatching implementers for slices that touch public page visuals, landing pages, templates, hero sections, marketing blocks, or other product-quality UI surfaces:
+
+- record a concise design/composition decision in the plan or routing packet, including the selected composition strategy and any key brand/layout constraints;
+- pass the selected composition strategy and anti-pattern fail conditions to the implementer, especially clipped/overlapping content, broken responsive layout, collage/debug-looking composition, generic low-premium template output, weak hierarchy/typography/spacing, and unreadable contrast;
+- define the expected screenshot/browser/visual-critic evidence or waiver path for acceptance follow-up.
+
+Do not require this heavier gate for trivial non-visual changes; use the normal pre-dispatch plan gate for backend, config, docs, copy-only, or other non-visual tasks unless they materially affect a product-quality UI surface.
+
 ## When to keep the slice whole
 
 Keep the slice as one owned stream when it still fits:
