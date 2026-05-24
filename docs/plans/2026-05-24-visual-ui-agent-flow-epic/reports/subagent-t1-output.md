@@ -4,7 +4,7 @@ TASK_PACKAGE: docs/plans/2026-05-24-visual-ui-agent-flow-epic
 REPORT_PATH: docs/plans/2026-05-24-visual-ui-agent-flow-epic/reports/aad-implementer-t1.md
 PROGRESS_PATH: docs/plans/2026-05-24-visual-ui-agent-flow-epic/progress/aad-implementer-t1.md
 COMMITS:
-- pending local commit: Add visual/UI acceptance rubric guidance
+- 0121a74: Add visual UI acceptance rubric guidance
 FILES_CHANGED:
 - AGENTS.md: added concise screenshot-first visual/UI acceptance rubric.
 - docs/plans/2026-05-24-visual-ui-agent-flow-epic/progress/aad-implementer-t1.md: recorded implementation progress and check evidence.

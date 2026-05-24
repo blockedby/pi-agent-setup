@@ -6,3 +6,4 @@
 - 2026-05-24: Added concise `Visual/UI acceptance rubric` section to `AGENTS.md` only.
 - 2026-05-24: Targeted rubric phrase check passed. Quality checks passed: `git diff --check`; `npm run secrets:check`.
 - 2026-05-24: Wrote implementation report and delegated output report. Preparing local commit for T1 only.
+- 2026-05-24: Local commit created: `0121a74 Add visual UI acceptance rubric guidance`. Updated reports with commit evidence.
