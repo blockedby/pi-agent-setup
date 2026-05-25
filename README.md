@@ -7,15 +7,17 @@ Private non-secret bootstrap for running the same Pi agent stack on `nl-2-nvme`.
 - Pi CLI via Vite+: `@earendil-works/pi-coding-agent@0.74.0`
 - OpenAI Codex CLI via Vite+: `@openai/codex@0.130.0`
 - User settings at `~/.pi/agent/settings.json` on the remote install user, falling back to root when needed
+- Global terminal append prompt at `~/.pi/agent/APPEND_SYSTEM.md`
 - Custom executable subagents and chains at `~/.pi/agent/agents/`:
+  - `aad-root-owner`
+  - `aad-slice-owner`
   - `aad-implementer`
   - `aad-failure-classifier`
   - `chrome-browser-agent`
   - `aad-explorer`
-  - `aad-slice-owner`
   - `aad-acceptance-auditor`
   - `visual-critic`
-  - AAD chains: `aad-discovery-plan`, `aad-owned-change`, `aad-problem-investigation`, `visual-ui-change`
+  - Optional/legacy manual AAD chains: `aad-discovery-plan`, `aad-owned-change`, `aad-problem-investigation`, `visual-ui-change`
 - Shared AAD skills at `~/.pi/agent/skills/aad-*`
 - Browser Chrome skill at `~/.pi/agent/skills/browser-chrome` via git submodule
 - Browser Chrome MCP entries in `~/.pi/agent/mcp.json` pointing directly at skill scripts:
@@ -60,9 +62,15 @@ After changing this repo locally, run `scripts/update-local.sh`, then use `/relo
 
 For VPS installs, `scripts/install-vps.sh` deploys the extension into `~/.pi/agent/extensions/`; set any `PI_READY_NOTIFY_*` variables in the remote Pi launch environment. No host-specific notification settings or secrets are stored in this repo.
 
+## AAD routing model
+
+The installed global append prompt (`APPEND_SYSTEM.md`) tells the terminal main assistant to keep direct handling only for trivial one-step edits, questions, or checks. Clear small/single-slice AAD implementation work routes directly to `aad-slice-owner`. Multi-step, unclear, multi-slice, cross-cutting, or integration-heavy AAD work routes to `aad-root-owner`, which slices the work, delegates to slice owners, integrates results, and reports the final done-state.
+
+Skills are runbooks/support material and do not replace the owner/subagent hierarchy. `aad-implementer` and support agents are internal execution/evidence targets delegated by owners, not top-level default terminal routes. `aad-owned-change.chain.md` remains available as an optional/legacy/manual workflow, but it is not the default owned-work path.
+
 ## Agent pipeline diagrams
 
-See [`docs/agent-pipelines.html`](docs/agent-pipelines.html) for Mermaid diagrams of the checked-in subagents, AAD chains, and related worker loops.
+See [`docs/agent-pipelines.html`](docs/agent-pipelines.html) for Mermaid diagrams of the checked-in subagents, owner routing, optional AAD chains, and related worker loops.
 
 ## Visual/UI lane
 
@@ -81,7 +89,7 @@ Use the local update script after changing checked-in agents or the vendored `pi
 scripts/update-local.sh
 ```
 
-It installs `agents/*.md` into `~/.pi/agent/agents/`, installs `extensions/*.ts` into `~/.pi/agent/extensions/`, syncs checked-in skills into `~/.pi/agent/skills/`, reinstalls the vendored `packages/pi-codex` runtime dependencies with `npm ci`, verifies the ready-notify extension is declared, removes stale renamed agents/chains, rewrites the local Pi package entry for `pi-codex` to `packages/pi-codex`, backs up `~/.pi/agent/settings.json`, and verifies that installed AAD agents do not expose `codex_task`.
+It installs `APPEND_SYSTEM.md` into `~/.pi/agent/APPEND_SYSTEM.md`, installs `agents/*.md` into `~/.pi/agent/agents/`, installs `extensions/*.ts` into `~/.pi/agent/extensions/`, syncs checked-in skills into `~/.pi/agent/skills/`, reinstalls the vendored `packages/pi-codex` runtime dependencies with `npm ci`, verifies the ready-notify extension is declared, removes stale renamed agents/chains, rewrites the local Pi package entry for `pi-codex` to `packages/pi-codex`, backs up `~/.pi/agent/settings.json`, and verifies that installed AAD agents do not expose `codex_task`.
 
 ## Install on NL-2-NVMe
 
@@ -121,6 +129,8 @@ CONFIRM_COPY_PI_AUTH=1 TARGET_HOST=nl-2-nvme scripts/import-auth-vps.sh
 ```bash
 TARGET_HOST=nl-2-nvme scripts/verify-vps.sh
 ```
+
+The verifier checks the installed `APPEND_SYSTEM.md`, the `aad-root-owner` and `aad-slice-owner` agents, required skills, stale-agent cleanup, Pi packages, and a smoke prompt.
 
 ## Notes
 

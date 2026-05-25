@@ -154,7 +154,7 @@
     <header>
       <h1>Pi Agent Pipelines</h1>
       <p class="lede">
-        This page documents the executable agents and <code>pi-subagents</code> chain pipelines stored in
+        This page documents the executable agents, owner routing model, and optional <code>pi-subagents</code> chain pipelines stored in
         <code>agents/</code>. Diagrams are rendered with Mermaid in the browser.
       </p>
     </header>
@@ -164,7 +164,7 @@
       <div class="grid">
         <article class="card">
           <h3>AAD owner/support agents</h3>
-          <p><code>aad-slice-owner</code> owns scoped work. <code>aad-explorer</code> and <code>aad-acceptance-auditor</code> provide evidence and verification audit support.</p>
+          <p><code>aad-root-owner</code> owns multi-step or multi-slice root work. <code>aad-slice-owner</code> owns one slice. <code>aad-explorer</code> and <code>aad-acceptance-auditor</code> provide evidence and verification audit support.</p>
         </article>
         <article class="card">
           <h3>AAD worker agents</h3>
@@ -179,29 +179,28 @@
 
     <section>
       <h2>Top-level routing map</h2>
-      <p class="note">Use this map to pick the right agent or chain for a request.</p>
+      <p class="note">Use this map for terminal routing. Skills are runbooks/support and do not replace the AAD owner hierarchy.</p>
       <div class="diagram">
-        <p class="caption">High-level choices from a human or orchestrator request.</p>
+        <p class="caption">Default choices from the terminal main assistant.</p>
         <pre class="mermaid">
 flowchart TD
-  Request["Human / Pi request"] --> NeedPlan{"Need discovery or plan?"}
-  NeedPlan -- "yes" --> DiscoveryPlan["chain: aad-discovery-plan"]
-  NeedPlan -- "no" --> NeedImpl{"Need owned implementation?"}
-  NeedImpl -- "yes" --> OwnedChange["chain: aad-owned-change"]
-  NeedImpl -- "no" --> NeedPerspectives{"Need problem investigation?"}
-  NeedPerspectives -- "yes" --> ParallelInvestigation["chain: aad-problem-investigation"]
-  NeedPerspectives -- "no" --> DirectAgent{"Direct specialist"}
-  DirectAgent --> Explorer["aad-explorer"]
-  DirectAgent --> AcceptanceAuditor["aad-acceptance-auditor"]
-  DirectAgent --> Browser["chrome-browser-agent"]
-  DirectAgent --> WorkerAgents["aad-implementer / aad-failure-classifier"]
+  Request["Human / Pi request"] --> Trivial{"Trivial one-step edit, question, or check?"}
+  Trivial -- "yes" --> Terminal["Terminal main assistant handles directly"]
+  Trivial -- "no" --> SingleSlice{"Clear small / single-slice AAD change?"}
+  SingleSlice -- "yes" --> SliceOwner["aad-slice-owner\nown one slice"]
+  SingleSlice -- "no" --> RootOwner["aad-root-owner\nroot owner for unclear, multi-step, multi-slice, or integration-heavy work"]
+  RootOwner --> ChildSlices["delegates slices to aad-slice-owner"]
+  SliceOwner --> InternalWorkers["internal delegation:\naad-implementer / support agents"]
+  ChildSlices --> InternalWorkers
+  InternalWorkers --> Evidence["implementation, discovery, audit, browser, or failure evidence"]
         </pre>
       </div>
+      <p class="note"><code>aad-implementer</code> and support agents are internal execution/evidence targets, not the default top-level terminal route for owned AAD work.</p>
     </section>
 
     <section>
       <h2>AAD discovery-to-plan chain</h2>
-      <p class="note"><code>agents/aad-discovery-plan.chain.md</code> turns a request into evidence first, then an AAD plan or implementation decision.</p>
+      <p class="note"><code>agents/aad-discovery-plan.chain.md</code> remains available for optional/manual discovery-first workflows. It is not the default routing path for owned implementation work.</p>
       <div class="diagram">
         <p class="caption"><code>{task}</code> is the original request. <code>{previous}</code> is the previous agent's report.</p>
         <pre class="mermaid">
@@ -217,9 +216,9 @@ flowchart LR
 
     <section>
       <h2>AAD owned-change chain</h2>
-      <p class="note"><code>agents/aad-owned-change.chain.md</code> is the main end-to-end implementation workflow.</p>
+      <p class="note"><code>agents/aad-owned-change.chain.md</code> is an optional/legacy/manual end-to-end workflow. The default owned-work path is terminal routing to <code>aad-slice-owner</code> for clear single-slice work or <code>aad-root-owner</code> for multi-step/multi-slice/unclear work.</p>
       <div class="diagram">
-        <p class="caption">The slice owner starts and integrates the workflow; acceptance auditor provides both an audit pass and the final done-state gate.</p>
+        <p class="caption">Legacy/manual chain: the slice owner starts and integrates the workflow; acceptance auditor provides both an audit pass and the final done-state gate.</p>
         <pre class="mermaid">
 flowchart TD
   Task["{task}: requested change"] --> Owner1["aad-slice-owner\nown change end-to-end\ntask package, draft PR, implementation dispatch"]
@@ -254,10 +253,10 @@ flowchart LR
       <h2>AAD worker loop</h2>
       <p class="note">These are standalone agents rather than checked-in <code>.chain.md</code> pipelines, but their prompts define a common owner/orchestrator loop.</p>
       <div class="diagram">
-        <p class="caption">Typical implementation and failure classification flow. Acceptance remains with the owner and acceptance auditor.</p>
+        <p class="caption">Typical implementation and failure classification flow. Acceptance remains with the root/slice owner and acceptance auditor.</p>
         <pre class="mermaid">
 flowchart TD
-  Owner["AAD owner / orchestrator"] --> Story["scoped task + acceptance criteria + test commands"]
+  Owner["aad-root-owner / aad-slice-owner"] --> Story["scoped task + acceptance criteria + test commands"]
   Story --> Impl["aad-implementer\nred-green-refactor\nrun targeted checks"]
   Impl --> Result{"PI_RESULT"}
   Result -- "PASS" --> Done["implementation evidence\nready for owner/auditor decision"]
@@ -302,10 +301,16 @@ flowchart TD
             <td><code>replace</code>, project context <span class="ok">on</span>, skills <span class="ok">on</span></td>
           </tr>
           <tr>
+            <td><code>aad-root-owner</code></td>
+            <td>Own non-trivial root work; slice, delegate to slice owners, integrate results, and decide root done-state</td>
+            <td><span class="ok">Can edit/write</span> for owner artifacts; not hands-on coder by default</td>
+            <td><code>replace</code>, project context <span class="ok">on</span>, skills <span class="ok">on</span>, <code>subagent</code> with <code>maxSubagentDepth</code></td>
+          </tr>
+          <tr>
             <td><code>aad-slice-owner</code></td>
-            <td>Own one slice end-to-end; coordinate planning, delegation, verification, and integration</td>
+            <td>Own one clear slice end-to-end; coordinate planning, delegation, verification, and integration</td>
             <td><span class="ok">Can edit/write</span></td>
-            <td><code>replace</code>, project context <span class="ok">on</span>, skills <span class="ok">on</span></td>
+            <td><code>replace</code>, project context <span class="ok">on</span>, skills <span class="ok">on</span>, <code>subagent</code> with <code>maxSubagentDepth</code></td>
           </tr>
           <tr>
             <td><code>aad-acceptance-auditor</code></td>

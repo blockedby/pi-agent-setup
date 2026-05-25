@@ -1,7 +1,9 @@
 ---
 name: aad-owned-change
-description: AAD owned implementation workflow: slice owner creates task package and draft PR, dispatches implementation, acceptance auditor audits, owner integrates, final acceptance auditor gates done-state.
+description: Optional legacy/manual AAD owned implementation workflow; default terminal routing should use aad-slice-owner for clear single-slice work or aad-root-owner for multi-step/multi-slice/unclear work.
 ---
+
+> Note: this chain remains available for optional legacy/manual runs. For normal terminal routing, use `aad-slice-owner` directly for clear small/single-slice AAD work and `aad-root-owner` for multi-step, unclear, multi-slice, or integration-heavy AAD work.
 
 ## aad-slice-owner
 

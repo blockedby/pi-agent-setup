@@ -34,6 +34,9 @@ echo '== vite/node/npm/pi =='
 
 echo '== pi files =='
 test -f "$AGENT_DIR/settings.json"
+test -f "$AGENT_DIR/APPEND_SYSTEM.md"
+grep -q "aad-root-owner" "$AGENT_DIR/APPEND_SYSTEM.md"
+grep -q "aad-slice-owner" "$AGENT_DIR/APPEND_SYSTEM.md"
 test -d "$AGENT_DIR/agents"
 test -d "$AGENT_DIR/skills"
 find "$AGENT_DIR/agents" -maxdepth 1 -type f -name '*.md' -printf '%f\n' | sort
@@ -41,6 +44,7 @@ find "$AGENT_DIR/skills" -maxdepth 2 -type f -path '*/SKILL.md' -printf '%h\n' |
 
 for required in \
   aad-explorer.md \
+  aad-root-owner.md \
   aad-slice-owner.md \
   aad-acceptance-auditor.md \
   aad-implementer.md \

@@ -45,6 +45,7 @@ print("Verified ready-notify extension declaration.")
 PY
 
 mkdir -p "$AGENT_DIR/agents" "$AGENT_DIR/skills" "$AGENT_DIR/extensions"
+install -m 0600 "$repo_root/APPEND_SYSTEM.md" "$AGENT_DIR/APPEND_SYSTEM.md"
 install -m 0600 "$repo_root/agents/"*.md "$AGENT_DIR/agents/"
 install -m 0600 "$repo_root/extensions/"*.ts "$AGENT_DIR/extensions/"
 rsync -a "$repo_root/skills/" "$AGENT_DIR/skills/"
@@ -141,6 +142,7 @@ if grep -R --line-number --fixed-strings "codex_task" "$AGENT_DIR/agents" >/tmp/
 fi
 rm -f /tmp/pi-agent-setup-codex-task-check.$$
 
+echo "Installed local APPEND_SYSTEM.md to $AGENT_DIR/APPEND_SYSTEM.md"
 echo "Installed local agents to $AGENT_DIR/agents"
 echo "Verified codex_task is absent from installed local agents."
 echo "Ready-notify config is read from PI_READY_NOTIFY_* in the shell that launches Pi."
