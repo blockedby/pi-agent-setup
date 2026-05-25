@@ -212,19 +212,21 @@ function getSessionLabel(ctx: ExtensionContext, pi: ExtensionAPI): string {
   const namedSession = safeString(() => pi.getSessionName()) || safeString(() => ctx.sessionManager.getSessionName());
   if (namedSession) return normalizeLabel(namedSession);
 
-  // Match Pi's session selector semantics: unnamed sessions are shown by their
-  // first user message, not by the opaque JSONL session id/file name.
-  const firstUserMessage = getFirstUserMessageLabel(ctx);
-  if (firstUserMessage) return firstUserMessage;
+  // For unnamed sessions, show the latest user prompt so the notification
+  // identifies the turn that just finished, not the opaque JSONL session id.
+  const latestUserMessage = getLatestUserMessageLabel(ctx);
+  if (latestUserMessage) return latestUserMessage;
 
   const cwdBase = basename(ctx.cwd || process.cwd());
   return cwdBase ? `Unnamed session in ${cwdBase}` : "Unnamed session";
 }
 
-function getFirstUserMessageLabel(ctx: ExtensionContext): string | undefined {
+function getLatestUserMessageLabel(ctx: ExtensionContext): string | undefined {
   try {
-    for (const entry of ctx.sessionManager.getEntries()) {
-      if (entry.type !== "message") continue;
+    const entries = ctx.sessionManager.getEntries();
+    for (let i = entries.length - 1; i >= 0; i -= 1) {
+      const entry = entries[i];
+      if (!entry || entry.type !== "message") continue;
       const message = entry.message;
       if (message.role !== "user") continue;
       const text = extractMessageText(message);

@@ -40,7 +40,7 @@ export PI_READY_NOTIFY_DISABLED=1
 export PI_READY_NOTIFY_MIN_DURATION_MS=30000
 
 # customize text; {session} expands to the visible Pi session title:
-# explicit session name first, otherwise the first user prompt
+# explicit session name first, otherwise the latest user prompt
 export PI_READY_NOTIFY_TITLE="Pi — {session}"
 export PI_READY_NOTIFY_BODY="Ready for input"
 
@@ -50,7 +50,7 @@ export PI_READY_NOTIFY_BACKENDS=auto,bell
 export PI_READY_NOTIFY_BACKENDS=bell
 ```
 
-Default title is `Pi — {session}`, so the popup identifies which Pi session finished. `{session}` expands to the explicit session display name when set; for unnamed sessions it uses the first user prompt, matching Pi's session selector instead of the opaque session file id. Defaults prefer native desktop notification where available on local desktop sessions (`notify-send` on Linux, `osascript` on macOS, `powershell.exe` on Windows/WSL), then terminal OSC notification, then `bell`. In SSH sessions the default is OSC first, then `bell`, because remote `notify-send` usually cannot notify the local desktop. `osc` uses Kitty OSC 99 when `KITTY_WINDOW_ID` is present, otherwise OSC 777.
+Default title is `Pi — {session}`, so the popup identifies which Pi session finished. `{session}` expands to the explicit session display name when set; for unnamed sessions it uses the latest user prompt instead of the opaque session file id. Defaults prefer native desktop notification where available on local desktop sessions (`notify-send` on Linux, `osascript` on macOS, `powershell.exe` on Windows/WSL), then terminal OSC notification, then `bell`. In SSH sessions the default is OSC first, then `bell`, because remote `notify-send` usually cannot notify the local desktop. `osc` uses Kitty OSC 99 when `KITTY_WINDOW_ID` is present, otherwise OSC 777.
 
 After changing this repo locally, run `scripts/update-local.sh`, then use `/reload` in Pi or restart Pi. Test manually in an interactive session with:
 
