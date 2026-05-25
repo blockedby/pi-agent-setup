@@ -3,6 +3,7 @@ node_modules/
 .generated/
 dist/
 *.log
+.worktrees/
 
 # secrets/runtime state - never commit
 .env
