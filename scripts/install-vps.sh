@@ -9,8 +9,9 @@ TMP_DIR="/tmp/pi-agent-setup.$$"
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-ssh "$TARGET_HOST" "rm -rf '$TMP_DIR' && mkdir -p '$TMP_DIR/agents' '$TMP_DIR/settings' '$TMP_DIR/skills'"
+ssh "$TARGET_HOST" "rm -rf '$TMP_DIR' && mkdir -p '$TMP_DIR/agents' '$TMP_DIR/extensions' '$TMP_DIR/settings' '$TMP_DIR/skills'"
 rsync -a "$repo_root/agents/" "$TARGET_HOST:$TMP_DIR/agents/"
+rsync -a "$repo_root/extensions/" "$TARGET_HOST:$TMP_DIR/extensions/"
 rsync -a "$repo_root/settings/pi-settings.vps.json" "$TARGET_HOST:$TMP_DIR/settings/pi-settings.vps.json"
 rsync -a "$repo_root/skills/" "$TARGET_HOST:$TMP_DIR/skills/"
 
@@ -51,7 +52,7 @@ fi
 "$VP_BIN" install -g "@earendil-works/pi-coding-agent@$PI_VERSION"
 "$VP_BIN" install -g "@openai/codex@$CODEX_VERSION"
 
-mkdir -p "$AGENT_DIR/agents" "$AGENT_DIR/skills"
+mkdir -p "$AGENT_DIR/agents" "$AGENT_DIR/extensions" "$AGENT_DIR/skills"
 if [ -f "$AGENT_DIR/settings.json" ]; then
   cp -a "$AGENT_DIR/settings.json" "$AGENT_DIR/settings.json.bak.$(date -u +%Y%m%dT%H%M%SZ)"
 fi
@@ -71,6 +72,7 @@ for stale in \
 done
 
 install -m 0644 "$TMP_DIR/agents/"*.md "$AGENT_DIR/agents/"
+install -m 0644 "$TMP_DIR/extensions/"*.ts "$AGENT_DIR/extensions/"
 rsync -a --delete "$TMP_DIR/skills/" "$AGENT_DIR/skills/"
 
 BROWSER_CHROME_SKILL_DIR="$AGENT_DIR/skills/browser-chrome"
@@ -113,8 +115,8 @@ with mcp_path.open("w") as f:
 PY
 fi
 
-chmod 700 "$REMOTE_USER_HOME/.pi" "$AGENT_DIR" "$AGENT_DIR/agents" "$AGENT_DIR/skills"
-chmod 600 "$AGENT_DIR/agents/"*.md "$AGENT_DIR/settings.json"
+chmod 700 "$REMOTE_USER_HOME/.pi" "$AGENT_DIR" "$AGENT_DIR/agents" "$AGENT_DIR/extensions" "$AGENT_DIR/skills"
+chmod 600 "$AGENT_DIR/agents/"*.md "$AGENT_DIR/extensions/"*.ts "$AGENT_DIR/settings.json"
 find "$AGENT_DIR/skills" -type d -exec chmod 700 {} +
 find "$AGENT_DIR/skills" -type f -exec chmod 600 {} +
 find "$AGENT_DIR/skills/browser-chrome/scripts" -type f -name '*.sh' -exec chmod 700 {} + 2>/dev/null || true
@@ -124,6 +126,7 @@ fi
 
 rm -rf "$TMP_DIR"
 echo "Installed Pi agent setup under $AGENT_DIR"
+echo "Ready-notify extension installed; set PI_READY_NOTIFY_* in the shell/service that launches Pi."
 "$PI_BIN" --version
 "$CODEX_BIN" --version
 REMOTE

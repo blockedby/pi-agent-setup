@@ -30,11 +30,27 @@ fi
 echo "Installing packages/pi-codex runtime dependencies with $NPM_BIN"
 (cd "$CODEX_SUBMODULE" && "$NPM_BIN" ci --omit=dev)
 
-mkdir -p "$AGENT_DIR/agents" "$AGENT_DIR/skills"
+python3 - "$repo_root/package.json" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+package_json = Path(sys.argv[1])
+with package_json.open() as f:
+    data = json.load(f)
+extensions = data.get("pi", {}).get("extensions", [])
+if "./extensions/ready-notify.ts" not in extensions:
+    raise SystemExit("package.json does not declare ./extensions/ready-notify.ts")
+print("Verified ready-notify extension declaration.")
+PY
+
+mkdir -p "$AGENT_DIR/agents" "$AGENT_DIR/skills" "$AGENT_DIR/extensions"
 install -m 0600 "$repo_root/agents/"*.md "$AGENT_DIR/agents/"
+install -m 0600 "$repo_root/extensions/"*.ts "$AGENT_DIR/extensions/"
 rsync -a "$repo_root/skills/" "$AGENT_DIR/skills/"
 find "$AGENT_DIR/skills" -type d -exec chmod 700 {} +
 find "$AGENT_DIR/skills" -type f -exec chmod 600 {} +
+find "$AGENT_DIR/extensions" -type f -exec chmod 600 {} +
 
 # Remove known renamed/disabled agents and chains so old executable files do not
 # survive across local setup updates.
@@ -127,4 +143,5 @@ rm -f /tmp/pi-agent-setup-codex-task-check.$$
 
 echo "Installed local agents to $AGENT_DIR/agents"
 echo "Verified codex_task is absent from installed local agents."
+echo "Ready-notify config is read from PI_READY_NOTIFY_* in the shell that launches Pi."
 echo "Reload or restart Pi to pick up the updated agents/packages."

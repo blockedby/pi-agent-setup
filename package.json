@@ -5,6 +5,7 @@
   "description": "Private non-secret bootstrap for Pi agent setup on NL-2-NVMe.",
   "keywords": ["pi-package"],
   "pi": {
+    "extensions": ["./extensions/ready-notify.ts"],
     "skills": ["./skills"]
   },
   "dependencies": {

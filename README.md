@@ -21,7 +21,44 @@ Private non-secret bootstrap for running the same Pi agent stack on `nl-2-nvme`.
 - Browser Chrome MCP entries in `~/.pi/agent/mcp.json` pointing directly at skill scripts:
   - `browser-chrome-headed`
   - `browser-chrome-headless`
+- Ready-notify extension at `~/.pi/agent/extensions/ready-notify.ts`
 - Pi packages/extensions from `settings/pi-settings.vps.json`
+
+## Ready notifications
+
+This repo includes `extensions/ready-notify.ts`. In interactive Pi sessions it sends a best-effort desktop/terminal notification or bell after an agent run ends and Pi is idle/waiting for input. It does not notify in print/RPC/non-TTY runs or while follow-up/steering messages are queued.
+
+Configure it in the shell (or service environment) that launches Pi:
+
+```bash
+# disable all ready-notify side effects
+export PI_READY_NOTIFY=0
+# or
+export PI_READY_NOTIFY_DISABLED=1
+
+# skip short runs; default is 0
+export PI_READY_NOTIFY_MIN_DURATION_MS=30000
+
+# customize text; {session} expands to the visible Pi session title:
+# explicit session name first, otherwise the first user prompt
+export PI_READY_NOTIFY_TITLE="Pi — {session}"
+export PI_READY_NOTIFY_BODY="Ready for input"
+
+# choose backend order: auto, osc, notify-send, osascript, powershell, bell
+export PI_READY_NOTIFY_BACKENDS=auto,bell
+# force terminal bell fallback only
+export PI_READY_NOTIFY_BACKENDS=bell
+```
+
+Default title is `Pi — {session}`, so the popup identifies which Pi session finished. `{session}` expands to the explicit session display name when set; for unnamed sessions it uses the first user prompt, matching Pi's session selector instead of the opaque session file id. Defaults prefer native desktop notification where available on local desktop sessions (`notify-send` on Linux, `osascript` on macOS, `powershell.exe` on Windows/WSL), then terminal OSC notification, then `bell`. In SSH sessions the default is OSC first, then `bell`, because remote `notify-send` usually cannot notify the local desktop. `osc` uses Kitty OSC 99 when `KITTY_WINDOW_ID` is present, otherwise OSC 777.
+
+After changing this repo locally, run `scripts/update-local.sh`, then use `/reload` in Pi or restart Pi. Test manually in an interactive session with:
+
+```text
+/ready-notify-test
+```
+
+For VPS installs, `scripts/install-vps.sh` deploys the extension into `~/.pi/agent/extensions/`; set any `PI_READY_NOTIFY_*` variables in the remote Pi launch environment. No host-specific notification settings or secrets are stored in this repo.
 
 ## Agent pipeline diagrams
 
@@ -44,7 +81,7 @@ Use the local update script after changing checked-in agents or the vendored `pi
 scripts/update-local.sh
 ```
 
-It installs `agents/*.md` into `~/.pi/agent/agents/`, syncs checked-in skills into `~/.pi/agent/skills/`, reinstalls the vendored `packages/pi-codex` runtime dependencies with `npm ci`, removes stale renamed agents/chains, rewrites the local Pi package entry for `pi-codex` to `packages/pi-codex`, backs up `~/.pi/agent/settings.json`, and verifies that installed AAD agents do not expose `codex_task`.
+It installs `agents/*.md` into `~/.pi/agent/agents/`, installs `extensions/*.ts` into `~/.pi/agent/extensions/`, syncs checked-in skills into `~/.pi/agent/skills/`, reinstalls the vendored `packages/pi-codex` runtime dependencies with `npm ci`, verifies the ready-notify extension is declared, removes stale renamed agents/chains, rewrites the local Pi package entry for `pi-codex` to `packages/pi-codex`, backs up `~/.pi/agent/settings.json`, and verifies that installed AAD agents do not expose `codex_task`.
 
 ## Install on NL-2-NVMe
 
