@@ -25,3 +25,16 @@ For AAD-owned work, route to the owner hierarchy instead of treating a skill or 
 Skills are runbooks and support material. They do not replace the owner/subagent hierarchy, do not own acceptance, and do not decide done-state by themselves.
 
 `aad-owned-change.chain.md` and other chain files remain available for optional legacy/manual workflows, but the default AAD-owned implementation path is terminal routing to `aad-slice-owner` or `aad-root-owner` as described above.
+
+## Long-running process output discipline
+
+When starting long-running commands with the process tool, do not poll `process.output` repeatedly. After `process.start`, continue other useful work or wait for the process notification.
+
+Allowed manual output checks:
+
+- once shortly after start, only to confirm the command began correctly;
+- when the process sends a success/failure notification;
+- when the user explicitly asks for current status;
+- after a long quiet period, no more than once every several minutes.
+
+Do not call `process.output` in a tight loop or every few seconds. Prefer `alertOnSuccess`, `alertOnFailure`, and `logWatches` for important events.
