@@ -1,19 +1,36 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-TARGET_HOST="${TARGET_HOST:-nl-2-nvme}"
+TARGET_HOST="${TARGET_HOST:-}"
 REMOTE_USER_HOME="${REMOTE_USER_HOME:-}"
 PI_VERSION="${PI_VERSION:-0.74.0}"
 CODEX_VERSION="${CODEX_VERSION:-0.130.0}"
+PI_SETTINGS_FILE="${PI_SETTINGS_FILE:-settings/pi-settings.example.json}"
 TMP_DIR="/tmp/pi-agent-setup.$$"
 
+if [ -z "$TARGET_HOST" ]; then
+  echo "TARGET_HOST is required, for example: TARGET_HOST=<host> $0" >&2
+  exit 2
+fi
+
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+settings_path="$repo_root/$PI_SETTINGS_FILE"
+if [ ! -f "$settings_path" ]; then
+  echo "PI_SETTINGS_FILE not found: $PI_SETTINGS_FILE" >&2
+  echo "Use settings/pi-settings.example.json or an ignored settings/*.local.json copy." >&2
+  exit 2
+fi
+
+cleanup_remote() {
+  ssh "$TARGET_HOST" "rm -rf '$TMP_DIR'" >/dev/null 2>&1 || true
+}
+trap cleanup_remote EXIT
 
 ssh "$TARGET_HOST" "rm -rf '$TMP_DIR' && mkdir -p '$TMP_DIR/agents' '$TMP_DIR/extensions' '$TMP_DIR/settings' '$TMP_DIR/skills'"
 rsync -a "$repo_root/APPEND_SYSTEM.md" "$TARGET_HOST:$TMP_DIR/APPEND_SYSTEM.md"
 rsync -a "$repo_root/agents/" "$TARGET_HOST:$TMP_DIR/agents/"
 rsync -a "$repo_root/extensions/" "$TARGET_HOST:$TMP_DIR/extensions/"
-rsync -a "$repo_root/settings/pi-settings.vps.json" "$TARGET_HOST:$TMP_DIR/settings/pi-settings.vps.json"
+rsync -a "$settings_path" "$TARGET_HOST:$TMP_DIR/settings/settings.json"
 rsync -a "$repo_root/skills/" "$TARGET_HOST:$TMP_DIR/skills/"
 
 ssh "$TARGET_HOST" bash -s -- "$REMOTE_USER_HOME" "$PI_VERSION" "$CODEX_VERSION" "$TMP_DIR" <<'REMOTE'
@@ -27,7 +44,8 @@ if [ -n "$REQUESTED_REMOTE_USER_HOME" ]; then
   if [ -d "$REQUESTED_REMOTE_USER_HOME" ]; then
     REMOTE_USER_HOME="$REQUESTED_REMOTE_USER_HOME"
   else
-    REMOTE_USER_HOME="/root"
+    echo "REMOTE_USER_HOME does not exist on target: $REQUESTED_REMOTE_USER_HOME" >&2
+    exit 2
   fi
 elif [ -n "${HOME:-}" ] && [ -d "$HOME" ]; then
   REMOTE_USER_HOME="$HOME"
@@ -57,7 +75,7 @@ mkdir -p "$AGENT_DIR/agents" "$AGENT_DIR/extensions" "$AGENT_DIR/skills"
 if [ -f "$AGENT_DIR/settings.json" ]; then
   cp -a "$AGENT_DIR/settings.json" "$AGENT_DIR/settings.json.bak.$(date -u +%Y%m%dT%H%M%SZ)"
 fi
-install -m 0644 "$TMP_DIR/settings/pi-settings.vps.json" "$AGENT_DIR/settings.json"
+install -m 0644 "$TMP_DIR/settings/settings.json" "$AGENT_DIR/settings.json"
 install -m 0644 "$TMP_DIR/APPEND_SYSTEM.md" "$AGENT_DIR/APPEND_SYSTEM.md"
 
 # Remove known renamed/disabled agents and chains so old executable files do not

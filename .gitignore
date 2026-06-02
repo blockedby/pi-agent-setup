@@ -15,6 +15,7 @@ state/
 **/sessions/
 **/cache/
 *.PLAINTEXT.md
+settings/*.local.json
 id_rsa
 id_ed25519
 *.pem

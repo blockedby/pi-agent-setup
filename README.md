@@ -1,14 +1,16 @@
 # Pi Agent Setup
 
-Private non-secret bootstrap for running the same Pi agent stack on `nl-2-nvme`.
+Public, non-secret bootstrap for my Pi/Codex agent stack and AAD (Agentic Application Development) workflow. This repository is not a universal product or turnkey installer; it is a practical, inspectable example of how I keep coding-agent infrastructure bounded, repeatable, and verification-oriented across local and remote machines.
+
+It is meant to show the "how I work" layer: owner/implementer/auditor routing, reusable skills, browser tooling, setup scripts, secrets boundaries, and smoke checks. Hostnames, paths, credentials, sessions, and machine inventory are intentionally omitted or parameterized.
 
 ## What this installs
 
 - Pi CLI via Vite+: `@earendil-works/pi-coding-agent@0.74.0`
 - OpenAI Codex CLI via Vite+: `@openai/codex@0.130.0`
-- User settings at `~/.pi/agent/settings.json` on the remote install user, falling back to root when needed
-- Global terminal append prompt at `~/.pi/agent/APPEND_SYSTEM.md`
-- Custom executable subagents and chains at `~/.pi/agent/agents/`:
+- User settings at `$REMOTE_USER_HOME/.pi/agent/settings.json` on a target host
+- Global terminal append prompt at `$REMOTE_USER_HOME/.pi/agent/APPEND_SYSTEM.md`
+- Custom executable subagents and chains at `$REMOTE_USER_HOME/.pi/agent/agents/`:
   - `aad-root-owner`
   - `aad-slice-owner`
   - `aad-implementer`
@@ -18,13 +20,19 @@ Private non-secret bootstrap for running the same Pi agent stack on `nl-2-nvme`.
   - `aad-acceptance-auditor`
   - `visual-critic`
   - Optional/legacy manual AAD chains: `aad-discovery-plan`, `aad-owned-change`, `aad-problem-investigation`, `visual-ui-change`
-- Shared AAD skills at `~/.pi/agent/skills/aad-*`
-- Browser Chrome skill at `~/.pi/agent/skills/browser-chrome` via git submodule
-- Browser Chrome MCP entries in `~/.pi/agent/mcp.json` pointing directly at skill scripts:
+- Shared AAD skills at `$REMOTE_USER_HOME/.pi/agent/skills/aad-*`
+- Browser Chrome skill at `$REMOTE_USER_HOME/.pi/agent/skills/browser-chrome` via git submodule
+- Browser Chrome MCP entries in `$REMOTE_USER_HOME/.pi/agent/mcp.json` pointing directly at skill scripts:
   - `browser-chrome-headed`
   - `browser-chrome-headless`
-- Ready-notify extension at `~/.pi/agent/extensions/ready-notify.ts`
-- Pi packages/extensions from `settings/pi-settings.vps.json`
+- Ready-notify extension at `$REMOTE_USER_HOME/.pi/agent/extensions/ready-notify.ts`
+- Pi packages/extensions from `settings/pi-settings.example.json` or a local settings file selected with `PI_SETTINGS_FILE`
+
+## Public-safety boundary
+
+This repository should remain useful without exposing private infrastructure. Do not commit secrets, raw logs, credentials, tokens, cookies, chat IDs, private URLs, browser profiles, or machine inventory. Put local overrides in ignored files such as `.env`, `.env.local`, `settings/*.local.json`, or shell profile exports.
+
+See [`docs/secrets.md`](docs/secrets.md) and [`docs/public-readiness.md`](docs/public-readiness.md) for the exact boundary and customization model.
 
 ## Ready notifications
 
@@ -60,7 +68,7 @@ After changing this repo locally, run `scripts/update-local.sh`, then use `/relo
 /ready-notify-test
 ```
 
-For VPS installs, `scripts/install-vps.sh` deploys the extension into `~/.pi/agent/extensions/`; set any `PI_READY_NOTIFY_*` variables in the remote Pi launch environment. No host-specific notification settings or secrets are stored in this repo.
+For remote installs, `scripts/install-remote.sh` deploys the extension into `$REMOTE_USER_HOME/.pi/agent/extensions/`; set any `PI_READY_NOTIFY_*` variables in the remote Pi launch environment. No host-specific notification settings or secrets are stored in this repo.
 
 ## AAD routing model
 
@@ -76,11 +84,6 @@ See [`docs/agent-pipelines.html`](docs/agent-pipelines.html) for Mermaid diagram
 
 For future public page visual work, landing pages, templates, hero sections, marketing blocks, or other product-quality UI surfaces, activate the optional `visual-ui-change` lane instead of the generic AAD flow. The slice owner should record a concise design/composition decision, route implementation with screenshot-first acceptance criteria, collect browser screenshots for the relevant viewports, identify the worst screenshot, and use `visual-critic` evidence before the acceptance auditor decides final status. DOM metrics, bounding boxes, and intersection checks remain supporting evidence only.
 
-## What is intentionally not stored here
-
-See `docs/secrets.md`. In short: no `auth.json`, no API keys/tokens, no sessions,
-no SSH private keys, no runtime state.
-
 ## Update local Pi setup
 
 Use the local update script after changing checked-in agents or the vendored `pi-codex` submodule:
@@ -89,29 +92,30 @@ Use the local update script after changing checked-in agents or the vendored `pi
 scripts/update-local.sh
 ```
 
-It installs `APPEND_SYSTEM.md` into `~/.pi/agent/APPEND_SYSTEM.md`, installs `agents/*.md` into `~/.pi/agent/agents/`, installs `extensions/*.ts` into `~/.pi/agent/extensions/`, syncs checked-in skills into `~/.pi/agent/skills/`, reinstalls the vendored `packages/pi-codex` runtime dependencies with `npm ci`, verifies the ready-notify extension is declared, removes stale renamed agents/chains, rewrites the local Pi package entry for `pi-codex` to `packages/pi-codex`, backs up `~/.pi/agent/settings.json`, and verifies that installed AAD agents do not expose `codex_task`.
+It installs `APPEND_SYSTEM.md` into `$HOME/.pi/agent/APPEND_SYSTEM.md`, installs `agents/*.md` into `$HOME/.pi/agent/agents/`, installs `extensions/*.ts` into `$HOME/.pi/agent/extensions/`, syncs checked-in skills into `$HOME/.pi/agent/skills/`, reinstalls the vendored `packages/pi-codex` runtime dependencies with `npm ci`, verifies the ready-notify extension is declared, removes stale renamed agents/chains, rewrites the local Pi package entry for `pi-codex` to `packages/pi-codex`, backs up `$HOME/.pi/agent/settings.json`, and verifies that installed AAD agents do not expose `codex_task`.
 
-## Install on NL-2-NVMe
+## Install on a remote host
 
-Prerequisite: Vite+ already installed for the remote install user on the VPS. Set `REMOTE_USER_HOME=/path/to/home` to override auto-detection; if no usable user home is found, scripts fall back to `/root`.
-
-Optional version overrides:
+Prerequisite: Vite+ already installed for the remote install user. Set the target and optional paths explicitly for your environment:
 
 ```bash
-PI_VERSION=0.74.0 CODEX_VERSION=0.130.0 TARGET_HOST=nl-2-nvme scripts/install-vps.sh
+TARGET_HOST=<host> \
+REMOTE_USER_HOME=/home/<user> \
+PI_SETTINGS_FILE=settings/pi-settings.example.json \
+PI_VERSION=0.74.0 \
+CODEX_VERSION=0.130.0 \
+scripts/install-remote.sh
 ```
 
-```bash
-TARGET_HOST=nl-2-nvme scripts/install-vps.sh
-```
+`REMOTE_USER_HOME` is optional. If it is omitted, the scripts use the remote shell's `$HOME`; they only fall back to `/root` when no usable home is available. `PI_SETTINGS_FILE` may point to an ignored local settings file such as `settings/pi-settings.local.json`.
 
 ## Codex login
 
-After install, log in interactively on the VPS when needed:
+After install, log in interactively on the target host when needed:
 
 ```bash
-ssh nl-2-nvme
-~/.vite-plus/bin/codex login
+ssh <host>
+$HOME/.vite-plus/bin/codex login
 ```
 
 Do not commit Codex auth/session files to this repo.
@@ -121,13 +125,17 @@ Do not commit Codex auth/session files to this repo.
 Only after explicit approval. Uses the same remote home resolution as install/verify unless `REMOTE_AUTH` is set explicitly:
 
 ```bash
-CONFIRM_COPY_PI_AUTH=1 TARGET_HOST=nl-2-nvme scripts/import-auth-vps.sh
+CONFIRM_COPY_PI_AUTH=1 \
+TARGET_HOST=<host> \
+REMOTE_USER_HOME=/home/<user> \
+LOCAL_AUTH=$HOME/.pi/agent/auth.json \
+scripts/import-auth-remote.sh
 ```
 
-## Verify
+## Verify a remote install
 
 ```bash
-TARGET_HOST=nl-2-nvme scripts/verify-vps.sh
+TARGET_HOST=<host> REMOTE_USER_HOME=/home/<user> scripts/verify-remote.sh
 ```
 
 The verifier checks the installed `APPEND_SYSTEM.md`, the `aad-root-owner` and `aad-slice-owner` agents, required skills, stale-agent cleanup, Pi packages, and a smoke prompt.
@@ -137,24 +145,17 @@ The verifier checks the installed `APPEND_SYSTEM.md`, the `aad-root-owner` and `
 `pi-subagents` discovers user agents from:
 
 ```text
-~/.pi/agent/agents/*.md
-~/.agents/*.md
+$HOME/.pi/agent/agents/*.md
+$HOME/.agents/*.md
 ```
 
-The older local stash at `~/.pi/agents` is not used by current `pi-subagents`
-discovery, so this repo stores normalized agent definitions with YAML
-frontmatter and deploys them to `~/.pi/agent/agents` on the remote install user.
+The older local stash at `$HOME/.pi/agents` is not used by current `pi-subagents` discovery, so this repo stores normalized agent definitions with YAML frontmatter and deploys them to `$HOME/.pi/agent/agents` on the install user.
 
-Pi loads global skills from `~/.pi/agent/skills/`. This repo also declares
-`pi.skills` in `package.json`, so the `skills/` directory can be reused later as
-a git/npm Pi package, while the VPS bootstrap still installs the skills directly
-for deterministic availability.
+Pi loads global skills from `$HOME/.pi/agent/skills/`. This repo also declares `pi.skills` in `package.json`, so the `skills/` directory can be reused later as a git/npm Pi package, while the remote bootstrap still installs the skills directly for deterministic availability.
 
 ## Browser Chrome
 
-`skills/browser-chrome` is a submodule pointing at
-`github.com/blockedby/browser-chrome-skill`. Clone/update with submodules before
-installing:
+`skills/browser-chrome` is a submodule pointing at `github.com/blockedby/browser-chrome-skill`. Clone/update with submodules before installing:
 
 ```bash
 git submodule update --init --recursive
@@ -165,12 +166,6 @@ The `browser-chrome` skill chooses between:
 - `browser-chrome-headless` — disposable headless Chrome for public/simple/parallel checks.
 - `browser-chrome-headed` — headed persistent Chrome only for auth/session/profile tasks.
 
-The install script merges the two MCP servers into `~/.pi/agent/mcp.json` using
-absolute paths to the installed skill scripts. It does not add wrapper commands
-to `~/.local/bin`. The headed profile, Chrome cookies, saved sessions, and
-browser cache are not stored in this repository.
+The install script merges the two MCP servers into `$HOME/.pi/agent/mcp.json` using absolute paths to the installed skill scripts. It does not add wrapper commands to `$HOME/.local/bin`. The headed profile, Chrome cookies, saved sessions, and browser cache are not stored in this repository.
 
-For remote/VPS setups, headed and headless Chrome can both run on another host
-behind LAN/Tailscale/SSH tunnel. Configure the skill with environment variables
-such as `BROWSER_CHROME_HEADED_URL`, `BROWSER_CHROME_HEADED_START_COMMAND`,
-`BROWSER_CHROME_HEADLESS_START_COMMAND`, and `BROWSER_CHROME_HEADLESS_CLOSE_COMMAND`.
+For remote setups, headed and headless Chrome can both run on another host behind a LAN/VPN/SSH tunnel. Configure the skill with environment variables such as `BROWSER_CHROME_HEADED_URL`, `BROWSER_CHROME_HEADED_START_COMMAND`, `BROWSER_CHROME_HEADLESS_START_COMMAND`, and `BROWSER_CHROME_HEADLESS_CLOSE_COMMAND`.

@@ -34,5 +34,5 @@
   "followUpMode": "all",
   "transport": "auto",
   "theme": "pi-studio-dark",
-  "npmCommand": ["/root/.vite-plus/bin/npm"]
+  "npmCommand": ["npm"]
 }

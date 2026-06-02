@@ -2,8 +2,8 @@
   "name": "pi-agent-setup",
   "private": true,
   "version": "0.1.0",
-  "description": "Private non-secret bootstrap for Pi agent setup on NL-2-NVMe.",
-  "keywords": ["pi-package"],
+  "description": "Public non-secret bootstrap for a Pi/Codex AAD agent stack.",
+  "keywords": ["pi-package", "agentic-workflow", "codex", "aad"],
   "pi": {
     "extensions": ["./extensions/ready-notify.ts"],
     "skills": ["./skills"]
@@ -13,7 +13,7 @@
   },
   "scripts": {
     "secrets:check": "bash scripts/secrets-check.sh",
-    "verify:nl2": "bash scripts/verify-vps.sh",
-    "install:nl2": "bash scripts/install-vps.sh"
+    "verify:remote": "bash scripts/verify-remote.sh",
+    "install:remote": "bash scripts/install-remote.sh"
   }
 }

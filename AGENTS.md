@@ -1,5 +1,26 @@
 # Pi Agent Setup Guidance
 
+## Public-safety rules
+
+This repository is intended to be public, non-secret evidence of a disciplined Pi/Codex/AAD agent stack. Keep public-facing material English, professional, and honest: describe it as personal workflow infrastructure, not a universal product or fully autonomous system.
+
+Never commit secrets, raw logs, credentials, tokens, cookies, chat IDs, private URLs, browser profiles, sessions, or machine inventory. Use placeholders such as `$HOME`, `<repo>`, `<host>`, `<remote>`, `/home/<user>`, environment variables, or ignored local config files. Machine-specific settings belong in `.env*` or `settings/*.local.json`, not public docs.
+
+Do not recreate historical task packages under `docs/plans/**` for public-bound work in this repo unless explicitly approved; write temporary task reports outside the repo or use a clearly sanitized public doc. The old historical plans were intentionally removed for public readiness.
+
+## Setup and verification checks
+
+Public-readiness changes should run, when feasible:
+
+```bash
+git status --short
+git diff --check
+npm run secrets:check
+rg -n "<add-old-hostname>|<add-old-local-path>|BEGIN (RSA|OPENSSH)|api[_-]?key|token|cookie|chat_id|webhook" -S --glob '!node_modules/**' --glob '!packages/pi-codex/node_modules/**' .
+```
+
+For local Pi setup checks, use the debugging loop below. Remote install/verify scripts require explicit `TARGET_HOST=<host>` and accept `REMOTE_USER_HOME=/home/<user>` and `PI_SETTINGS_FILE=settings/pi-settings.local.json`.
+
 ## Visual/UI acceptance rubric
 
 For tasks that touch public page visuals, landing pages, templates, hero sections, marketing blocks, or product-quality UI surfaces, acceptance is screenshot-first. Require current screenshots for the relevant viewport set, identify the worst screenshot, and make a human-obvious-fail check before relying on technical metrics.

@@ -6,11 +6,15 @@ if [ "${CONFIRM_COPY_PI_AUTH:-}" != "1" ]; then
   exit 1
 fi
 
-TARGET_HOST="${TARGET_HOST:-nl-2-nvme}"
+TARGET_HOST="${TARGET_HOST:-}"
 REMOTE_USER_HOME="${REMOTE_USER_HOME:-}"
 LOCAL_AUTH="${LOCAL_AUTH:-$HOME/.pi/agent/auth.json}"
 REMOTE_AUTH="${REMOTE_AUTH:-}"
 
+if [ -z "$TARGET_HOST" ]; then
+  echo "TARGET_HOST is required, for example: TARGET_HOST=<host> $0" >&2
+  exit 2
+fi
 if [ ! -f "$LOCAL_AUTH" ]; then
   echo "Local auth file not found: $LOCAL_AUTH" >&2
   exit 1
@@ -27,7 +31,8 @@ if [ -n "$REQUESTED_REMOTE_USER_HOME" ]; then
   if [ -d "$REQUESTED_REMOTE_USER_HOME" ]; then
     REMOTE_USER_HOME="$REQUESTED_REMOTE_USER_HOME"
   else
-    REMOTE_USER_HOME="/root"
+    echo "REMOTE_USER_HOME does not exist on target: $REQUESTED_REMOTE_USER_HOME" >&2
+    exit 2
   fi
 elif [ -n "${HOME:-}" ] && [ -d "$HOME" ]; then
   REMOTE_USER_HOME="$HOME"
