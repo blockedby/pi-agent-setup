@@ -109,6 +109,13 @@ Acceptance criteria:
 - <observable criterion 1>
 - <observable criterion 2>
 
+Evidence route:
+- Existing automated checks first: <relevant existing tests/scripts/checks, or none found>
+- If existing checks do not cover a criterion: <add/extend a test, run a bounded runtime/browser/container/API probe, use parent/user-held env or credential via HANDOFF, or accept a limited claim>
+- Bounded acceptance probe: <smallest direct runtime/manual/browser/container/client reproduction that exercises the claim, or why not authorized/practical>
+- Access/runtime needed: <env/profile/device/service/credential path needed, if any; executor/parent/user responsible for providing it>
+- Outcome boundary: <what PASS/FAIL/HANDOFF/BLOCKED/limited claim can and cannot prove>
+
 Test plan:
 - Positive:
   - <targeted test/check for happy path 1>
@@ -141,6 +148,10 @@ No meaningful plan task should omit acceptance criteria or a verification plan. 
 - Make verification explicit for each meaningful checkpoint.
 - Tie acceptance criteria to tests or checks wherever possible.
 - Prefer TDD for plan tasks where the repo has suitable test infrastructure.
+- Include an Evidence route for each meaningful task: start with existing automated checks, then name the smallest bounded acceptance probe needed to exercise uncovered criteria.
+- When existing tests do not cover a criterion, the plan must say whether to add or extend a test, run a bounded runtime/browser/container/API probe, use parent/user-held environment or credentials via `HANDOFF`, or accept a clearly limited claim.
+- Evidence routes must name access/runtime needs, including required env, profile, device, service, credential path, and whether the executor, parent, or user supplies them.
+- Evidence routes must state the outcome boundary: what the planned evidence can prove, what it cannot prove, and when the result should become `PASS`, `FAIL`, `HANDOFF`, `BLOCKED`, or a limited claim.
 - Use checklist steps inside a task when that makes execution easier, but do not mistake mechanical checklist items for plan tasks.
 - Record dependencies so the owner can later decide parallel execution waves.
 

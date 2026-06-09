@@ -88,12 +88,21 @@ If a proving check fails:
 4. Convert non-blocking failures or observations into follow-up issues.
 5. Re-run the proving check after any fix.
 
+## Evidence route before terminal outcomes
+
+Before reporting a terminal outcome such as `PASS`, `FAIL`, `HANDOFF`, `BLOCKED`, `ready`, `done`, `fixed`, or `not enough evidence`, execute the planned Evidence route or update it with the closest available direct evidence.
+
+Do not stop at code inspection or static reasoning when existing tests, project scripts, browser checks, `curl`/API smoke checks, disposable containers, clients, or focused reproductions can cheaply exercise the claim.
+
+Credentials and access are not automatic skip reasons. Use authorized available access when it is already in scope; use `HANDOFF` when the parent or user holds the needed env/profile/device/service/credential path and the requested probe is bounded; use `BLOCKED` only when no bounded authorized route exists.
+
 ## Rules
 
 - Fresh verification beats memory.
 - Narrow verification is fine when it directly proves the changed path.
 - Final readiness needs broader evidence than a local task check.
 - Acceptance criteria must be covered by tests or explicit manual checks wherever possible.
+- Execute the planned Evidence route before any terminal outcome, or revise it with the closest bounded direct evidence that was actually available.
 - If the proving check fails, report failure instead of softening it.
 - Do not rely on earlier runs once new changes have been made.
 - Do not claim readiness from partial evidence unless the unverified areas are listed as risk, follow-up, or blocker.

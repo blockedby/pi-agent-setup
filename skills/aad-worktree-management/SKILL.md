@@ -16,8 +16,10 @@ Follow the repo convention directly. Do not ask the user where to place worktree
 1. Use `.worktrees/` at the repository root.
 2. Verify `.worktrees/` is ignored before creating a new worktree.
 3. Create the branch from the intended base branch.
-4. Create the worktree under `.worktrees/<branch-or-topic>`.
-5. Report the resulting path and branch clearly.
+4. When creating a new task branch, prefer Conventional Branch-style lowercase prefixes: `feat/`, `fix/`, `hotfix/`, `release/`, or `chore/`. Use the prefix that best matches the delegated change and a concise description segment made only of lowercase letters, numbers, hyphens, and dots; do not use spaces or underscores. Follow an existing local branch convention instead if it is stricter.
+5. Do not rename or recreate existing branches just to satisfy the convention.
+6. Create the worktree under `.worktrees/<branch-or-topic>`.
+7. Report the resulting path and branch clearly.
 
 ## Parent/child worktree lineage
 

@@ -15,14 +15,14 @@ Treat PR creation as the first finish milestone. After the PR exists, prepare th
 
 1. In the feature worktree, confirm the current branch is not `main`.
 2. Run fresh proving verification for the current branch state.
-3. Open or update the PR to `main`. Record the PR URL and number.
+3. Open or update the PR to `main`. Record the PR URL, number, and intended `owner/repo`. If fork/upstream ambiguity exists, use `gh ... --repo owner/repo` for every PR/check operation rather than relying on the worktree remote or a numeric PR alone.
 4. Run `bash scripts/aad/target-branch-prepare.sh --base main` from the feature worktree.
 5. Read the script output and decide the verification next step:
    - if `rerun_required=true`, run fresh regression verification now
    - if you add new fix-up commits after rebase fallout, rerun fresh verification again after those commits
 6. Push the refreshed branch.
-7. If `gh pr view <N> --json state` reports `state=MERGED`, skip merge and continue with local sync / cleanup reporting.
-8. If merge is authorized, move to the primary checkout on `main` and run `gh pr merge <N> --squash`.
+7. If `gh pr view <N> --json state` reports `state=MERGED`, skip merge and continue with local sync / cleanup reporting. In fork/upstream-ambiguous contexts, run this as `gh pr view <N> --repo owner/repo --json state`.
+8. If merge is authorized, move to the primary checkout on `main` and run `gh pr merge <N> --squash`. In fork/upstream-ambiguous contexts, include `--repo owner/repo`.
 9. From the primary checkout, run `bash scripts/aad/root-main-sync.sh --delete-worktree "<feature-worktree-path>" --delete-branch "<feature-branch>"`.
 10. Report the PR URL, rebase result, verification result, merge result, cleanup result, and any stash label used to preserve root-checkout state.
 

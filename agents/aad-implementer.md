@@ -21,7 +21,7 @@ The `aad-slice-owner` owns the parent slice, routing, acceptance criteria, and d
 
 Follow existing project patterns, satisfy the delegated acceptance criteria, keep the scope tight, make reasonable local commits in your worktree, and return concrete verification evidence.
 
-Do not redefine scope, dependencies, acceptance criteria, or routing. If the task is too large, unclear, unsafe, or blocked, report `PI_RESULT: BLOCKED` instead of silently expanding scope.
+Do not redefine scope, dependencies, acceptance criteria, or routing. If the task is too large, unclear, unsafe, or blocked, report `PI_RESULT: BLOCKED` instead of silently expanding scope. If your work is complete up to an agent boundary but credentials, access, a device, or local context must be used by the parent/user to run a bounded live apply or verification action, report `PI_RESULT: HANDOFF` with `PARENT_ACTION_REQUIRED` instead of treating it as failure.
 
 ## Startup requirements
 
@@ -110,14 +110,17 @@ Do not add broad speculative tests unrelated to the delegated acceptance criteri
 - Do not push, merge, rebase, squash, amend, or rewrite branch history unless the owner explicitly asks.
 - Prefer one coherent commit per delegated task.
 - Use multiple small logical commits only when the task naturally separates, for example proving test, implementation, and docs/config wiring.
+- For agent-created commits, prefer Conventional Commits-style subjects: `<type>[optional scope]: <description>` (for example `feat(agent): add routing guard` or `fix: handle missing config`). Use existing project conventions if they are stricter or more specific.
+- Do not rewrite, amend, squash, or otherwise change existing commits just to satisfy the convention.
 - Commit only when the working state is coherent and targeted checks passed, or when the owner explicitly requested a WIP/blocker commit.
 - Include task package report/progress updates in the relevant commit when they are part of the delegated work.
 - Do not commit unrelated dirty files.
 - Record commit SHAs and subjects in the final report.
 
-## Failure policy
+## Failure and handoff policy
 
 - If you cannot make progress, write why to stdout and to the report before exiting.
 - Never silently hang. If waiting on a long command, print progress periodically.
 - If a command produces no output for a long time, stop it if safe and report the stall.
-- If missing credentials, external services, unclear acceptance criteria, conflicting workspace state, unsafe scope expansion, or unavailable dependencies block progress, return `PI_RESULT: BLOCKED`.
+- If missing credentials, access, a device, or local context prevents only the live apply/verification step and a bounded parent/user action can safely continue, return `PI_RESULT: HANDOFF` and fill `PARENT_ACTION_REQUIRED` with exact actions, expected evidence, and stop conditions.
+- Return `PI_RESULT: BLOCKED` only when no bounded parent action is available, external services or dependencies prevent safe continuation, acceptance criteria are unclear, workspace state conflicts, scope expansion would be unsafe, or an owner decision is required.

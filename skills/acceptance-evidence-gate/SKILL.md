@@ -31,9 +31,12 @@ For each acceptance criterion, record:
 
 ## Done-state guardrails
 
-Do not treat work as ready when any of these apply unless the owner records an explicit limitation or waiver:
+Do not accept terminal outcomes such as `ready`, `PASS`, `BLOCKED`, or `HANDOFF` when any of these apply unless the owner records an explicit limitation or waiver:
 
 - an acceptance criterion has no evidence or only unrelated broad checks;
+- the planned Evidence route, existing relevant test, or bounded acceptance probe was skipped without explanation;
+- `ready` or `PASS` evidence only proves that code changed, not that the claimed behavior or readiness outcome works;
+- a `BLOCKED` or `HANDOFF` result is claimed while a smaller bounded authorized probe could still narrow the result before escalation;
 - targeted checks are stale after content changes, rebase, or conflict resolution;
 - visual/UI work lacks current screenshot evidence or an explicit screenshot waiver;
 - a visual critic/browser report says `reject` or unresolved `needs polish` remains;

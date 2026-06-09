@@ -40,7 +40,7 @@ Use short dated/status bullets. Do not duplicate full logs; put large logs under
 End every implementation task with this shape, either in the report file or inline:
 
 ```text
-PI_RESULT: PASS|FAIL|BLOCKED
+PI_RESULT: PASS|FAIL|HANDOFF|BLOCKED
 TASK: <task id/name>
 TASK_PACKAGE: <path or not provided>
 REPORT_PATH: <path written or not provided>
@@ -50,7 +50,7 @@ COMMITS:
 FILES_CHANGED:
 - <path>: <short reason>
 AC_VERIFICATION:
-- <AC>: <test/check/manual evidence> — <passed/failed/not run>
+- <AC>: <test/check/manual evidence, including Evidence route alignment or closest available direct evidence> — <passed/failed/not run>
 TESTS_RUN:
 - <command/check>: <passed/failed/not run>
 QUALITY_CHECKS:
@@ -67,6 +67,11 @@ QUALITY_NOTES:
 SIDE_FINDINGS:
 - Blocking: <none / exact blocker>
 - Non-blocking follow-up candidates: <none / concise list>
+PARENT_ACTION_REQUIRED:
+- Action: <none / exact bounded parent-side command, UI action, live apply, device action, or credentialed verification>
+- Reason: <why the implementer cannot perform it: credentials/access/device/local context>
+- Expected evidence: <specific output, screenshot, check result, deployment status, or manual confirmation the parent/user should return>
+- Safety bounds: <exact limits and stop conditions; do not include secrets>
 NOTES: <concise notes for the slice owner>
 ```
 
@@ -74,13 +79,16 @@ NOTES: <concise notes for the slice owner>
 
 - `PASS`: delegated implementation is complete, targeted evidence passed, and any remaining limitations are explicitly non-blocking for the delegated task.
 - `FAIL`: implementation attempted but checks still fail or behavior remains incorrect.
-- `BLOCKED`: work cannot safely proceed because of missing credentials, unclear scope/acceptance criteria, conflicting workspace state, unsafe scope expansion, unavailable dependency, or a required owner decision.
+- `HANDOFF`: delegated work is complete up to the agent boundary, but the parent/user environment must run a bounded live apply or verification action because required credentials, access, device, or local context are not available to the implementer.
+- `BLOCKED`: work cannot safely proceed because no bounded parent action is available, scope/acceptance criteria are unclear, workspace state conflicts, scope expansion would be unsafe, a dependency is unavailable, or an owner decision is required.
 
 ## Evidence rules
 
 - Cite exact commands/checks and results.
+- Align acceptance evidence with the planned Evidence route when one exists; if it could not be followed, state the closest direct evidence used and the remaining outcome boundary.
 - For skipped checks, state why they were not run.
 - Do not claim acceptance; say what implementation evidence exists.
+- For `HANDOFF`, fill `PARENT_ACTION_REQUIRED` with exact parent-side actions, safety bounds, and expected evidence; keep public-safety/no-secrets constraints and use placeholders for private values.
 - Mention any env/config/migration/docker changes explicitly so the acceptance auditor can focus on readiness risks.
 - Use `QUALITY_CHECKS` for command evidence such as formatter, lint, typecheck, static analysis, affected build, or skipped-check reasons.
 - Use `QUALITY_NOTES` for non-command quality evidence: readability, reuse/deduplication, existing logging/error conventions, backend/API/data implementation quality, frontend/UI implementation quality, DevOps/runtime implementation quality, security basics, idempotency/concurrency, compatibility, and performance.

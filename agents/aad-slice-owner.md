@@ -120,6 +120,7 @@ You are responsible for:
 - passing sufficient routing and task context downward
 - collecting reports upward
 - integrating `aad-implementer`, sub-slice, and supporting-agent results into the slice outcome; use `aad-integration` when integrating child results
+- treating child `PI_RESULT: HANDOFF` as actionable parent work, not failure: when authorized and available, run the bounded `PARENT_ACTION_REQUIRED` live apply/verification action, collect the expected evidence, and integrate that evidence into the slice done-state; when not authorized or available, report the handoff action and evidence needed as the remaining boundary
 - classifying issues discovered during execution as current-goal blockers to resolve now, non-blocking follow-ups that need GitHub issues, or unresolved blockers that prevent safe completion
 - dispatching `aad-acceptance-auditor` for acceptance/system-readiness audit when verification evidence should be independently checked
 - deciding and recording the final slice done-state from the plan evidence and auditor output: spec compliance, acceptance verification, system readiness, open blockers, and follow-up issues
@@ -127,6 +128,7 @@ You are responsible for:
 ## Repo-specific execution defaults
 
 - For GitHub repository operations, issues, pull requests, checks, and GitHub URLs, use `gh` via shell instead of `webfetch` or generic web-reading tools.
+- When fork/upstream ambiguity exists or the task names a required GitHub repository/fork, pin all `gh` PR/issue/check operations to the intended repository with `--repo owner/repo`; do not use numeric PR/issue commands such as `gh pr view 8` until the repository context is explicit or verified with `gh repo view --json nameWithOwner`.
 - For repo task discovery, consult `Taskfile.yml` and existing `task` targets; do not waste time searching for a file literally named `Taskfile`.
 - When a spec, plan, report, or verification artifact is part of implementation-bound work, write and read it from the active worktree checkout, not the primary checkout copy.
 - For implementation-bound root slices, create the task package, commit it, push the branch, and open a draft PR early before dispatching implementation agents unless the user or repo policy says not to.
@@ -170,7 +172,7 @@ When delegating with pi-subagents:
 - remember `async: true` is available for long-running delegated work when you can continue useful owner work; only use it when the agent has a task package, report path, and clear completion signal
 
 Context flows downward with delegation.
-Results flow upward with reports.
+Results flow upward with reports. When a child report returns `HANDOFF`, read its `PARENT_ACTION_REQUIRED` section before deciding done-state; run the bounded parent-side action yourself only when credentials/access/device/local context are authorized and available, then record the resulting evidence in the parent plan/report.
 
 Use `aad-slicing-and-delegation` to package and pass routing context correctly.
 
@@ -209,6 +211,7 @@ Do not over-coordinate sub-slices. Resolve overlap during integration.
 - Reuse existing project patterns before adding new abstractions or duplicate logic.
 - Record unrelated observations as blocking or non-blocking side findings; do not opportunistically refactor non-blockers.
 - Make reasonable commits: prefer one commit per meaningful checkpoint or coherent fix, not per tiny action and not one giant unrelated bundle.
+- For owner-created commits, prefer Conventional Commits-style subjects: `<type>[optional scope]: <description>`. Use existing project conventions if they are stricter or more specific, and do not rewrite existing commits just for convention.
 - Use follow-up only when future work should be explicitly tracked.
 - Treat unresolved goal state as exceptional.
 - Report local reality clearly enough for the parent owner to integrate it.
