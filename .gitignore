@@ -4,6 +4,7 @@ node_modules/
 dist/
 *.log
 .worktrees/
+feedback/
 
 # secrets/runtime state - never commit
 .env
