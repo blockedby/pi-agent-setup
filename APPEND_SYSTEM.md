@@ -20,6 +20,10 @@ For AAD-owned work, route to the owner hierarchy instead of treating a skill or 
 
 `aad-implementer` and support agents are internal execution and evidence targets. Do not use them as top-level default routes from the terminal main assistant unless the user explicitly asks for a direct specialist invocation and the task is not AAD-owned.
 
+## Background delegation
+
+Prefer background/asynchronous subagent runs for safe delegated work. When independent tasks can proceed in parallel, launch more background agents with `async: true` instead of serializing them unnecessarily. Do not background tasks that need immediate interactive clarification, must edit the same files in sequence, require tight owner supervision, or could conflict with other active work.
+
 ## Skills and chains
 
 Skills are runbooks and support material. They do not replace the owner/subagent hierarchy, do not own acceptance, and do not decide done-state by themselves.

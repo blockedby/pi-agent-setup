@@ -95,6 +95,35 @@ install -m 0644 "$TMP_DIR/agents/"*.md "$AGENT_DIR/agents/"
 install -m 0644 "$TMP_DIR/extensions/"*.ts "$AGENT_DIR/extensions/"
 rsync -a --delete "$TMP_DIR/skills/" "$AGENT_DIR/skills/"
 
+MAGIC_MCP_CONFIG="$AGENT_DIR/skills/21st-magic-mcp/mcp/21st-magic.mcp.json"
+if [ -f "$MAGIC_MCP_CONFIG" ]; then
+  mkdir -p "$REMOTE_USER_HOME/.cache/21st-magic-mcp/test-results"
+  python3 - "$AGENT_DIR/mcp.json" "$MAGIC_MCP_CONFIG" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+mcp_path = Path(sys.argv[1])
+config_path = Path(sys.argv[2])
+if mcp_path.exists():
+    with mcp_path.open() as f:
+        data = json.load(f)
+else:
+    data = {}
+with config_path.open() as f:
+    config = json.load(f)
+servers = data.setdefault("mcpServers", {})
+servers.update(config.get("mcpServers", {}))
+mcp_path.parent.mkdir(parents=True, exist_ok=True)
+if mcp_path.exists():
+    backup = mcp_path.with_suffix(mcp_path.suffix + ".bak")
+    backup.write_text(mcp_path.read_text())
+with mcp_path.open("w") as f:
+    json.dump(data, f, indent=2)
+    f.write("\n")
+PY
+fi
+
 BROWSER_CHROME_SKILL_DIR="$AGENT_DIR/skills/browser-chrome"
 if [ -f "$BROWSER_CHROME_SKILL_DIR/scripts/mcp.sh" ]; then
   chmod +x "$BROWSER_CHROME_SKILL_DIR/scripts/"*.sh

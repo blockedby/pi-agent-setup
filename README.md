@@ -25,6 +25,9 @@ It is meant to show the "how I work" layer: owner/implementer/auditor routing, r
 - Browser Chrome MCP entries in `$REMOTE_USER_HOME/.pi/agent/mcp.json` pointing directly at skill scripts:
   - `browser-chrome-headed`
   - `browser-chrome-headless`
+- 21st.dev Magic MCP skill and lazy MCP entry:
+  - skill: `$REMOTE_USER_HOME/.pi/agent/skills/21st-magic-mcp`
+  - MCP server: `21st-magic` using `npx -y @21st-dev/magic@latest`
 - Ready-notify extension at `$REMOTE_USER_HOME/.pi/agent/extensions/ready-notify.ts`
 - Pi packages/extensions from `settings/pi-settings.example.json` or a local settings file selected with `PI_SETTINGS_FILE`
 
@@ -92,7 +95,7 @@ Use the local update script after changing checked-in agents or the vendored `pi
 scripts/update-local.sh
 ```
 
-It installs `APPEND_SYSTEM.md` into `$HOME/.pi/agent/APPEND_SYSTEM.md`, installs `agents/*.md` into `$HOME/.pi/agent/agents/`, installs `extensions/*.ts` into `$HOME/.pi/agent/extensions/`, syncs checked-in skills into `$HOME/.pi/agent/skills/`, reinstalls the vendored `packages/pi-codex` runtime dependencies with `npm ci`, verifies the ready-notify extension is declared, removes stale renamed agents/chains, rewrites the local Pi package entry for `pi-codex` to `packages/pi-codex`, backs up `$HOME/.pi/agent/settings.json`, and verifies that installed AAD agents do not expose `codex_task`.
+It installs `APPEND_SYSTEM.md` into `$HOME/.pi/agent/APPEND_SYSTEM.md`, installs `agents/*.md` into `$HOME/.pi/agent/agents/`, installs `extensions/*.ts` into `$HOME/.pi/agent/extensions/`, syncs checked-in skills into `$HOME/.pi/agent/skills/`, merges the checked-in `21st-magic` MCP entry into `$HOME/.pi/agent/mcp.json`, reinstalls the vendored `packages/pi-codex` runtime dependencies with `npm ci`, verifies the ready-notify extension is declared, removes stale renamed agents/chains, rewrites the local Pi package entry for `pi-codex` to `packages/pi-codex`, backs up `$HOME/.pi/agent/settings.json`, and verifies that installed AAD agents do not expose `codex_task`.
 
 ## Install on a remote host
 
@@ -166,6 +169,6 @@ The `browser-chrome` skill chooses between:
 - `browser-chrome-headless` — disposable headless Chrome for public/simple/parallel checks.
 - `browser-chrome-headed` — headed persistent Chrome only for auth/session/profile tasks.
 
-The install script merges the two MCP servers into `$HOME/.pi/agent/mcp.json` using absolute paths to the installed skill scripts. It does not add wrapper commands to `$HOME/.local/bin`. The headed profile, Chrome cookies, saved sessions, and browser cache are not stored in this repository.
+The install script merges the Browser Chrome MCP servers into `$HOME/.pi/agent/mcp.json` using absolute paths to the installed skill scripts. It also merges `skills/21st-magic-mcp/mcp/21st-magic.mcp.json` for the lazy `21st-magic` server. It does not add wrapper commands to `$HOME/.local/bin`. The headed profile, Chrome cookies, saved sessions, browser cache, and 21st.dev API keys are not stored in this repository.
 
 For remote setups, headed and headless Chrome can both run on another host behind a LAN/VPN/SSH tunnel. Configure the skill with environment variables such as `BROWSER_CHROME_HEADED_URL`, `BROWSER_CHROME_HEADED_START_COMMAND`, `BROWSER_CHROME_HEADLESS_START_COMMAND`, and `BROWSER_CHROME_HEADLESS_CLOSE_COMMAND`.

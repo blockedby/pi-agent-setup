@@ -92,9 +92,31 @@ for required in \
   aad-task-package \
   aad-verification \
   aad-worktree-management \
-  browser-chrome; do
+  browser-chrome \
+  21st-magic-mcp; do
   test -f "$AGENT_DIR/skills/$required/SKILL.md"
 done
+
+python3 - "$AGENT_DIR/mcp.json" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+mcp_path = Path(sys.argv[1])
+data = json.loads(mcp_path.read_text())
+server = data.get("mcpServers", {}).get("21st-magic")
+if not server:
+    raise SystemExit("21st-magic MCP server is not installed")
+if server.get("command") != "npx":
+    raise SystemExit("21st-magic MCP server does not use npx")
+if "@21st-dev/magic@latest" not in server.get("args", []):
+    raise SystemExit("21st-magic MCP server does not reference @21st-dev/magic@latest")
+for name in ("TWENTY_FIRST_API_KEY", "API_KEY"):
+    value = server.get("env", {}).get(name, "")
+    if value and value != "${" + name + "}":
+        raise SystemExit(f"21st-magic MCP {name} must remain an env reference")
+print("21st-magic MCP entry verified")
+PY
 
 echo '== pi packages =='
 "$VP_BIN_DIR/pi" list | sed -n '1,160p'

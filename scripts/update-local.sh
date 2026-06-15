@@ -49,6 +49,38 @@ install -m 0600 "$repo_root/APPEND_SYSTEM.md" "$AGENT_DIR/APPEND_SYSTEM.md"
 install -m 0600 "$repo_root/agents/"*.md "$AGENT_DIR/agents/"
 install -m 0600 "$repo_root/extensions/"*.ts "$AGENT_DIR/extensions/"
 rsync -a "$repo_root/skills/" "$AGENT_DIR/skills/"
+
+MAGIC_MCP_CONFIG="$repo_root/skills/21st-magic-mcp/mcp/21st-magic.mcp.json"
+if [ -f "$MAGIC_MCP_CONFIG" ]; then
+  mkdir -p "$LOCAL_USER_HOME/.cache/21st-magic-mcp/test-results"
+  python3 - "$AGENT_DIR/mcp.json" "$MAGIC_MCP_CONFIG" <<'PY'
+import json
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+mcp_path = Path(sys.argv[1])
+config_path = Path(sys.argv[2])
+if mcp_path.exists():
+    data = json.loads(mcp_path.read_text())
+else:
+    data = {}
+with config_path.open() as f:
+    config = json.load(f)
+servers = data.setdefault("mcpServers", {})
+servers.update(config.get("mcpServers", {}))
+mcp_path.parent.mkdir(parents=True, exist_ok=True)
+if mcp_path.exists():
+    backup = mcp_path.with_name(
+        mcp_path.name + ".bak.update-local-" + datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    )
+    backup.write_text(mcp_path.read_text())
+mcp_path.write_text(json.dumps(data, indent=2) + "\n")
+print("Installed 21st-magic MCP entry.")
+PY
+  chmod 600 "$AGENT_DIR/mcp.json"
+fi
+
 find "$AGENT_DIR/skills" -type d -exec chmod 700 {} +
 find "$AGENT_DIR/skills" -type f -exec chmod 600 {} +
 find "$AGENT_DIR/extensions" -type f -exec chmod 600 {} +
