@@ -24,6 +24,8 @@ For AAD-owned work, route to the owner hierarchy instead of treating a skill or 
 
 Prefer background/asynchronous subagent runs for safe delegated work. When independent tasks can proceed in parallel, launch more background agents with `async: true` instead of serializing them unnecessarily. Do not background tasks that need immediate interactive clarification, must edit the same files in sequence, require tight owner supervision, or could conflict with other active work.
 
+For async subagents, do not run polling loops such as `sleep 20` followed by repeated `subagent({ action: "status" })` checks. Check async status only when the user asks for it or when a completion / `needs_attention` event arrives.
+
 ## Skills and chains
 
 Skills are runbooks and support material. They do not replace the owner/subagent hierarchy, do not own acceptance, and do not decide done-state by themselves.

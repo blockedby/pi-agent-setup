@@ -45,6 +45,7 @@ grep -q "aad-root-owner" "$AGENT_DIR/APPEND_SYSTEM.md"
 grep -q "aad-slice-owner" "$AGENT_DIR/APPEND_SYSTEM.md"
 test -d "$AGENT_DIR/agents"
 test -d "$AGENT_DIR/skills"
+test -f "$AGENT_DIR/extensions/subagent/config.json"
 find "$AGENT_DIR/agents" -maxdepth 1 -type f -name '*.md' -printf '%f\n' | sort
 find "$AGENT_DIR/skills" -maxdepth 2 -type f -path '*/SKILL.md' -printf '%h\n' | sed "s#^$AGENT_DIR/skills/##" | sort
 
@@ -96,6 +97,21 @@ for required in \
   21st-magic-mcp; do
   test -f "$AGENT_DIR/skills/$required/SKILL.md"
 done
+
+python3 - "$AGENT_DIR/extensions/subagent/config.json" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+config_path = Path(sys.argv[1])
+data = json.loads(config_path.read_text())
+control = data.get("control", {})
+if control.get("needsAttentionAfterMs") != 180000:
+    raise SystemExit("pi-subagents needsAttentionAfterMs is not 180000")
+if control.get("notifyOn") != ["needs_attention"]:
+    raise SystemExit("pi-subagents notifyOn must be ['needs_attention']")
+print("pi-subagents control config verified")
+PY
 
 python3 - "$AGENT_DIR/mcp.json" <<'PY'
 import json

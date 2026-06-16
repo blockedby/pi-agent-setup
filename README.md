@@ -29,6 +29,7 @@ It is meant to show the "how I work" layer: owner/implementer/auditor routing, r
   - skill: `$REMOTE_USER_HOME/.pi/agent/skills/21st-magic-mcp`
   - MCP server: `21st-magic` using `npx -y @21st-dev/magic@latest`
 - Ready-notify extension at `$REMOTE_USER_HOME/.pi/agent/extensions/ready-notify.ts`
+- Pi-subagents control config at `$REMOTE_USER_HOME/.pi/agent/extensions/subagent/config.json` with a 3-minute `needs_attention` threshold
 - Pi packages/extensions from `settings/pi-settings.example.json` or a local settings file selected with `PI_SETTINGS_FILE`
 
 ## Public-safety boundary
@@ -95,7 +96,7 @@ Use the local update script after changing checked-in agents or the vendored `pi
 scripts/update-local.sh
 ```
 
-It installs `APPEND_SYSTEM.md` into `$HOME/.pi/agent/APPEND_SYSTEM.md`, installs `agents/*.md` into `$HOME/.pi/agent/agents/`, installs `extensions/*.ts` into `$HOME/.pi/agent/extensions/`, syncs checked-in skills into `$HOME/.pi/agent/skills/`, merges the checked-in `21st-magic` MCP entry into `$HOME/.pi/agent/mcp.json`, reinstalls the vendored `packages/pi-codex` runtime dependencies with `npm ci`, verifies the ready-notify extension is declared, removes stale renamed agents/chains, rewrites the local Pi package entry for `pi-codex` to `packages/pi-codex`, backs up `$HOME/.pi/agent/settings.json`, and verifies that installed AAD agents do not expose `codex_task`.
+It installs `APPEND_SYSTEM.md` into `$HOME/.pi/agent/APPEND_SYSTEM.md`, installs `agents/*.md` into `$HOME/.pi/agent/agents/`, installs `extensions/*.ts` into `$HOME/.pi/agent/extensions/`, syncs checked-in skills into `$HOME/.pi/agent/skills/`, installs `settings/pi-subagents.config.json` into `$HOME/.pi/agent/extensions/subagent/config.json`, merges the checked-in `21st-magic` MCP entry into `$HOME/.pi/agent/mcp.json`, reinstalls the vendored `packages/pi-codex` runtime dependencies with `npm ci`, verifies the ready-notify extension is declared, removes stale renamed agents/chains, rewrites the local Pi package entry for `pi-codex` to `packages/pi-codex`, backs up `$HOME/.pi/agent/settings.json`, and verifies that installed AAD agents do not expose `codex_task`.
 
 ## Install on a remote host
 

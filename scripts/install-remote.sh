@@ -31,6 +31,7 @@ rsync -a "$repo_root/APPEND_SYSTEM.md" "$TARGET_HOST:$TMP_DIR/APPEND_SYSTEM.md"
 rsync -a "$repo_root/agents/" "$TARGET_HOST:$TMP_DIR/agents/"
 rsync -a "$repo_root/extensions/" "$TARGET_HOST:$TMP_DIR/extensions/"
 rsync -a "$settings_path" "$TARGET_HOST:$TMP_DIR/settings/settings.json"
+rsync -a "$repo_root/settings/pi-subagents.config.json" "$TARGET_HOST:$TMP_DIR/settings/pi-subagents.config.json"
 rsync -a "$repo_root/skills/" "$TARGET_HOST:$TMP_DIR/skills/"
 
 ssh "$TARGET_HOST" bash -s -- "$REMOTE_USER_HOME" "$PI_VERSION" "$CODEX_VERSION" "$TMP_DIR" <<'REMOTE'
@@ -71,11 +72,12 @@ fi
 "$VP_BIN" install -g "@earendil-works/pi-coding-agent@$PI_VERSION"
 "$VP_BIN" install -g "@openai/codex@$CODEX_VERSION"
 
-mkdir -p "$AGENT_DIR/agents" "$AGENT_DIR/extensions" "$AGENT_DIR/skills"
+mkdir -p "$AGENT_DIR/agents" "$AGENT_DIR/extensions" "$AGENT_DIR/extensions/subagent" "$AGENT_DIR/skills"
 if [ -f "$AGENT_DIR/settings.json" ]; then
   cp -a "$AGENT_DIR/settings.json" "$AGENT_DIR/settings.json.bak.$(date -u +%Y%m%dT%H%M%SZ)"
 fi
 install -m 0644 "$TMP_DIR/settings/settings.json" "$AGENT_DIR/settings.json"
+install -m 0644 "$TMP_DIR/settings/pi-subagents.config.json" "$AGENT_DIR/extensions/subagent/config.json"
 install -m 0644 "$TMP_DIR/APPEND_SYSTEM.md" "$AGENT_DIR/APPEND_SYSTEM.md"
 
 # Remove known renamed/disabled agents and chains so old executable files do not

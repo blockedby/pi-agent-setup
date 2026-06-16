@@ -1,0 +1,8 @@
+{
+  "control": {
+    "enabled": true,
+    "needsAttentionAfterMs": 180000,
+    "notifyOn": ["needs_attention"],
+    "notifyChannels": ["event", "async", "intercom"]
+  }
+}

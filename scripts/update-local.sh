@@ -44,11 +44,17 @@ if "./extensions/ready-notify.ts" not in extensions:
 print("Verified ready-notify extension declaration.")
 PY
 
-mkdir -p "$AGENT_DIR/agents" "$AGENT_DIR/skills" "$AGENT_DIR/extensions"
+mkdir -p "$AGENT_DIR/agents" "$AGENT_DIR/skills" "$AGENT_DIR/extensions" "$AGENT_DIR/extensions/subagent"
 install -m 0600 "$repo_root/APPEND_SYSTEM.md" "$AGENT_DIR/APPEND_SYSTEM.md"
 install -m 0600 "$repo_root/agents/"*.md "$AGENT_DIR/agents/"
 install -m 0600 "$repo_root/extensions/"*.ts "$AGENT_DIR/extensions/"
 rsync -a "$repo_root/skills/" "$AGENT_DIR/skills/"
+
+SUBAGENT_CONFIG_SOURCE="$repo_root/settings/pi-subagents.config.json"
+if [ -f "$SUBAGENT_CONFIG_SOURCE" ]; then
+  install -m 0600 "$SUBAGENT_CONFIG_SOURCE" "$AGENT_DIR/extensions/subagent/config.json"
+  echo "Installed pi-subagents config."
+fi
 
 MAGIC_MCP_CONFIG="$repo_root/skills/21st-magic-mcp/mcp/21st-magic.mcp.json"
 if [ -f "$MAGIC_MCP_CONFIG" ]; then
