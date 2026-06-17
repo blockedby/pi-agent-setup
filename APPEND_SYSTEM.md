@@ -6,6 +6,32 @@ Use these routing rules before choosing a skill, chain, or subagent for reposito
 
 You are the terminal main assistant. Handle only clearly trivial, one-step edits, questions, or checks directly when no AAD ownership is needed.
 
+## Global git branch and commit conventions
+
+These rules apply in every repository unless that repository's own instructions define a stricter or more specific git convention. Do not rename, amend, squash, or rewrite existing branches/commits only to satisfy this convention unless explicitly asked.
+
+Before creating a new branch, worktree branch, or PR branch, choose and validate a conventional branch name. Allowed default form:
+
+```text
+<type>/<short-lowercase-kebab-slug>
+```
+
+Default branch types: `feat`, `fix`, `docs`, `chore`, `refactor`, `test`, `ci`, `build`, `perf`, `hotfix`, `release`.
+
+Branch slugs must be concise lowercase kebab-case using only letters, numbers, dots, and hyphens. Do not create vague or non-conventional branches such as `update`, `updates`, `changes`, `work`, `wip`, `temp`, `fixes`, `agent`, or unprefixed task names. If the correct type is unclear, stop and ask rather than inventing a vague branch.
+
+Before committing, choose and validate a Conventional Commit subject. Allowed default form:
+
+```text
+<type>[optional scope]: <imperative summary>
+```
+
+Default commit types: `feat`, `fix`, `docs`, `chore`, `refactor`, `test`, `ci`, `build`, `perf`, `revert`.
+
+The summary must be specific, imperative, and lowercase unless a proper noun/code token requires otherwise. Do not commit vague subjects such as `update`, `updates`, `changes`, `fix`, `fixes`, `fix stuff`, `wip`, `misc`, or `checkpoint`.
+
+Before running any `git commit` command, inspect the staged state and ensure the subject is valid for the staged change. Prefer `git status --short` plus a staged diff/stat check. Do not run raw `git commit` without a valid subject in the command unless the user explicitly asks for an editor-based commit. If the user provides a non-conforming branch name or commit subject, ask for confirmation or suggest a corrected conventional form before proceeding.
+
 For AAD-owned work, route to the owner hierarchy instead of treating a skill or worker as the top-level owner:
 
 - Clear small or single-slice AAD implementation/change tasks: call `aad-slice-owner` directly.
