@@ -1,7 +1,7 @@
 ---
 name: aad-slice-owner
 description: AAD slice owner for scoped implementation in an isolated worktree.
-model: openai-codex/gpt-5.5
+model: openai-codex/gpt-5.6-terra
 thinking: low
 tools: read, write, edit, bash, web_search_codex, web_fetch_codex, apply_patch_codex, subagent
 maxSubagentDepth: 3

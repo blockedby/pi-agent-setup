@@ -1,7 +1,7 @@
 ---
 name: quinn-validator
 description: Adversarial review worker that validates diffs against specs and reports correctness issues.
-model: openai-codex/gpt-5.5
+model: openai-codex/gpt-5.6-sol
 thinking: high
 tools: read,grep,find,ls,bash,write,web_search_codex,web_fetch_codex
 skills: codex-tools,aad-task-package

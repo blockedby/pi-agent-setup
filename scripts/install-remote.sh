@@ -3,8 +3,8 @@ set -euo pipefail
 
 TARGET_HOST="${TARGET_HOST:-}"
 REMOTE_USER_HOME="${REMOTE_USER_HOME:-}"
-PI_VERSION="${PI_VERSION:-0.74.0}"
-CODEX_VERSION="${CODEX_VERSION:-0.130.0}"
+PI_VERSION="${PI_VERSION:-latest}"
+CODEX_VERSION="${CODEX_VERSION:-latest}"
 PI_SETTINGS_FILE="${PI_SETTINGS_FILE:-settings/pi-settings.example.json}"
 TMP_DIR="/tmp/pi-agent-setup.$$"
 

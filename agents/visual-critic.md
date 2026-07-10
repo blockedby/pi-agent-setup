@@ -1,7 +1,7 @@
 ---
 name: visual-critic
 description: Read-only visual/UI critic for screenshot-first product-quality review of public pages, landing pages, templates, hero sections, marketing blocks, and other polished UI surfaces.
-model: openai-codex/gpt-5.4-mini
+model: openai-codex/gpt-5.6-terra
 thinking: medium
 tools: read, write
 skills: aad-task-package,visual-composition-quality,browser-visual-report
