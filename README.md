@@ -97,9 +97,11 @@ Files ending in `.md.temp` are disabled templates and are not part of the instal
 
 ### Parallel delegation
 
-Owners dispatch independent work in explicit execution waves. A wave with two or more ready tasks is sent in one `subagent` call using `tasks: [...]`; repeated single-agent calls are reserved for genuine dependencies. Parallel execution and background execution are separate: `tasks: [...]` controls concurrency, while `async: true` lets the complete run continue without blocking the owner.
+Slicing and scheduling are separate decisions. Slices are defined by scope, ownership, size, and acceptance boundaries; they are not execution waves and are not automatically parallel. Planning records dependencies and known conflicts instead of fixing a permanent sequential or parallel order.
 
-One root request has one `aad-root-owner`. The root owner may fan out independent slice owners, and slice owners may fan out independent implementer or support tasks. The checked-in harness configuration allows at most six tasks in a parallel call and runs at most three concurrently. This conservative per-run limit reduces nested fan-out; the harness does not currently enforce a process-wide concurrency limit across several simultaneous owners.
+Before each delegation, an owner identifies the work items that can safely start now. If two or more have completed dependencies, settled contracts, and no conflicting files, resources, or decisions, the owner sends them together in one `subagent` call using `tasks: [...]`; otherwise the owner uses a single call or waits for the dependency. Parallel execution and background execution are separate: `tasks: [...]` controls concurrency, while `async: true` lets the complete run continue without blocking the owner.
+
+One root request has one `aad-root-owner`. The root owner may dispatch independent slice owners together when safe, and slice owners apply the same rule to implementer or support tasks inside their scope. The checked-in harness configuration allows at most six tasks in a parallel call and runs at most three concurrently. This conservative per-run limit reduces nested fan-out; the harness does not currently enforce a process-wide concurrency limit across several simultaneous owners.
 
 ## Agent pipeline diagrams
 

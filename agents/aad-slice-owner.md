@@ -55,7 +55,7 @@ Before dispatching `aad-implementer` agents, read `<task-package>/plan.md` from 
 3. Reuse discovery: existing components, classes, services, APIs, functions, data models, tests, or patterns to reuse or follow are listed.
 4. Missing-pieces list: the concrete pieces that must be added or requested for the current goal are named.
 5. Plan tasks: independently verifiable tasks have acceptance criteria, test plans, dependencies, and executor candidates.
-6. Dependency graph: it is clear which tasks go to `aad-implementer` agents, what must wait, what can run in parallel, and what is large enough to become a child slice.
+6. Dependency graph: it is clear which tasks go to `aad-implementer` agents, what depends on another result, what has a known execution conflict, and what is large enough to become a child slice.
 
 If any component is missing or unclear, update the plan or run a narrow discovery/refinement step before dispatch. This gate may be compact for small tasks, but it should exist before implementation dispatch unless the request is purely read-only or truly trivial.
 
@@ -164,13 +164,15 @@ Use `aad-slicing-and-delegation` to build the routing packet for every delegated
 
 When delegating with pi-subagents:
 
-- batch two or more ready, independent implementer or support tasks into one `subagent` call using `tasks: [...]` and an explicit `concurrency` limit; do not serialize tasks from the same ready wave
+- treat slicing and scheduling separately: a slice is a scope and ownership boundary, not a unit that must run in parallel
+- before each delegation, identify implementer or support tasks that can safely start now because their dependencies are complete, required contracts are settled, and they do not conflict over files, resources, or decisions
+- when two or more such tasks are ready, dispatch them together in one `subagent` call using `tasks: [...]` and an explicit `concurrency` limit; otherwise use a single call or wait for the dependency
 - pass task package files through `reads` whenever possible, especially `plan.md` and relevant prior reports
 - enable `progress: true` for `aad-implementer` tasks and long-running owner/delegated work
 - ask `aad-implementer` agents to mirror useful progress into `<task-package>/progress/aad-implementer-<task-id>.md`
 - keep owner progress in `<task-package>/progress/slice-owner.md` for non-trivial slices
 - avoid pi-subagents `worktree: true` for AAD implementation slices; use `aad-worktree-management` so parent/child worktree lineage stays explicit
-- decide parallelism separately from background execution: `tasks: [...]` makes a wave concurrent, while `async: true` lets the whole run continue in the background
+- decide parallelism separately from background execution: `tasks: [...]` makes selected work concurrent, while `async: true` lets the whole run continue in the background
 - use `async: true` for long-running delegated work when you can continue useful owner work; only use it when the agent has a task package, report path, and clear completion signal
 
 Context flows downward with delegation.

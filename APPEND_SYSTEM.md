@@ -48,11 +48,13 @@ For AAD-owned work, route to the owner hierarchy instead of treating a skill or 
 
 ## Parallel and background delegation
 
-Parallelism and background execution are separate decisions. When two or more delegated tasks are ready and independent, dispatch the entire ready wave in one `subagent` call using `tasks: [...]` and an explicit `concurrency` limit. Do not issue repeated synchronous single-agent calls for tasks in the same wave, and do not wait for one ready task before launching another ready task. Use individual calls only when later work genuinely depends on an earlier result or the tasks cannot safely overlap.
+Slicing and scheduling are separate decisions. Define slices by scope, ownership, size, and acceptance boundaries—not as units that must run in parallel. During planning, record dependencies and known conflicts; do not force work into fixed execution waves.
 
-Use at most one `aad-root-owner` for a single root request. That root owner may launch independent `aad-slice-owner` tasks as one parallel wave. Do not launch competing root owners for the same integration narrative.
+At each delegation point, collect the work items that can safely start now: their dependencies are complete, required contracts are settled, and they do not conflict over files, resources, or decisions. If two or more such items are ready, dispatch them together in one `subagent` call using `tasks: [...]` and an explicit `concurrency` limit. Otherwise use a single call or wait for the dependency. Do not issue repeated synchronous single-agent calls for work that could have been dispatched together.
 
-Use `async: true` when a safe delegated run should continue in the background while the owner has other useful work. Backgrounding does not replace `tasks: [...]` batching: an independent wave may be parallel, asynchronous, both, or neither. Do not background tasks that need immediate interactive clarification, must edit the same files in sequence, require tight owner supervision, or could conflict with other active work.
+Use at most one `aad-root-owner` for a single root request. That root owner may launch independent `aad-slice-owner` tasks together when they are ready and safe to overlap. Do not launch competing root owners for the same integration narrative.
+
+Use `async: true` when a safe delegated run should continue in the background while the owner has other useful work. Backgrounding does not replace `tasks: [...]` batching: a run may be parallel, asynchronous, both, or neither. Do not background tasks that need immediate interactive clarification, must edit the same files in sequence, require tight owner supervision, or could conflict with other active work.
 
 For async subagents, do not run polling loops such as `sleep 20` followed by repeated `subagent({ action: "status" })` checks. Check async status only when the user asks for it or when a completion / `needs_attention` event arrives.
 

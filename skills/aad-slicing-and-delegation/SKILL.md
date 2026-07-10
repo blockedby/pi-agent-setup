@@ -11,7 +11,7 @@ Use this skill when you must choose the cheapest reliable ownership model for th
 
 The goal is not maximum delegation. The goal is stable ownership, clear routing, explicit dependencies, and cheap continuation.
 
-A slice owner should understand not only whether work should be split, but also which split pieces can move in parallel and which pieces must wait.
+A slice owner should separate decomposition from scheduling: slices define scope and ownership, while dependencies and conflicts determine what can safely run at the same time.
 
 ## Keep work whole when
 
@@ -26,7 +26,7 @@ A slice owner should understand not only whether work should be split, but also 
 - more than one local ownership boundary appears
 - more than one independent verification story appears
 - one owner would otherwise carry too many unrelated decisions
-- parts can move in parallel without constant coordination
+- the scope is too large or varied for one owner to carry cheaply
 - a blocking subproblem needs focused ownership before the parent can continue
 
 ## Delegate supporting work when
@@ -40,7 +40,7 @@ Supporting agents help inside delegated scope. They do not take ownership.
 
 ## Dependency graph
 
-When slicing, record the dependency graph explicitly. Use a compact shape like:
+When slicing or defining delegated tasks, record dependencies and known execution conflicts explicitly. Do not define a fixed wave structure or treat separate slices as automatically parallel. Use a compact shape like:
 
 ```md
 Task A: <name>
@@ -48,30 +48,19 @@ Task A: <name>
 - Acceptance criteria: <short list or reference>
 - Verify scope: <tests/checks/artifacts>
 - Depends on: []
-- Blocks: [C]
-- Can run parallel with: [B]
+- Conflicts with: []
 - Executor: <aad-implementer / support-agent / sub-slice-owner if too large>
 
 Task B: <name>
 - Depends on: []
-- Blocks: [C]
-- Can run parallel with: [A]
+- Conflicts with: []
 
 Task C: <name>
 - Depends on: [A, B]
-- Blocks: []
+- Conflicts with: []
 ```
 
-Then define execution waves:
-
-```md
-Execution waves:
-- Wave 1: A, B in parallel
-- Wave 2: C after A+B
-- Wave 3: final integration and verification
-```
-
-Only create waves when parallel execution is actually useful. For small work, a direct ordered checklist is cheaper.
+Before each delegation, re-evaluate which work items can safely start now. An item is ready when its dependencies are complete and required contracts are settled. Ready items may run together only when they do not conflict over files, resources, or decisions. If two or more items meet those conditions, dispatch them in one parallel `tasks: [...]` call; otherwise use a single call or wait for the dependency.
 
 ## Dependency rules
 
@@ -114,8 +103,8 @@ Use this packet shape and fill all applicable fields:
 - Expected output format: <report/status format>
 
 ## pi-subagents options
-- mode: <use tasks: [...] for a parallel-ready wave; use a single call only for one task or a real dependency>
-- concurrency: <explicit maximum for this wave>
+- mode: <use tasks: [...] when this dispatch has two or more ready, non-conflicting items; otherwise use a single call>
+- concurrency: <explicit maximum for a parallel call; omit for a single call>
 - reads: <plan/report files to pass into the agent>
 - progress: <true for aad-implementer or long-running work>
 - async: <whether the whole run continues in the background; true only for long-running work with report path and completion signal>
@@ -128,9 +117,9 @@ Pass all applicable fields. Supporting agents may refine their local target, but
 
 - [ ] Decide whether the work stays whole or should be sliced.
 - [ ] If slicing, define one owner per slice or sub-slice.
-- [ ] Record dependencies, blockers, and parallel-safe tasks.
-- [ ] Define execution waves when useful.
-- [ ] Dispatch every multi-task ready wave in one parallel tasks call.
+- [ ] Record dependencies, blockers, and known execution conflicts.
+- [ ] Before dispatch, identify the work items that can safely start now.
+- [ ] If two or more ready items do not conflict, dispatch them in one parallel tasks call.
 - [ ] If delegating support work, keep ownership at the delegating owner.
 - [ ] Pass all applicable routing context.
 - [ ] Delegate only the narrow work needed.
@@ -142,6 +131,7 @@ Pass all applicable fields. Supporting agents may refine their local target, but
 - delegating because delegation exists, not because it is cheaper
 - losing ownership when delegating support work
 - passing incomplete routing context
-- serializing independent tasks from the same ready wave
+- treating slices as execution waves or creating slices merely to manufacture parallelism
+- serializing ready, non-conflicting tasks that could be dispatched together
 - running tasks in parallel when they share unsettled contracts
 - treating non-blocking observations as permission to refactor
