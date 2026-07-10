@@ -1,7 +1,6 @@
 {
-  "lastChangelogVersion": "0.74.0",
   "defaultProvider": "openai-codex",
-  "defaultModel": "gpt-5.5",
+  "defaultModel": "gpt-5.6-sol",
   "defaultThinkingLevel": "high",
   "packages": [
     "git:github.com/blockedby/pi-codex",

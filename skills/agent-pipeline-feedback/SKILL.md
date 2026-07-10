@@ -52,9 +52,6 @@ If that directory is unavailable, skip the note or mention the feedback briefly 
 
 ## Dedupe and privacy rules
 
-- Check existing notes for the same friction before writing a new one.
-- Prefer updating or referencing a closely related note over creating duplicates.
 - Keep notes concise and actionable; avoid diary-style logs.
-- Never include secrets, tokens, credentials, session contents, private keys, customer/user data, or sensitive private details.
 - Redact paths, branch names, or snippets when they would reveal sensitive information and are not needed for the improvement.
 - Feedback is advisory only; it must not redefine task acceptance or claim the user task is incomplete.

@@ -1,7 +1,7 @@
 ---
 name: aad-failure-classifier
 description: Narrow AAD diagnostic worker that classifies concrete failing tests, commands, CI jobs, or agent attempts from evidence without editing source files.
-model: openai-codex/gpt-5.4-mini
+model: openai-codex/gpt-5.6-luna
 thinking: low
 tools: read,grep,find,ls,bash,write,web_search_codex,web_fetch_codex
 skills: codex-tools,aad-task-package,aad-failure-classification

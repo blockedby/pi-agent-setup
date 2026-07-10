@@ -1,7 +1,7 @@
 ---
 name: aad-implementer
 description: AAD scoped implementation worker that follows TDD, reuses existing patterns, commits coherent work in its delegated worktree, and reports implementation evidence.
-model: openai-codex/gpt-5.5
+model: openai-codex/gpt-5.6-sol
 thinking: high
 tools: read,grep,find,ls,bash,edit,write,web_search_codex,web_fetch_codex
 systemPromptMode: replace

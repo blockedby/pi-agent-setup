@@ -3,10 +3,19 @@
   "private": true,
   "version": "0.1.0",
   "description": "Public non-secret bootstrap for a Pi/Codex AAD agent stack.",
-  "keywords": ["pi-package", "agentic-workflow", "codex", "aad"],
+  "keywords": [
+    "pi-package",
+    "agentic-workflow",
+    "codex",
+    "aad"
+  ],
   "pi": {
-    "extensions": ["./extensions/ready-notify.ts"],
-    "skills": ["./skills"]
+    "extensions": [
+      "./extensions/ready-notify.ts"
+    ],
+    "skills": [
+      "./skills"
+    ]
   },
   "dependencies": {
     "pi-subagents": "github:blockedby/pi-subagents"
@@ -15,5 +24,12 @@
     "secrets:check": "bash scripts/secrets-check.sh",
     "verify:remote": "bash scripts/verify-remote.sh",
     "install:remote": "bash scripts/install-remote.sh"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "24.18.0",
+      "onFail": "download"
+    }
   }
 }
