@@ -57,6 +57,7 @@ Use the smallest slice structure that preserves ownership clarity:
 - Keep work as one slice when there is one main ownership boundary, one acceptance story, and no useful parallelism.
 - Split into slices when there are multiple ownership boundaries, independent acceptance stories, parallel execution opportunities, or integration risks.
 - Record dependencies between slices, including which slices can run in parallel and which must wait.
+- Dispatch every wave with two or more ready slices in one parallel `subagent` call using `tasks: [...]` and an explicit `concurrency` limit. Do not call ready slice owners one at a time. Sequential calls are allowed only when each later slice genuinely depends on an earlier result.
 - Preserve worktree lineage: child slice worktrees should come from the active parent/root branch unless a different base is explicitly safer and documented.
 - Integrate child slice results back into the parent/root worktree before final root verification.
 

@@ -6,8 +6,8 @@ It is meant to show the "how I work" layer: owner/implementer/auditor routing, r
 
 ## What this installs
 
-- Pi CLI via Vite+: `@earendil-works/pi-coding-agent@0.74.0`
-- OpenAI Codex CLI via Vite+: `@openai/codex@0.130.0`
+- Pi CLI via Vite+: the current `@earendil-works/pi-coding-agent` release
+- OpenAI Codex CLI via Vite+: the current `@openai/codex` release
 - User settings at `$REMOTE_USER_HOME/.pi/agent/settings.json` on a target host
 - Global terminal append prompt at `$REMOTE_USER_HOME/.pi/agent/APPEND_SYSTEM.md`
 - Custom executable subagents and chains at `$REMOTE_USER_HOME/.pi/agent/agents/`:
@@ -80,6 +80,27 @@ The installed global append prompt (`APPEND_SYSTEM.md`) tells the terminal main 
 
 Skills are runbooks/support material and do not replace the owner/subagent hierarchy. `aad-implementer` and support agents are internal execution/evidence targets delegated by owners, not top-level default terminal routes. `aad-owned-change.chain.md` remains available as an optional/legacy/manual workflow, but it is not the default owned-work path.
 
+This personal setup uses the GPT-5.6 model family in three tiers. The allocation follows each agent's expected workload; it is a local workflow choice rather than a universal recommendation.
+
+| Agent | Goal | Model |
+| --- | --- | --- |
+| `aad-root-owner` | Own multi-step or multi-slice work, coordinate slices, and integrate the final result. | `openai-codex/gpt-5.6-sol` |
+| `aad-implementer` | Execute scoped implementation tasks with verification and coherent handoff evidence. | `openai-codex/gpt-5.6-sol` |
+| `aad-slice-owner` | Own one scoped slice, delegate execution, and decide its local done-state. | `openai-codex/gpt-5.6-terra` |
+| `aad-acceptance-auditor` | Independently decide whether acceptance criteria and evidence are sufficient. | `openai-codex/gpt-5.6-terra` |
+| `chrome-browser-agent` | Collect browser automation and visual evidence using the appropriate Chrome mode. | `openai-codex/gpt-5.6-terra` |
+| `visual-critic` | Review screenshots for composition, hierarchy, responsiveness, and obvious visual failures. | `openai-codex/gpt-5.6-terra` |
+| `aad-explorer` | Perform read-only discovery, reuse analysis, and evidence gathering. | `openai-codex/gpt-5.6-luna` |
+| `aad-failure-classifier` | Classify concrete failures and recommend the narrow next action without editing source. | `openai-codex/gpt-5.6-luna` |
+
+Files ending in `.md.temp` are disabled templates and are not part of the installed active-agent set.
+
+### Parallel delegation
+
+Owners dispatch independent work in explicit execution waves. A wave with two or more ready tasks is sent in one `subagent` call using `tasks: [...]`; repeated single-agent calls are reserved for genuine dependencies. Parallel execution and background execution are separate: `tasks: [...]` controls concurrency, while `async: true` lets the complete run continue without blocking the owner.
+
+One root request has one `aad-root-owner`. The root owner may fan out independent slice owners, and slice owners may fan out independent implementer or support tasks. The checked-in harness configuration allows at most six tasks in a parallel call and runs at most three concurrently. This conservative per-run limit reduces nested fan-out; the harness does not currently enforce a process-wide concurrency limit across several simultaneous owners.
+
 ## Agent pipeline diagrams
 
 See [`docs/agent-pipelines.html`](docs/agent-pipelines.html) for Mermaid diagrams of the checked-in subagents, owner routing, optional AAD chains, and related worker loops.
@@ -96,6 +117,12 @@ Use the local update script after changing checked-in agents or the vendored `pi
 scripts/update-local.sh
 ```
 
+The local updater applies `defaultProvider`, `defaultModel`, and `defaultThinkingLevel` from `settings/pi-settings.example.json` while preserving other installed settings. To keep machine-specific defaults, pass an ignored local settings file explicitly:
+
+```bash
+PI_SETTINGS_FILE=settings/pi-settings.local.json scripts/update-local.sh
+```
+
 It installs `APPEND_SYSTEM.md` into `$HOME/.pi/agent/APPEND_SYSTEM.md`, installs `agents/*.md` into `$HOME/.pi/agent/agents/`, installs `extensions/*.ts` into `$HOME/.pi/agent/extensions/`, syncs checked-in skills into `$HOME/.pi/agent/skills/`, installs `settings/pi-subagents.config.json` into `$HOME/.pi/agent/extensions/subagent/config.json`, merges the checked-in `21st-magic` MCP entry into `$HOME/.pi/agent/mcp.json`, reinstalls the vendored `packages/pi-codex` runtime dependencies with `npm ci`, verifies the ready-notify extension is declared, removes stale renamed agents/chains, rewrites the local Pi package entry for `pi-codex` to `packages/pi-codex`, backs up `$HOME/.pi/agent/settings.json`, and verifies that installed AAD agents do not expose `codex_task`.
 
 ## Install on a remote host
@@ -106,8 +133,22 @@ Prerequisite: Vite+ already installed for the remote install user. Set the targe
 TARGET_HOST=<host> \
 REMOTE_USER_HOME=/home/<user> \
 PI_SETTINGS_FILE=settings/pi-settings.example.json \
-PI_VERSION=0.74.0 \
-CODEX_VERSION=0.130.0 \
+scripts/install-remote.sh
+```
+
+The installer uses each package's npm `latest` tag by default. Check the numeric versions currently behind those tags with:
+
+```bash
+npm view @earendil-works/pi-coding-agent version
+npm view @openai/codex version
+```
+
+For a reproducible install, resolve those versions first and pass explicit `PI_VERSION` and `CODEX_VERSION` values. The environment variables accept either a numeric version or another npm dist-tag:
+
+```bash
+PI_VERSION=<version> \
+CODEX_VERSION=<version> \
+TARGET_HOST=<host> \
 scripts/install-remote.sh
 ```
 

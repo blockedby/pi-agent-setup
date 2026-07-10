@@ -46,9 +46,13 @@ For AAD-owned work, route to the owner hierarchy instead of treating a skill or 
 
 `aad-implementer` and support agents are internal execution and evidence targets. Do not use them as top-level default routes from the terminal main assistant unless the user explicitly asks for a direct specialist invocation and the task is not AAD-owned.
 
-## Background delegation
+## Parallel and background delegation
 
-Prefer background/asynchronous subagent runs for safe delegated work. When independent tasks can proceed in parallel, launch more background agents with `async: true` instead of serializing them unnecessarily. Do not background tasks that need immediate interactive clarification, must edit the same files in sequence, require tight owner supervision, or could conflict with other active work.
+Parallelism and background execution are separate decisions. When two or more delegated tasks are ready and independent, dispatch the entire ready wave in one `subagent` call using `tasks: [...]` and an explicit `concurrency` limit. Do not issue repeated synchronous single-agent calls for tasks in the same wave, and do not wait for one ready task before launching another ready task. Use individual calls only when later work genuinely depends on an earlier result or the tasks cannot safely overlap.
+
+Use at most one `aad-root-owner` for a single root request. That root owner may launch independent `aad-slice-owner` tasks as one parallel wave. Do not launch competing root owners for the same integration narrative.
+
+Use `async: true` when a safe delegated run should continue in the background while the owner has other useful work. Backgrounding does not replace `tasks: [...]` batching: an independent wave may be parallel, asynchronous, both, or neither. Do not background tasks that need immediate interactive clarification, must edit the same files in sequence, require tight owner supervision, or could conflict with other active work.
 
 For async subagents, do not run polling loops such as `sleep 20` followed by repeated `subagent({ action: "status" })` checks. Check async status only when the user asks for it or when a completion / `needs_attention` event arrives.
 

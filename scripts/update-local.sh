@@ -6,6 +6,14 @@ AGENT_DIR="${PI_AGENT_DIR:-$LOCAL_USER_HOME/.pi/agent}"
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CODEX_SUBMODULE="$repo_root/packages/pi-codex"
 SETTINGS_PATH="$AGENT_DIR/settings.json"
+PI_SETTINGS_FILE="${PI_SETTINGS_FILE:-settings/pi-settings.example.json}"
+SETTINGS_SOURCE="$repo_root/$PI_SETTINGS_FILE"
+
+if [ ! -f "$SETTINGS_SOURCE" ]; then
+  echo "PI_SETTINGS_FILE not found: $PI_SETTINGS_FILE" >&2
+  echo "Use settings/pi-settings.example.json or an ignored settings/*.local.json copy." >&2
+  exit 2
+fi
 
 if [ ! -f "$CODEX_SUBMODULE/package.json" ]; then
   echo "pi-codex submodule is not initialized; running git submodule update --init packages/pi-codex" >&2
@@ -110,7 +118,7 @@ if [ ! -f "$SETTINGS_PATH" ]; then
   chmod 600 "$SETTINGS_PATH"
 fi
 
-python3 - "$SETTINGS_PATH" "$CODEX_SUBMODULE" <<'PY'
+python3 - "$SETTINGS_PATH" "$CODEX_SUBMODULE" "$SETTINGS_SOURCE" <<'PY'
 import json
 import os
 import sys
@@ -119,11 +127,14 @@ from pathlib import Path
 
 settings_path = Path(sys.argv[1]).expanduser().resolve()
 codex_path = Path(sys.argv[2]).resolve()
+settings_source = Path(sys.argv[3]).resolve()
 settings_dir = settings_path.parent
 relative_codex = os.path.relpath(codex_path, settings_dir)
 
 with settings_path.open() as f:
     data = json.load(f)
+with settings_source.open() as f:
+    desired = json.load(f)
 
 backup_path = settings_path.with_name(
     settings_path.name + ".bak.update-local-" + datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
@@ -166,10 +177,19 @@ if not found:
     new_packages.insert(0, relative_codex)
 
 data["packages"] = new_packages
+for key in ("defaultProvider", "defaultModel", "defaultThinkingLevel"):
+    if key in desired:
+        data[key] = desired[key]
 settings_path.write_text(json.dumps(data, indent=2) + "\n")
 
 print(f"settings backup: {backup_path}")
 print(f"pi-codex package: {relative_codex}")
+print(
+    "Pi defaults: "
+    f"{data.get('defaultProvider', '<unset>')}/"
+    f"{data.get('defaultModel', '<unset>')} "
+    f"thinking={data.get('defaultThinkingLevel', '<unset>')}"
+)
 PY
 
 if grep -R --line-number --fixed-strings "codex_task" "$AGENT_DIR/agents" >/tmp/pi-agent-setup-codex-task-check.$$ 2>/dev/null; then

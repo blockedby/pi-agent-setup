@@ -114,9 +114,11 @@ Use this packet shape and fill all applicable fields:
 - Expected output format: <report/status format>
 
 ## pi-subagents options
+- mode: <use tasks: [...] for a parallel-ready wave; use a single call only for one task or a real dependency>
+- concurrency: <explicit maximum for this wave>
 - reads: <plan/report files to pass into the agent>
 - progress: <true for aad-implementer or long-running work>
-- async: <true only for long-running work with report path and completion signal>
+- async: <whether the whole run continues in the background; true only for long-running work with report path and completion signal>
 - worktree: <avoid for AAD implementation slices; use aad-worktree-management instead>
 ```
 
@@ -128,6 +130,7 @@ Pass all applicable fields. Supporting agents may refine their local target, but
 - [ ] If slicing, define one owner per slice or sub-slice.
 - [ ] Record dependencies, blockers, and parallel-safe tasks.
 - [ ] Define execution waves when useful.
+- [ ] Dispatch every multi-task ready wave in one parallel tasks call.
 - [ ] If delegating support work, keep ownership at the delegating owner.
 - [ ] Pass all applicable routing context.
 - [ ] Delegate only the narrow work needed.
@@ -139,5 +142,6 @@ Pass all applicable fields. Supporting agents may refine their local target, but
 - delegating because delegation exists, not because it is cheaper
 - losing ownership when delegating support work
 - passing incomplete routing context
+- serializing independent tasks from the same ready wave
 - running tasks in parallel when they share unsettled contracts
 - treating non-blocking observations as permission to refactor

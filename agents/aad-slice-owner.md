@@ -164,12 +164,14 @@ Use `aad-slicing-and-delegation` to build the routing packet for every delegated
 
 When delegating with pi-subagents:
 
+- batch two or more ready, independent implementer or support tasks into one `subagent` call using `tasks: [...]` and an explicit `concurrency` limit; do not serialize tasks from the same ready wave
 - pass task package files through `reads` whenever possible, especially `plan.md` and relevant prior reports
 - enable `progress: true` for `aad-implementer` tasks and long-running owner/delegated work
 - ask `aad-implementer` agents to mirror useful progress into `<task-package>/progress/aad-implementer-<task-id>.md`
 - keep owner progress in `<task-package>/progress/slice-owner.md` for non-trivial slices
 - avoid pi-subagents `worktree: true` for AAD implementation slices; use `aad-worktree-management` so parent/child worktree lineage stays explicit
-- remember `async: true` is available for long-running delegated work when you can continue useful owner work; only use it when the agent has a task package, report path, and clear completion signal
+- decide parallelism separately from background execution: `tasks: [...]` makes a wave concurrent, while `async: true` lets the whole run continue in the background
+- use `async: true` for long-running delegated work when you can continue useful owner work; only use it when the agent has a task package, report path, and clear completion signal
 
 Context flows downward with delegation.
 Results flow upward with reports. When a child report returns `HANDOFF`, read its `PARENT_ACTION_REQUIRED` section before deciding done-state; run the bounded parent-side action yourself only when credentials/access/device/local context are authorized and available, then record the resulting evidence in the parent plan/report.

@@ -1,4 +1,8 @@
 {
+  "parallel": {
+    "maxTasks": 6,
+    "concurrency": 3
+  },
   "control": {
     "enabled": true,
     "needsAttentionAfterMs": 180000,
