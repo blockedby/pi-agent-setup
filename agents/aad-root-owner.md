@@ -56,8 +56,8 @@ Use the smallest slice structure that preserves ownership clarity:
 
 - Keep work as one slice when there is one main ownership boundary, one acceptance story, and a manageable scope for one owner.
 - Split into slices when there are multiple ownership boundaries, independent acceptance stories, too many unrelated decisions for one owner, or material integration risks.
-- Do not create slices merely to produce parallel work. Record dependencies and known conflicts between slices during planning, but treat the execution order as revisable.
-- Before each delegation, identify the slices that can safely start now. If two or more have completed dependencies, settled shared contracts, and no conflicting files, resources, or decisions, dispatch them together in one parallel `subagent` call using `tasks: [...]` and an explicit `concurrency` limit. Otherwise dispatch only the safe slice or wait for its dependency.
+- Do not create slices merely to produce parallel work. For every planned slice, record `Depends on`, `Blocks`, and `Can run in parallel with` relationships so its prior-work, future-work, and concurrency context remain explicit. Treat the resulting execution order as revisable.
+- Before each delegation, identify the slices whose dependencies are complete. If the plan explicitly marks two or more ready slices as safe to run in parallel, confirm that their shared contracts and boundaries are still settled, then dispatch them together in one parallel `subagent` call using `tasks: [...]` and an explicit `concurrency` limit. Otherwise dispatch only the ready slice or wait for its dependency.
 - Preserve worktree lineage: child slice worktrees should come from the active parent/root branch unless a different base is explicitly safer and documented.
 - Integrate child slice results back into the parent/root worktree before final root verification.
 

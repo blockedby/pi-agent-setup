@@ -11,7 +11,7 @@ Use this skill when you must choose the cheapest reliable ownership model for th
 
 The goal is not maximum delegation. The goal is stable ownership, clear routing, explicit dependencies, and cheap continuation.
 
-A slice owner should separate decomposition from scheduling: slices define scope and ownership, while dependencies and conflicts determine what can safely run at the same time.
+A slice owner should separate decomposition from scheduling: slices define scope and ownership, while each task's `Depends on`, `Blocks`, and `Can run in parallel with` relationships describe its place in the wider plan.
 
 ## Keep work whole when
 
@@ -40,7 +40,7 @@ Supporting agents help inside delegated scope. They do not take ownership.
 
 ## Dependency graph
 
-When slicing or defining delegated tasks, record dependencies and known execution conflicts explicitly. Do not define a fixed wave structure or treat separate slices as automatically parallel. Use a compact shape like:
+When slicing or defining delegated tasks, record each task's relationship to prior, future, and parallel-safe work explicitly. Do not define a fixed wave structure or treat separate slices as automatically parallel. Use this shape for every task so each routing packet can stand on its own:
 
 ```md
 Task A: <name>
@@ -48,19 +48,32 @@ Task A: <name>
 - Acceptance criteria: <short list or reference>
 - Verify scope: <tests/checks/artifacts>
 - Depends on: []
-- Conflicts with: []
+- Blocks: [C]
+- Can run in parallel with: [B]
 - Executor: <aad-implementer / support-agent / sub-slice-owner if too large>
 
 Task B: <name>
+- Goal: <what becomes true>
+- Acceptance criteria: <short list or reference>
+- Verify scope: <tests/checks/artifacts>
 - Depends on: []
-- Conflicts with: []
+- Blocks: [C]
+- Can run in parallel with: [A]
+- Executor: <aad-implementer / support-agent / sub-slice-owner if too large>
 
 Task C: <name>
+- Goal: <what becomes true>
+- Acceptance criteria: <short list or reference>
+- Verify scope: <tests/checks/artifacts>
 - Depends on: [A, B]
-- Conflicts with: []
+- Blocks: []
+- Can run in parallel with: []
+- Executor: <aad-implementer / support-agent / sub-slice-owner if too large>
 ```
 
-Before each delegation, re-evaluate which work items can safely start now. An item is ready when its dependencies are complete and required contracts are settled. Ready items may run together only when they do not conflict over files, resources, or decisions. If two or more items meet those conditions, dispatch them in one parallel `tasks: [...]` call; otherwise use a single call or wait for the dependency.
+`Depends on` names the earlier results this task needs. `Blocks` names the future work waiting on this task. `Can run in parallel with` names peers that planning has explicitly judged safe to overlap; list the relationship on both tasks so either packet remains understandable independently.
+
+Before each delegation, re-evaluate these planned relationships. An item is ready when its `Depends on` items are complete. If two or more ready items explicitly list each other under `Can run in parallel with`, confirm that their shared contracts and boundaries are still settled, then dispatch them in one parallel `tasks: [...]` call. Otherwise use a single call or wait for the dependency.
 
 ## Dependency rules
 
@@ -97,13 +110,13 @@ Use this packet shape and fill all applicable fields:
 - Plan task goal: <specific delegated goal>
 - Acceptance criteria: <criteria or plan references>
 - Test plan: <positive/negative/edge/manual checks or plan references>
-- Dependencies and blockers: <upstream/downstream dependencies>
+- Task relationships: <Depends on / Blocks / Can run in parallel with>
 - Existing patterns or reusable files to follow: <paths/symbols>
 - Do-not-touch boundaries: <files/areas/scope limits>
 - Expected output format: <report/status format>
 
 ## pi-subagents options
-- mode: <use tasks: [...] when this dispatch has two or more ready, non-conflicting items; otherwise use a single call>
+- mode: <use tasks: [...] when two or more ready items explicitly list each other under Can run in parallel with; otherwise use a single call>
 - concurrency: <explicit maximum for a parallel call; omit for a single call>
 - reads: <plan/report files to pass into the agent>
 - progress: <true for aad-implementer or long-running work>
@@ -117,9 +130,9 @@ Pass all applicable fields. Supporting agents may refine their local target, but
 
 - [ ] Decide whether the work stays whole or should be sliced.
 - [ ] If slicing, define one owner per slice or sub-slice.
-- [ ] Record dependencies, blockers, and known execution conflicts.
-- [ ] Before dispatch, identify the work items that can safely start now.
-- [ ] If two or more ready items do not conflict, dispatch them in one parallel tasks call.
+- [ ] Give every task `Depends on`, `Blocks`, and `Can run in parallel with` relationships.
+- [ ] Before dispatch, identify tasks whose `Depends on` items are complete.
+- [ ] If two or more ready tasks explicitly list each other as parallel-safe, confirm the assumption and dispatch them in one parallel tasks call.
 - [ ] If delegating support work, keep ownership at the delegating owner.
 - [ ] Pass all applicable routing context.
 - [ ] Delegate only the narrow work needed.
@@ -132,6 +145,6 @@ Pass all applicable fields. Supporting agents may refine their local target, but
 - losing ownership when delegating support work
 - passing incomplete routing context
 - treating slices as execution waves or creating slices merely to manufacture parallelism
-- serializing ready, non-conflicting tasks that could be dispatched together
+- serializing ready tasks that are explicitly marked safe to run in parallel
 - running tasks in parallel when they share unsettled contracts
 - treating non-blocking observations as permission to refactor

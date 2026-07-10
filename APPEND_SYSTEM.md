@@ -48,9 +48,9 @@ For AAD-owned work, route to the owner hierarchy instead of treating a skill or 
 
 ## Parallel and background delegation
 
-Slicing and scheduling are separate decisions. Define slices by scope, ownership, size, and acceptance boundaries—not as units that must run in parallel. During planning, record dependencies and known conflicts; do not force work into fixed execution waves.
+Slicing and scheduling are separate decisions. Define slices by scope, ownership, size, and acceptance boundaries—not as units that must run in parallel. During planning, give each delegated work item explicit `Depends on`, `Blocks`, and `Can run in parallel with` relationships so it carries its prior-work, future-work, and concurrency context. Do not force work into fixed execution waves.
 
-At each delegation point, collect the work items that can safely start now: their dependencies are complete, required contracts are settled, and they do not conflict over files, resources, or decisions. If two or more such items are ready, dispatch them together in one `subagent` call using `tasks: [...]` and an explicit `concurrency` limit. Otherwise use a single call or wait for the dependency. Do not issue repeated synchronous single-agent calls for work that could have been dispatched together.
+At each delegation point, collect the work items whose dependencies are complete. If the plan explicitly marks two or more ready items as safe to run in parallel, confirm that their shared contracts and boundaries are still settled, then dispatch them together in one `subagent` call using `tasks: [...]` and an explicit `concurrency` limit. Otherwise use a single call or wait for the dependency. Do not issue repeated synchronous single-agent calls for work that is explicitly safe to dispatch together.
 
 Use at most one `aad-root-owner` for a single root request. That root owner may launch independent `aad-slice-owner` tasks together when they are ready and safe to overlap. Do not launch competing root owners for the same integration narrative.
 
