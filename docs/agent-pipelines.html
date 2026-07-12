@@ -1,354 +1,139 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Pi Agent Setup — Agent Pipelines</title>
-  <style>
-    :root {
-      color-scheme: light dark;
-      --bg: #0f172a;
-      --panel: #111827;
-      --text: #e5e7eb;
-      --muted: #9ca3af;
-      --border: #334155;
-      --accent: #60a5fa;
-      --ok: #34d399;
-      --warn: #fbbf24;
-    }
-
-    body {
-      margin: 0;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: linear-gradient(135deg, #020617 0%, var(--bg) 55%, #111827 100%);
-      color: var(--text);
-      line-height: 1.55;
-    }
-
-    main {
-      width: min(1180px, calc(100% - 32px));
-      margin: 0 auto;
-      padding: 40px 0 64px;
-    }
-
-    header {
-      margin-bottom: 28px;
-    }
-
-    h1, h2, h3 {
-      line-height: 1.2;
-    }
-
-    h1 {
-      margin: 0 0 8px;
-      font-size: clamp(2rem, 5vw, 3.4rem);
-    }
-
-    h2 {
-      margin-top: 42px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    a {
-      color: var(--accent);
-    }
-
-    .lede, .note {
-      color: var(--muted);
-      max-width: 920px;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 14px;
-      margin: 22px 0;
-    }
-
-    .card, .diagram, table {
-      background: color-mix(in srgb, var(--panel) 92%, transparent);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.24);
-    }
-
-    .card {
-      padding: 16px 18px;
-    }
-
-    .card h3 {
-      margin: 0 0 8px;
-    }
-
-    .card p {
-      margin: 0;
-      color: var(--muted);
-    }
-
-    .diagram {
-      margin: 18px 0 28px;
-      padding: 18px;
-      overflow-x: auto;
-    }
-
-    .diagram .caption {
-      margin: 0 0 12px;
-      color: var(--muted);
-      font-size: 0.95rem;
-    }
-
-    .mermaid {
-      min-width: 760px;
-      background: #f8fafc;
-      border-radius: 10px;
-      padding: 12px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      overflow: hidden;
-      margin-top: 16px;
-    }
-
-    th, td {
-      padding: 10px 12px;
-      border-bottom: 1px solid var(--border);
-      text-align: left;
-      vertical-align: top;
-    }
-
-    th {
-      color: #dbeafe;
-      background: rgba(96, 165, 250, 0.12);
-    }
-
-    tr:last-child td {
-      border-bottom: 0;
-    }
-
-    code {
-      padding: 0.12rem 0.32rem;
-      border-radius: 0.35rem;
-      background: rgba(148, 163, 184, 0.18);
-      color: #bfdbfe;
-    }
-
-    .tag {
-      display: inline-block;
-      margin: 0 4px 4px 0;
-      padding: 2px 8px;
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      color: var(--muted);
-      font-size: 0.85rem;
-    }
-
-    .ok { color: var(--ok); }
-    .warn { color: var(--warn); }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pi Agent Setup — Dynamic AAD Pipelines</title>
+<style>
+:root{--ink:#111;--muted:#666;--line:#ccc;--paper:#f5f5f1;--white:#fff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif}
+main{max-width:1100px;margin:auto;padding:32px 20px 70px}
+header,section{background:var(--white);border:1px solid var(--line);border-radius:18px;padding:30px;margin-bottom:20px}
+h1,h2{font-family:Georgia,serif;font-weight:500;line-height:1.05}
+h1{font-size:clamp(2.6rem,7vw,5.8rem);margin:.25rem 0 1rem}
+h2{font-size:2rem}
+p{max-width:850px}
+.flow{display:grid;gap:12px;margin:24px 0}
+.row{display:flex;gap:12px;align-items:stretch;flex-wrap:wrap}
+.node{flex:1 1 180px;border:1px solid #111;border-radius:12px;padding:16px;background:#eee}
+.node.dark{background:#111;color:#fff}
+.node.mid{background:#888;color:#fff}
+.arrow{display:grid;place-items:center;font-size:2rem;color:#777}
+pre{overflow:auto;background:#111;color:#eee;padding:20px;border-radius:12px}
+table{border-collapse:collapse;width:100%}
+th,td{text-align:left;vertical-align:top;padding:11px;border-bottom:1px solid var(--line)}
+th{background:#111;color:#fff}
+.note{border-left:5px solid #111;padding:8px 18px;margin:22px 0}
+@media(max-width:700px){.arrow{transform:rotate(90deg);flex-basis:100%}}
+</style>
 </head>
 <body>
-  <main>
-    <header>
-      <h1>Pi Agent Pipelines</h1>
-      <p class="lede">
-        This page documents the executable agents, owner routing model, and optional <code>pi-subagents</code> chain pipelines stored in
-        <code>agents/</code>. Diagrams are rendered with Mermaid in the browser.
-      </p>
-    </header>
+<main>
+<header>
+<p>Pi Agent Setup</p>
+<h1>Dynamic AAD pipelines</h1>
+<p>Static chains have been retired. The owner constructs each workflow from task topology, risk, model profile, selected skills, browser/audit needs, and dependencies.</p>
+</header>
 
-    <section>
-      <h2>Agent inventory</h2>
-      <div class="grid">
-        <article class="card">
-          <h3>AAD owner/support agents</h3>
-          <p><code>aad-root-owner</code> owns multi-step or multi-slice root work. <code>aad-slice-owner</code> owns one slice. <code>aad-explorer</code> and <code>aad-acceptance-auditor</code> provide evidence and verification audit support.</p>
-        </article>
-        <article class="card">
-          <h3>AAD worker agents</h3>
-          <p><code>aad-implementer</code> implements scoped tasks and <code>aad-failure-classifier</code> classifies failed attempts.</p>
-        </article>
-        <article class="card">
-          <h3>Browser automation</h3>
-          <p><code>chrome-browser-agent</code> uses the <code>browser-chrome</code> skill and MCP browser servers, defaulting to disposable headless Chrome unless profile/auth state is explicitly needed.</p>
-        </article>
-      </div>
-    </section>
+<section>
+<h2>1. Ownership route</h2>
+<div class="row">
+  <div class="node dark"><strong>DIRECT</strong><br>One coherent action<br>One proof<br>No browser or delegation</div>
+  <div class="node mid"><strong>SLICE</strong><br>One coherent outcome<br>One working owner<br>One independent audit</div>
+  <div class="node"><strong>ROOT</strong><br>Multiple ownership/acceptance boundaries<br>Integrated root verdict</div>
+</div>
+<div class="note">Difficulty selects model depth. Ownership topology selects Direct, Slice, or Root.</div>
+</section>
 
-    <section>
-      <h2>Top-level routing map</h2>
-      <p class="note">Use this map for terminal routing. Skills are runbooks/support and do not replace the AAD owner hierarchy.</p>
-      <div class="diagram">
-        <p class="caption">Default choices from the terminal main assistant.</p>
-        <pre class="mermaid">
-flowchart TD
-  Request["Human / Pi request"] --> Trivial{"Trivial one-step edit, question, or check?"}
-  Trivial -- "yes" --> Terminal["Terminal main assistant handles directly"]
-  Trivial -- "no" --> SingleSlice{"Clear small / single-slice AAD change?"}
-  SingleSlice -- "yes" --> SliceOwner["aad-slice-owner\nown one slice"]
-  SingleSlice -- "no" --> RootOwner["aad-root-owner\nroot owner for unclear, multi-step, multi-slice, or integration-heavy work"]
-  RootOwner --> ChildSlices["delegates slices to aad-slice-owner"]
-  SliceOwner --> InternalWorkers["internal delegation:\naad-implementer / support agents"]
-  ChildSlices --> InternalWorkers
-  InternalWorkers --> Evidence["implementation, discovery, audit, browser, or failure evidence"]
-        </pre>
-      </div>
-      <p class="note"><code>aad-implementer</code> and support agents are internal execution/evidence targets, not the default top-level terminal route for owned AAD work.</p>
-    </section>
+<section>
+<h2>2. Slice flow</h2>
+<div class="flow">
+  <div class="row">
+    <div class="node dark"><strong>Terra/high slice owner</strong><br>Inspect · implement · verify</div>
+  </div>
+  <div class="row">
+    <div class="node">Luna explorer<br><small>only bounded discovery</small></div>
+    <div class="node">Sol implementer<br><small>only deep isolated work</small></div>
+    <div class="node">Terra browser<br><small>always separate context</small></div>
+  </div>
+  <div class="row">
+    <div class="node mid"><strong>Terra/high auditor</strong><br>one independent boundary audit</div>
+  </div>
+</div>
+<p>The owner remains accountable. Support agents produce evidence or implementation results but do not decide the slice done-state.</p>
+</section>
 
-    <section>
-      <h2>AAD discovery-to-plan chain</h2>
-      <p class="note"><code>agents/aad-discovery-plan.chain.md</code> remains available for optional/manual discovery-first workflows. It is not the default routing path for owned implementation work.</p>
-      <div class="diagram">
-        <p class="caption"><code>{task}</code> is the original request. <code>{previous}</code> is the previous agent's report.</p>
-        <pre class="mermaid">
-flowchart LR
-  Task["{task}: original request"] --> Explorer["aad-explorer\nread-only discovery\nfiles, risks, verification hints"]
-  Explorer --> Previous["{previous}: discovery report"]
-  Previous --> Owner["aad-slice-owner\ndecide whole vs sliced"]
-  Owner --> PlanOnly["If implementation NOT explicit:\ncompact AAD plan + next actions"]
-  Owner --> Implement["If implementation explicit:\nproceed under AAD slice-owner rules"]
-        </pre>
-      </div>
-    </section>
+<section>
+<h2>3. Root flow</h2>
+<pre>
+Sol/high root owner
+│
+├── Terra/high or Sol/high working slice A
+│   ├── optional Luna discovery
+│   ├── separate browser when needed
+│   └── independent slice audit
+│
+├── Terra/high or Sol/high working slice B
+│   └── independent slice audit
+│
+└── integrate changes + root evidence
+    └── root integration audit when required
+</pre>
+<p>One root request has one root owner. Slices are defined by ownership and acceptance, not by a desire to parallelize.</p>
+</section>
 
-    <section>
-      <h2>AAD owned-change chain</h2>
-      <p class="note"><code>agents/aad-owned-change.chain.md</code> is an optional/legacy/manual end-to-end workflow. The default owned-work path is terminal routing to <code>aad-slice-owner</code> for clear single-slice work or <code>aad-root-owner</code> for multi-step/multi-slice/unclear work.</p>
-      <div class="diagram">
-        <p class="caption">Legacy/manual chain: the slice owner starts and integrates the workflow; acceptance auditor provides both an audit pass and the final done-state gate.</p>
-        <pre class="mermaid">
-flowchart TD
-  Task["{task}: requested change"] --> Owner1["aad-slice-owner\nown change end-to-end\ntask package, draft PR, implementation dispatch"]
-  Owner1 --> SliceReport["{previous}: slice report / context"]
-  SliceReport --> Audit["aad-acceptance-auditor\nacceptance audit"]
-  Audit --> Feedback["{previous}: audit feedback"]
-  Feedback --> Owner2["aad-slice-owner\nintegrate feedback\nfix current-goal issues\nrerun verification"]
-  Owner2 --> OwnerReport["final owner report\nno merge unless explicitly asked"]
-  OwnerReport --> FinalAudit["aad-acceptance-auditor\nfinal acceptance gate"]
-  FinalAudit --> Final["final acceptance verdict"]
-        </pre>
-      </div>
-    </section>
+<section>
+<h2>4. Model steering depth</h2>
+<table>
+<thead><tr><th>Tier</th><th>Prompt shape</th><th>Typical work</th></tr></thead>
+<tbody>
+<tr><td><strong>Luna medium</strong></td><td>Exact question, sources, tools, stop condition, schema; no ownership.</td><td>Discovery, extraction, concrete failure classification.</td></tr>
+<tr><td><strong>Terra high</strong></td><td>Bounded goal, constraints, acceptance, selected runbooks, local freedom.</td><td>Slice ownership, normal implementation, browser, audit, visual critique.</td></tr>
+<tr><td><strong>Sol high</strong></td><td>Mission, hard constraints, success criteria, consequential ambiguity rules.</td><td>Root ownership, deep implementation/debugging, architecture, security/data risk.</td></tr>
+</tbody>
+</table>
+<p><code>xhigh</code> and <code>max</code> are outside the workflow policy. Runtime model overrides let the same role use another tier without cloning the agent definition.</p>
+</section>
 
-    <section>
-      <h2>AAD problem-investigation chain</h2>
-      <p class="note">
-        <code>agents/aad-problem-investigation.chain.md</code> investigates a bug, failing test, suspicious behavior, or side finding before the owner decides whether it is a blocker, follow-up, false alarm, or scoped fix task.
-      </p>
-      <div class="diagram">
-        <p class="caption">Read-only support pipeline for producing a problem investigation packet. It does not implement a fix, though it may recommend a red/proving test.</p>
-        <pre class="mermaid">
-flowchart LR
-  Task["{task}: problem / failing behavior"] --> Explorer["aad-explorer\nevidence + reproduction\nrisk signals + scope"]
-  Explorer --> Auditor["aad-acceptance-auditor\nacceptance verification story\nred/proving test recommendation"]
-  Auditor --> Output["problem packet\nblocker/follow-up/false alarm\nrecommended next action"]
-        </pre>
-      </div>
-    </section>
+<section>
+<h2>5. Human gate</h2>
+<div class="row">
+  <div class="node"><strong>NONE</strong><br>Proceed</div>
+  <div class="node"><strong>INFORM</strong><br>Show route/status and continue</div>
+  <div class="node"><strong>CONSULT</strong><br>One consequential decision</div>
+  <div class="node dark"><strong>APPROVE</strong><br>Wait before gated action</div>
+</div>
+</section>
 
-    <section>
-      <h2>AAD worker loop</h2>
-      <p class="note">These are standalone agents rather than checked-in <code>.chain.md</code> pipelines, but their prompts define a common owner/orchestrator loop.</p>
-      <div class="diagram">
-        <p class="caption">Typical implementation and failure classification flow. Acceptance remains with the root/slice owner and acceptance auditor.</p>
-        <pre class="mermaid">
-flowchart TD
-  Owner["aad-root-owner / aad-slice-owner"] --> Story["scoped task + acceptance criteria + test commands"]
-  Story --> Impl["aad-implementer\nred-green-refactor\nrun targeted checks"]
-  Impl --> Result{"PI_RESULT"}
-  Result -- "PASS" --> Done["implementation evidence\nready for owner/auditor decision"]
-  Result -- "FAIL or BLOCKED" --> Classifier["aad-failure-classifier\nCODE_BUG / TEST_CONTRACT / TEST_BUG / INFRA / SCOPE_GAP / AGENT_LOOP / SECURITY_BLOCKER"]
-  Classifier --> Next["NEXT_ACTION\nretry, adjust scope, escalate model, or ask human"]
-  Next --> Owner
-        </pre>
-      </div>
-    </section>
+<section>
+<h2>6. Artifacts and observability</h2>
+<pre>
+.pi/aad/&lt;task-id&gt;/
+├── task.md
+├── discovery.md       # optional
+├── implementation.md  # optional separate implementer
+├── browser.md         # browser work
+├── audit.md           # Slice/Root
+├── slices/            # Root only
+└── artifacts/
+</pre>
+<p>These files are ignored by git and optimized for humans and child handoffs. Pi-subagents remains the live source for lifecycle state, current tools, recent output, tokens, duration, and <code>needs_attention</code>. Agents add only semantic <code>PI_PHASE</code> changes.</p>
+</section>
 
-    <section>
-      <h2>Browser automation support</h2>
-      <div class="diagram">
-        <p class="caption"><code>chrome-browser-agent</code> chooses the safest browser mode for the task.</p>
-        <pre class="mermaid">
-flowchart TD
-  BrowserTask["browser automation task"] --> NeedsAuth{"Needs login, saved session, profile, passwords, extensions?"}
-  NeedsAuth -- "no" --> Headless["browser-chrome-headless\ndisposable Chrome\npublic/simple/parallel checks"]
-  NeedsAuth -- "yes" --> Headed["browser-chrome-headed\npersistent Chrome profile\nauth/session tasks only"]
-  Headless --> CloseHeadless["close headless instance after use"]
-  Headed --> PreserveProfile["do not inspect secrets\nclose only opened tabs"]
-        </pre>
-      </div>
-    </section>
-
-    <section>
-      <h2>Capability matrix</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Agent</th>
-            <th>Primary role</th>
-            <th>Write access by prompt/tools</th>
-            <th>Context settings</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><code>aad-explorer</code></td>
-            <td>Read-only discovery and evidence report</td>
-            <td><span class="warn">Prompt says no file modification</span></td>
-            <td><code>replace</code>, project context <span class="ok">on</span>, skills <span class="ok">on</span></td>
-          </tr>
-          <tr>
-            <td><code>aad-root-owner</code></td>
-            <td>Own non-trivial root work; slice, delegate to slice owners, integrate results, and decide root done-state</td>
-            <td><span class="ok">Can edit/write</span> for owner artifacts; not hands-on coder by default</td>
-            <td><code>replace</code>, project context <span class="ok">on</span>, skills <span class="ok">on</span>, <code>subagent</code> with <code>maxSubagentDepth</code></td>
-          </tr>
-          <tr>
-            <td><code>aad-slice-owner</code></td>
-            <td>Own one clear slice end-to-end; coordinate planning, delegation, verification, and integration</td>
-            <td><span class="ok">Can edit/write</span></td>
-            <td><code>replace</code>, project context <span class="ok">on</span>, skills <span class="ok">on</span>, <code>subagent</code> with <code>maxSubagentDepth</code></td>
-          </tr>
-          <tr>
-            <td><code>aad-acceptance-auditor</code></td>
-            <td>Read-only acceptance audit</td>
-            <td><span class="warn">Prompt says read-only except harmless verification commands</span></td>
-            <td><code>replace</code>, project context <span class="ok">on</span>, skills <span class="ok">on</span></td>
-          </tr>
-          <tr>
-            <td><code>aad-implementer</code></td>
-            <td>Scoped implementation worker with TDD loop</td>
-            <td><span class="ok">Can edit/write</span></td>
-            <td><code>replace</code>, project context <span class="ok">on</span>, inherited skills off; injects <code>codex-tools</code></td>
-          </tr>
-          <tr>
-            <td><code>aad-failure-classifier</code></td>
-            <td>Narrow failure evidence classifier</td>
-            <td><span class="warn">Read-only for source/test/config; may write task-package report</span></td>
-            <td><code>replace</code>, project context <span class="ok">on</span>, inherited skills off; injects <code>codex-tools</code>, <code>aad-task-package</code>, <code>aad-failure-classification</code></td>
-          </tr>
-          <tr>
-            <td><code>chrome-browser-agent</code></td>
-            <td>Browser automation via <code>browser-chrome</code> skill and MCP</td>
-            <td>Browser side effects only as requested; protects profile secrets</td>
-            <td><code>replace</code>, project context <span class="ok">on</span>, inherited skills off; injects <code>browser-chrome</code></td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
-  </main>
-
-  <script type="module">
-    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
-    mermaid.initialize({
-      startOnLoad: true,
-      theme: "default",
-      securityLevel: "strict",
-      flowchart: { htmlLabels: true, curve: "basis" }
-    });
-  </script>
+<section>
+<h2>7. Parallelism gate</h2>
+<p>Parallel execution requires all of the following:</p>
+<ol>
+<li>inputs and contracts are settled;</li>
+<li>dependencies are complete;</li>
+<li>mutable surfaces do not conflict;</li>
+<li>outputs are independently verifiable;</li>
+<li>failure is isolatable;</li>
+<li>integration is cheaper than sequential execution.</li>
+</ol>
+<p>Browser contexts, worktrees, and model profiles remain explicit per delegated task.</p>
+</section>
+</main>
 </body>
 </html>
