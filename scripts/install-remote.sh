@@ -15,9 +15,16 @@ fi
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 settings_path="$repo_root/$PI_SETTINGS_FILE"
+routing_path="$repo_root/settings/aad-routing.json"
+
+bash "$repo_root/scripts/verify-aad-routing.sh"
+
 if [ ! -f "$settings_path" ]; then
   echo "PI_SETTINGS_FILE not found: $PI_SETTINGS_FILE" >&2
-  echo "Use settings/pi-settings.example.json or an ignored settings/*.local.json copy." >&2
+  exit 2
+fi
+if [ ! -f "$routing_path" ]; then
+  echo "AAD routing config not found: $routing_path" >&2
   exit 2
 fi
 
@@ -31,6 +38,7 @@ rsync -a "$repo_root/APPEND_SYSTEM.md" "$TARGET_HOST:$TMP_DIR/APPEND_SYSTEM.md"
 rsync -a "$repo_root/agents/" "$TARGET_HOST:$TMP_DIR/agents/"
 rsync -a "$repo_root/extensions/" "$TARGET_HOST:$TMP_DIR/extensions/"
 rsync -a "$settings_path" "$TARGET_HOST:$TMP_DIR/settings/settings.json"
+rsync -a "$routing_path" "$TARGET_HOST:$TMP_DIR/settings/aad-routing.json"
 rsync -a "$repo_root/settings/pi-subagents.config.json" "$TARGET_HOST:$TMP_DIR/settings/pi-subagents.config.json"
 rsync -a "$repo_root/skills/" "$TARGET_HOST:$TMP_DIR/skills/"
 
@@ -60,14 +68,12 @@ PI_BIN="$REMOTE_USER_HOME/.vite-plus/bin/pi"
 CODEX_BIN="$REMOTE_USER_HOME/.vite-plus/bin/codex"
 AGENT_DIR="$REMOTE_USER_HOME/.pi/agent"
 
-if [ ! -x "$NPM_BIN" ]; then
-  echo "Vite+ npm not found at $NPM_BIN; install Vite+ first or set REMOTE_USER_HOME to the home containing .vite-plus." >&2
-  exit 1
-fi
-if [ ! -x "$VP_BIN" ]; then
-  echo "Vite+ vp not found at $VP_BIN; install Vite+ first or set REMOTE_USER_HOME to the home containing .vite-plus." >&2
-  exit 1
-fi
+for required in "$VP_BIN" "$NPM_BIN"; do
+  if [ ! -x "$required" ]; then
+    echo "Required Vite+ executable not found: $required" >&2
+    exit 1
+  fi
+done
 
 "$VP_BIN" install -g "@earendil-works/pi-coding-agent@$PI_VERSION"
 "$VP_BIN" install -g "@openai/codex@$CODEX_VERSION"
@@ -76,12 +82,13 @@ mkdir -p "$AGENT_DIR/agents" "$AGENT_DIR/extensions" "$AGENT_DIR/extensions/suba
 if [ -f "$AGENT_DIR/settings.json" ]; then
   cp -a "$AGENT_DIR/settings.json" "$AGENT_DIR/settings.json.bak.$(date -u +%Y%m%dT%H%M%SZ)"
 fi
+
 install -m 0644 "$TMP_DIR/settings/settings.json" "$AGENT_DIR/settings.json"
+install -m 0644 "$TMP_DIR/settings/aad-routing.json" "$AGENT_DIR/aad-routing.json"
 install -m 0644 "$TMP_DIR/settings/pi-subagents.config.json" "$AGENT_DIR/extensions/subagent/config.json"
 install -m 0644 "$TMP_DIR/APPEND_SYSTEM.md" "$AGENT_DIR/APPEND_SYSTEM.md"
 
-# Remove known renamed/disabled agents and chains so old executable files do not
-# survive across upgrades in ~/.pi/agent/agents.
+# Retire all static chains and old agent names. Dynamic owners now build the flow.
 for stale in \
   tdd-coder.md \
   implementer.md \
@@ -89,13 +96,20 @@ for stale in \
   aad-test-auditor.md \
   aad-reviewer.md \
   quinn-validator.md \
-  aad-parallel-investigation.chain.md; do
+  aad-parallel-investigation.chain.md \
+  aad-discovery-plan.chain.md \
+  aad-owned-change.chain.md \
+  aad-problem-investigation.chain.md \
+  visual-ui-change.chain.md; do
   rm -f "$AGENT_DIR/agents/$stale" "$REMOTE_USER_HOME/.agents/$stale"
 done
 
 install -m 0644 "$TMP_DIR/agents/"*.md "$AGENT_DIR/agents/"
 install -m 0644 "$TMP_DIR/extensions/"*.ts "$AGENT_DIR/extensions/"
-rsync -a --delete "$TMP_DIR/skills/" "$AGENT_DIR/skills/"
+
+# Preserve unrelated global skills. Overlay this setup instead of deleting the
+# entire user skill catalog.
+rsync -a "$TMP_DIR/skills/" "$AGENT_DIR/skills/"
 
 MAGIC_MCP_CONFIG="$AGENT_DIR/skills/21st-magic-mcp/mcp/21st-magic.mcp.json"
 if [ -f "$MAGIC_MCP_CONFIG" ]; then
@@ -104,25 +118,15 @@ if [ -f "$MAGIC_MCP_CONFIG" ]; then
 import json
 import sys
 from pathlib import Path
-
 mcp_path = Path(sys.argv[1])
 config_path = Path(sys.argv[2])
-if mcp_path.exists():
-    with mcp_path.open() as f:
-        data = json.load(f)
-else:
-    data = {}
-with config_path.open() as f:
-    config = json.load(f)
-servers = data.setdefault("mcpServers", {})
-servers.update(config.get("mcpServers", {}))
+data = json.loads(mcp_path.read_text()) if mcp_path.exists() else {}
+config = json.loads(config_path.read_text())
+data.setdefault("mcpServers", {}).update(config.get("mcpServers", {}))
 mcp_path.parent.mkdir(parents=True, exist_ok=True)
 if mcp_path.exists():
-    backup = mcp_path.with_suffix(mcp_path.suffix + ".bak")
-    backup.write_text(mcp_path.read_text())
-with mcp_path.open("w") as f:
-    json.dump(data, f, indent=2)
-    f.write("\n")
+    mcp_path.with_suffix(mcp_path.suffix + ".bak").write_text(mcp_path.read_text())
+mcp_path.write_text(json.dumps(data, indent=2) + "\n")
 PY
 fi
 
@@ -133,14 +137,9 @@ if [ -f "$BROWSER_CHROME_SKILL_DIR/scripts/mcp.sh" ]; then
 import json
 import sys
 from pathlib import Path
-
 mcp_path = Path(sys.argv[1])
 command = sys.argv[2]
-if mcp_path.exists():
-    with mcp_path.open() as f:
-        data = json.load(f)
-else:
-    data = {}
+data = json.loads(mcp_path.read_text()) if mcp_path.exists() else {}
 servers = data.setdefault("mcpServers", {})
 common_env = {"CHROME_DEVTOOLS_MCP_NO_UPDATE_CHECKS": "1"}
 servers["browser-chrome-headed"] = {
@@ -158,27 +157,34 @@ servers["browser-chrome-headless"] = {
 }
 mcp_path.parent.mkdir(parents=True, exist_ok=True)
 if mcp_path.exists():
-    backup = mcp_path.with_suffix(mcp_path.suffix + ".bak")
-    backup.write_text(mcp_path.read_text())
-with mcp_path.open("w") as f:
-    json.dump(data, f, indent=2)
-    f.write("\n")
+    mcp_path.with_suffix(mcp_path.suffix + ".bak").write_text(mcp_path.read_text())
+mcp_path.write_text(json.dumps(data, indent=2) + "\n")
 PY
 fi
 
 chmod 700 "$REMOTE_USER_HOME/.pi" "$AGENT_DIR" "$AGENT_DIR/agents" "$AGENT_DIR/extensions" "$AGENT_DIR/skills"
-chmod 600 "$AGENT_DIR/APPEND_SYSTEM.md" "$AGENT_DIR/agents/"*.md "$AGENT_DIR/extensions/"*.ts "$AGENT_DIR/settings.json"
+chmod 600 "$AGENT_DIR/APPEND_SYSTEM.md" "$AGENT_DIR/aad-routing.json" "$AGENT_DIR/agents/"*.md "$AGENT_DIR/extensions/"*.ts "$AGENT_DIR/settings.json"
 find "$AGENT_DIR/skills" -type d -exec chmod 700 {} +
 find "$AGENT_DIR/skills" -type f -exec chmod 600 {} +
+find "$AGENT_DIR/skills" -type f -path '*/scripts/*.py' -exec chmod 700 {} +
 find "$AGENT_DIR/skills/browser-chrome/scripts" -type f -name '*.sh' -exec chmod 700 {} + 2>/dev/null || true
-if [ -f "$AGENT_DIR/mcp.json" ]; then
-  chmod 600 "$AGENT_DIR/mcp.json"
+if [ -f "$AGENT_DIR/mcp.json" ]; then chmod 600 "$AGENT_DIR/mcp.json"; fi
+
+if grep -R --line-number --fixed-strings "codex_task" "$AGENT_DIR/agents"; then
+  echo "codex_task is forbidden in active AAD agents" >&2
+  exit 1
 fi
+if find "$AGENT_DIR/agents" -maxdepth 1 -type f -name '*.chain.md' -print -quit | grep -q .; then
+  echo "A retired static chain remains installed" >&2
+  exit 1
+fi
+
+python3 "$AGENT_DIR/skills/aad-slicing-and-delegation/scripts/route-task.py" \
+  --config "$AGENT_DIR/aad-routing.json" --self-test
 
 rm -rf "$TMP_DIR"
 echo "Installed Pi agent setup under $AGENT_DIR"
-echo "Global append system prompt installed at $AGENT_DIR/APPEND_SYSTEM.md"
-echo "Ready-notify extension installed; set PI_READY_NOTIFY_* in the shell/service that launches Pi."
+echo "Preserved unrelated user skills and removed retired static chains."
 "$PI_BIN" --version
 "$CODEX_BIN" --version
 REMOTE

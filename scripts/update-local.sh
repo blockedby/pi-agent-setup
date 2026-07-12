@@ -8,10 +8,16 @@ CODEX_SUBMODULE="$repo_root/packages/pi-codex"
 SETTINGS_PATH="$AGENT_DIR/settings.json"
 PI_SETTINGS_FILE="${PI_SETTINGS_FILE:-settings/pi-settings.example.json}"
 SETTINGS_SOURCE="$repo_root/$PI_SETTINGS_FILE"
+ROUTING_SOURCE="$repo_root/settings/aad-routing.json"
+
+bash "$repo_root/scripts/verify-aad-routing.sh"
 
 if [ ! -f "$SETTINGS_SOURCE" ]; then
   echo "PI_SETTINGS_FILE not found: $PI_SETTINGS_FILE" >&2
-  echo "Use settings/pi-settings.example.json or an ignored settings/*.local.json copy." >&2
+  exit 2
+fi
+if [ ! -f "$ROUTING_SOURCE" ]; then
+  echo "AAD routing config not found: $ROUTING_SOURCE" >&2
   exit 2
 fi
 
@@ -32,9 +38,6 @@ if [ -z "$NPM_BIN" ]; then
   exit 1
 fi
 
-# packages/pi-codex is our vendored local Pi package. Reinstall dependencies on
-# every local setup update so the local path package is deterministic and cannot
-# keep stale node_modules after the submodule pointer changes.
 echo "Installing packages/pi-codex runtime dependencies with $NPM_BIN"
 (cd "$CODEX_SUBMODULE" && "$NPM_BIN" ci --omit=dev)
 
@@ -42,26 +45,28 @@ python3 - "$repo_root/package.json" <<'PY'
 import json
 import sys
 from pathlib import Path
-
-package_json = Path(sys.argv[1])
-with package_json.open() as f:
-    data = json.load(f)
-extensions = data.get("pi", {}).get("extensions", [])
-if "./extensions/ready-notify.ts" not in extensions:
+data = json.loads(Path(sys.argv[1]).read_text())
+if "./extensions/ready-notify.ts" not in data.get("pi", {}).get("extensions", []):
     raise SystemExit("package.json does not declare ./extensions/ready-notify.ts")
 print("Verified ready-notify extension declaration.")
 PY
 
 mkdir -p "$AGENT_DIR/agents" "$AGENT_DIR/skills" "$AGENT_DIR/extensions" "$AGENT_DIR/extensions/subagent"
 install -m 0600 "$repo_root/APPEND_SYSTEM.md" "$AGENT_DIR/APPEND_SYSTEM.md"
+install -m 0600 "$ROUTING_SOURCE" "$AGENT_DIR/aad-routing.json"
 install -m 0600 "$repo_root/agents/"*.md "$AGENT_DIR/agents/"
 install -m 0600 "$repo_root/extensions/"*.ts "$AGENT_DIR/extensions/"
+
+# Preserve unrelated user skills. Remove only known obsolete AAD paths, then overlay
+# the checked-in skill set.
+for stale_skill in aad-routing-and-delegation aad-task-record aad-evidence-and-acceptance; do
+  rm -rf "$AGENT_DIR/skills/$stale_skill"
+done
 rsync -a "$repo_root/skills/" "$AGENT_DIR/skills/"
 
 SUBAGENT_CONFIG_SOURCE="$repo_root/settings/pi-subagents.config.json"
 if [ -f "$SUBAGENT_CONFIG_SOURCE" ]; then
   install -m 0600 "$SUBAGENT_CONFIG_SOURCE" "$AGENT_DIR/extensions/subagent/config.json"
-  echo "Installed pi-subagents config."
 fi
 
 MAGIC_MCP_CONFIG="$repo_root/skills/21st-magic-mcp/mcp/21st-magic.mcp.json"
@@ -72,17 +77,11 @@ import json
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-
 mcp_path = Path(sys.argv[1])
 config_path = Path(sys.argv[2])
-if mcp_path.exists():
-    data = json.loads(mcp_path.read_text())
-else:
-    data = {}
-with config_path.open() as f:
-    config = json.load(f)
-servers = data.setdefault("mcpServers", {})
-servers.update(config.get("mcpServers", {}))
+data = json.loads(mcp_path.read_text()) if mcp_path.exists() else {}
+config = json.loads(config_path.read_text())
+data.setdefault("mcpServers", {}).update(config.get("mcpServers", {}))
 mcp_path.parent.mkdir(parents=True, exist_ok=True)
 if mcp_path.exists():
     backup = mcp_path.with_name(
@@ -90,17 +89,11 @@ if mcp_path.exists():
     )
     backup.write_text(mcp_path.read_text())
 mcp_path.write_text(json.dumps(data, indent=2) + "\n")
-print("Installed 21st-magic MCP entry.")
 PY
   chmod 600 "$AGENT_DIR/mcp.json"
 fi
 
-find "$AGENT_DIR/skills" -type d -exec chmod 700 {} +
-find "$AGENT_DIR/skills" -type f -exec chmod 600 {} +
-find "$AGENT_DIR/extensions" -type f -exec chmod 600 {} +
-
-# Remove known renamed/disabled agents and chains so old executable files do not
-# survive across local setup updates.
+# Remove renamed/disabled agents and every retired static chain.
 for stale in \
   tdd-coder.md \
   implementer.md \
@@ -108,11 +101,19 @@ for stale in \
   aad-test-auditor.md \
   aad-reviewer.md \
   quinn-validator.md \
-  aad-parallel-investigation.chain.md; do
+  aad-parallel-investigation.chain.md \
+  aad-discovery-plan.chain.md \
+  aad-owned-change.chain.md \
+  aad-problem-investigation.chain.md \
+  visual-ui-change.chain.md; do
   rm -f "$AGENT_DIR/agents/$stale" "$LOCAL_USER_HOME/.agents/$stale"
 done
 
-mkdir -p "$AGENT_DIR"
+find "$AGENT_DIR/skills" -type d -exec chmod 700 {} +
+find "$AGENT_DIR/skills" -type f -exec chmod 600 {} +
+find "$AGENT_DIR/skills" -type f -path '*/scripts/*.py' -exec chmod 700 {} +
+find "$AGENT_DIR/extensions" -type f -exec chmod 600 {} +
+
 if [ ! -f "$SETTINGS_PATH" ]; then
   printf '{\n  "packages": []\n}\n' > "$SETTINGS_PATH"
   chmod 600 "$SETTINGS_PATH"
@@ -128,22 +129,16 @@ from pathlib import Path
 settings_path = Path(sys.argv[1]).expanduser().resolve()
 codex_path = Path(sys.argv[2]).resolve()
 settings_source = Path(sys.argv[3]).resolve()
-settings_dir = settings_path.parent
-relative_codex = os.path.relpath(codex_path, settings_dir)
+relative_codex = os.path.relpath(codex_path, settings_path.parent)
 
-with settings_path.open() as f:
-    data = json.load(f)
-with settings_source.open() as f:
-    desired = json.load(f)
-
+data = json.loads(settings_path.read_text())
+desired = json.loads(settings_source.read_text())
 backup_path = settings_path.with_name(
     settings_path.name + ".bak.update-local-" + datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
 )
 backup_path.write_text(settings_path.read_text())
 
-packages = data.setdefault("packages", [])
-
-def is_pi_codex_source(value: object) -> bool:
+def is_pi_codex_source(value):
     if not isinstance(value, str):
         return False
     normalized = value.rstrip("/")
@@ -156,13 +151,12 @@ def is_pi_codex_source(value: object) -> bool:
 
 found = False
 new_packages = []
-for item in packages:
+for item in data.setdefault("packages", []):
     if is_pi_codex_source(item):
         if not found:
             new_packages.append(relative_codex)
             found = True
         continue
-
     if isinstance(item, dict) and is_pi_codex_source(item.get("source")):
         if not found:
             updated = dict(item)
@@ -170,9 +164,7 @@ for item in packages:
             new_packages.append(updated)
             found = True
         continue
-
     new_packages.append(item)
-
 if not found:
     new_packages.insert(0, relative_codex)
 
@@ -181,15 +173,8 @@ for key in ("defaultProvider", "defaultModel", "defaultThinkingLevel"):
     if key in desired:
         data[key] = desired[key]
 settings_path.write_text(json.dumps(data, indent=2) + "\n")
-
 print(f"settings backup: {backup_path}")
 print(f"pi-codex package: {relative_codex}")
-print(
-    "Pi defaults: "
-    f"{data.get('defaultProvider', '<unset>')}/"
-    f"{data.get('defaultModel', '<unset>')} "
-    f"thinking={data.get('defaultThinkingLevel', '<unset>')}"
-)
 PY
 
 if grep -R --line-number --fixed-strings "codex_task" "$AGENT_DIR/agents" >/tmp/pi-agent-setup-codex-task-check.$$ 2>/dev/null; then
@@ -200,8 +185,15 @@ if grep -R --line-number --fixed-strings "codex_task" "$AGENT_DIR/agents" >/tmp/
 fi
 rm -f /tmp/pi-agent-setup-codex-task-check.$$
 
-echo "Installed local APPEND_SYSTEM.md to $AGENT_DIR/APPEND_SYSTEM.md"
-echo "Installed local agents to $AGENT_DIR/agents"
-echo "Verified codex_task is absent from installed local agents."
-echo "Ready-notify config is read from PI_READY_NOTIFY_* in the shell that launches Pi."
-echo "Reload or restart Pi to pick up the updated agents/packages."
+if find "$AGENT_DIR/agents" -maxdepth 1 -type f -name '*.chain.md' -print -quit | grep -q .; then
+  echo "ERROR: legacy chain remains installed" >&2
+  find "$AGENT_DIR/agents" -maxdepth 1 -type f -name '*.chain.md' -print >&2
+  exit 1
+fi
+
+python3 "$AGENT_DIR/skills/aad-slicing-and-delegation/scripts/route-task.py" \
+  --config "$AGENT_DIR/aad-routing.json" --self-test
+
+echo "Installed local prompt, active agents, skills, routing config, and extensions under $AGENT_DIR"
+echo "Preserved unrelated user skills and removed retired static chains."
+echo "Reload or restart Pi to pick up the updated resources."
