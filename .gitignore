@@ -4,7 +4,9 @@ node_modules/
 dist/
 *.log
 .worktrees/
-feedback/
+
+# local AAD orchestration state - human-readable but never committed
+.pi/aad/
 
 # secrets/runtime state - never commit
 .env

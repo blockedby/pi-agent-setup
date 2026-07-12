@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "profiles": {
+    "evidence": {
+      "model": "openai-codex/gpt-5.6-luna",
+      "thinking": "medium"
+    },
+    "work": {
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "high"
+    },
+    "deep": {
+      "model": "openai-codex/gpt-5.6-sol",
+      "thinking": "high"
+    }
+  },
+  "forbiddenThinkingLevels": [
+    "xhigh",
+    "max"
+  ],
+  "deepScoreThreshold": 2,
+  "deepScoreWeights": {
+    "contradictoryEvidence": 2,
+    "integrationRequired": 2,
+    "previousFailedAttempt": 1,
+    "novelArchitecture": 1,
+    "security": 2,
+    "permissions": 2,
+    "persistent-data": 2,
+    "migration": 2,
+    "data-loss": 2,
+    "external-integration": 1,
+    "runtime-deployment": 1
+  },
+  "fullRiskFlags": [
+    "security",
+    "permissions",
+    "persistent-data",
+    "migration",
+    "data-loss",
+    "external-integration",
+    "runtime-deployment",
+    "public-visual"
+  ],
+  "defaults": {
+    "browserSeparateContext": true,
+    "auditRoutes": [
+      "slice",
+      "root"
+    ],
+    "worktreeForMutation": true,
+    "informRoutes": [
+      "slice",
+      "root"
+    ]
+  }
+}

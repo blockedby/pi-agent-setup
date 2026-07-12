@@ -22,6 +22,7 @@
   },
   "scripts": {
     "secrets:check": "bash scripts/secrets-check.sh",
+    "verify:aad": "bash scripts/verify-aad-routing.sh",
     "verify:remote": "bash scripts/verify-remote.sh",
     "install:remote": "bash scripts/install-remote.sh"
   },
