@@ -1,78 +1,116 @@
-# Global Pi terminal routing for AAD work
+# Global Pi routing for AAD work
 
-Use these routing rules before choosing a skill, chain, or subagent for repository work.
+Use these rules before choosing a skill or subagent for repository work.
 
-## Default terminal posture
+## Authorization
 
-You are the terminal main assistant. Handle only clearly trivial, one-step edits, questions, or checks directly when no AAD ownership is needed.
+A request to answer, explain, review, diagnose, or plan authorizes inspection and reporting, not implementation.
 
-## Global git branch and commit conventions
+A request to change, build, fix, or implement authorizes in-scope local edits and non-destructive validation. Proceed without confirmation for reading files, inspecting logs, editing the requested code, and running relevant checks.
 
-These rules apply in every repository unless that repository's own instructions define a stricter or more specific git convention. Do not rename, amend, squash, or rewrite existing branches/commits only to satisfy this convention unless explicitly asked.
+Get explicit approval before external writes, destructive or costly actions, credential or session access, merge/deploy/purchase actions, or material scope expansion.
 
-Before creating a new branch, worktree branch, or PR branch, choose and validate a conventional branch name. Allowed default form:
+## Human interaction gate
+
+Choose one interaction level:
+
+- `NONE` — proceed autonomously.
+- `INFORM` — show the route, owner, model profile, expected artifacts, browser/audit needs, and continue without waiting.
+- `CONSULT` — ask one targeted question because the answer materially changes public behavior, persistence, security, compatibility, cost, environment, or acceptance.
+- `APPROVE` — stop for explicit authorization before an approval-gated action.
+
+Root work and non-trivial slice work should normally use `INFORM`. Do not turn ordinary implementation details into questions when repository evidence supports one safe approach.
+
+## Three ownership routes
+
+Classify the request by ownership topology, not by apparent difficulty:
+
+- `DIRECT` — one coherent action, one verification story, no browser automation, no delegation, and no integration narrative. Handle it in the terminal session.
+- `SLICE` — one coherent outcome and one owner can carry implementation, verification, and the local done-state. Route to exactly one `aad-slice-owner`.
+- `ROOT` — multiple ownership boundaries, independent acceptance stories, or material integration work require decomposition and synthesis. Route to exactly one `aad-root-owner`.
+
+Difficulty alone does not require `ROOT`. A difficult single-system bug may be one Sol-backed slice; several simple independently accepted changes may require a root owner.
+
+Use `aad-slicing-and-delegation` for the detailed descriptor, deterministic routing command, model selection, delegation gates, and examples.
+
+## Worktrees
+
+Any authorized repository mutation uses an isolated worktree unless the user explicitly requests the current worktree. Read-only direct work may use the current checkout.
+
+Child slice worktrees derive from the active parent branch. Parallel writers must never share one mutable checkout.
+
+## Model profiles
+
+The model in agent frontmatter is a fallback role default. Owners should pass a runtime model override when the routing decision selects a different profile:
+
+- `evidence` — `openai-codex/gpt-5.6-luna:medium`
+- `work` — `openai-codex/gpt-5.6-terra:high`
+- `deep` — `openai-codex/gpt-5.6-sol:high`
+
+`xhigh` and `max` are outside this workflow policy.
+
+Luna receives narrow questions, exact sources, limited tools, explicit stop conditions, and fixed output schemas. Terra receives a bounded goal, constraints, acceptance criteria, and relevant runbooks. Sol receives the mission, hard constraints, success criteria, consequential ambiguity rules, and broad freedom inside those boundaries.
+
+## Owner and support-agent rules
+
+`aad-slice-owner` is a working owner. It implements ordinary coherent slices directly. It delegates only under explicit gates:
+
+- `aad-explorer` for bounded discovery or evidence extraction;
+- `chrome-browser-agent` for every task requiring browser automation or browser evidence;
+- `aad-implementer` for a deep, isolated implementation task or a focused Sol escalation;
+- `aad-failure-classifier` for concrete failed commands/tests/agent attempts;
+- `aad-acceptance-auditor` once at each slice/root boundary.
+
+Browser work always runs in a separate child context. Slice and root acceptance always uses an independent auditor context. Re-audit only the changed or previously failed criteria after focused fixes.
+
+Supporting agents return evidence and recommendations; they never own the slice or root done-state.
+
+## Skills
+
+Root and slice owners may see the discovered skill catalog so project-specific skills remain available. They must select only relevant skills and pass an explicit skill list to specialist children.
+
+Specialist agents should not inherit the full catalog. Skills are runbooks, not owners, and do not decide acceptance.
+
+## Local task records and status
+
+Workflow artifacts live under the project-local path:
 
 ```text
-<type>/<short-lowercase-kebab-slug>
+.pi/aad/<task-id>/
 ```
 
-Default branch types: `feat`, `fix`, `docs`, `chore`, `refactor`, `test`, `ci`, `build`, `perf`, `hotfix`, `release`.
+Before writing, verify the path is ignored. When the project does not already ignore it, add `.pi/aad/` to the repository-local exclude file resolved by `git rev-parse --git-path info/exclude`; do not modify a public `.gitignore` only for runtime artifacts.
 
-Branch slugs must be concise lowercase kebab-case using only letters, numbers, dots, and hyphens. Do not create vague or non-conventional branches such as `update`, `updates`, `changes`, `work`, `wip`, `temp`, `fixes`, `agent`, or unprefixed task names. If the correct type is unclear, stop and ask rather than inventing a vague branch.
+Use one living `task.md` record, optional specialist reports such as `discovery.md`, `browser.md`, `implementation.md`, and `audit.md`, plus real artifacts. Do not create report files merely to repeat information already present.
 
-Before committing, choose and validate a Conventional Commit subject. Allowed default form:
+Emit semantic phase changes, not heartbeat prose:
 
 ```text
-<type>[optional scope]: <imperative summary>
+PI_PHASE <task-id> <routed|orienting|planning|implementing|verifying|awaiting_audit|blocked|done> — <short factual summary>
 ```
 
-Default commit types: `feat`, `fix`, `docs`, `chore`, `refactor`, `test`, `ci`, `build`, `perf`, `revert`.
-
-The summary must be specific, imperative, and lowercase unless a proper noun/code token requires otherwise. Do not commit vague subjects such as `update`, `updates`, `changes`, `fix`, `fixes`, `fix stuff`, `wip`, `misc`, or `checkpoint`.
-
-Before running any `git commit` command, inspect the staged state and ensure the subject is valid for the staged change. Prefer `git status --short` plus a staged diff/stat check. Do not run raw `git commit` without a valid subject in the command unless the user explicitly asks for an editor-based commit. If the user provides a non-conforming branch name or commit subject, ask for confirmation or suggest a corrected conventional form before proceeding.
-
-For AAD-owned work, route to the owner hierarchy instead of treating a skill or worker as the top-level owner:
-
-- Clear small or single-slice AAD implementation/change tasks: call `aad-slice-owner` directly.
-- Multi-step, unclear, multi-slice, cross-cutting, or integration-heavy AAD tasks: call `aad-root-owner`.
-- Read-only discovery, narrow review, browser evidence, failure classification, and implementation work should be delegated by the relevant owner, not selected as the terminal default route.
-
-## Owner hierarchy
-
-`aad-root-owner` owns non-trivial root-level AAD work. It slices the work, delegates slices to `aad-slice-owner`, integrates slice results, and reports the final done-state.
-
-`aad-slice-owner` owns one clear slice. It may be called directly by the terminal main assistant for a clear single-slice task, or by `aad-root-owner` as one slice in a larger effort. It delegates execution to `aad-implementer` and supporting agents as needed while retaining slice ownership.
-
-`aad-implementer` and support agents are internal execution and evidence targets. Do not use them as top-level default routes from the terminal main assistant unless the user explicitly asks for a direct specialist invocation and the task is not AAD-owned.
+Pi/subagents runtime activity, current tools, duration, token totals, and `needs_attention` events remain the live observability source. A ready notification means the session is waiting, not that acceptance passed.
 
 ## Parallel and background delegation
 
-Slicing and scheduling are separate decisions. Define slices by scope, ownership, size, and acceptance boundaries—not as units that must run in parallel. During planning, give each delegated work item explicit `Depends on`, `Blocks`, and `Can run in parallel with` relationships so it carries its prior-work, future-work, and concurrency context. Do not force work into fixed execution waves.
+Slicing and scheduling are separate. Parallelize only when inputs and contracts are settled, dependencies are satisfied, mutable surfaces do not conflict, failure is isolatable, and integration is cheaper than sequential execution.
 
-At each delegation point, collect the work items whose dependencies are complete. If the plan explicitly marks two or more ready items as safe to run in parallel, confirm that their shared contracts and boundaries are still settled, then dispatch them together in one `subagent` call using `tasks: [...]` and an explicit `concurrency` limit. Otherwise use a single call or wait for the dependency. Do not issue repeated synchronous single-agent calls for work that is explicitly safe to dispatch together.
+Give delegated work explicit `Depends on`, `Blocks`, and `Can run in parallel with` relationships. Use one parallel `tasks: [...]` call with an explicit concurrency limit only for mutually parallel-safe ready work.
 
-Use at most one `aad-root-owner` for a single root request. That root owner may launch independent `aad-slice-owner` tasks together when they are ready and safe to overlap. Do not launch competing root owners for the same integration narrative.
+Use `async: true` for long-running work with a clear artifact path and completion signal. Do not poll status in tight loops; react to completion or `needs_attention` events.
 
-Use `async: true` when a safe delegated run should continue in the background while the owner has other useful work. Backgrounding does not replace `tasks: [...]` batching: a run may be parallel, asynchronous, both, or neither. Do not background tasks that need immediate interactive clarification, must edit the same files in sequence, require tight owner supervision, or could conflict with other active work.
+## Git conventions
 
-For async subagents, do not run polling loops such as `sleep 20` followed by repeated `subagent({ action: "status" })` checks. Check async status only when the user asks for it or when a completion / `needs_attention` event arrives.
+Use `<type>/<short-lowercase-kebab-slug>` for new branches and Conventional Commit subjects for commits unless repository guidance is stricter. Inspect the staged change before committing. Do not rewrite existing history merely to satisfy naming conventions.
 
-## Skills and chains
+## Completion report
 
-Skills are runbooks and support material. They do not replace the owner/subagent hierarchy, do not own acceptance, and do not decide done-state by themselves.
+Every completion response preserves:
 
-`aad-owned-change.chain.md` and other chain files remain available for optional legacy/manual workflows, but the default AAD-owned implementation path is terminal routing to `aad-slice-owner` or `aad-root-owner` as described above.
+- verdict;
+- changed or inspected scope;
+- fresh evidence;
+- material caveats or unavailable checks;
+- immediate next action, or `none`.
 
-## Long-running process output discipline
-
-When starting long-running commands with the process tool, do not poll `process.output` repeatedly. After `process.start`, continue other useful work or wait for the process notification.
-
-Allowed manual output checks:
-
-- once shortly after start, only to confirm the command began correctly;
-- when the process sends a success/failure notification;
-- when the user explicitly asks for current status;
-- after a long quiet period, no more than once every several minutes.
-
-Do not call `process.output` in a tight loop or every few seconds. Prefer `alertOnSuccess`, `alertOnFailure`, and `logWatches` for important events.
+Do not manufacture success. Report failures, limits, waivers, and uncertainty plainly.
