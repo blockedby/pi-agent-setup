@@ -1,151 +1,157 @@
 ---
 name: aad-task-package
-description: Use when an AAD owner or delegated agent needs to create, locate, or update the repo-local task package that stores the plan, reports, verification evidence, and handoff artifacts for a task.
+description: Use when an AAD owner or specialist needs a local human-readable task record, handoff file, audit/browser report, or evidence artifact under ignored project-local .pi/aad without creating committed documentation bureaucracy.
 ---
 
-# AAD Task Package
+# AAD Local Task Record
 
-## Overview
+The skill name is retained for compatibility. The current artifact is one local task record, not a committed documentation package.
 
-Use this skill whenever AAD work needs durable repo-local task documents.
-
-A task package is the shared buffer between agents. It keeps the plan, delegated reports, verification evidence, blockers, follow-ups, and final status in one place.
-
-Default location:
+## Location
 
 ```text
-docs/plans/YYYY-MM-DD-<task-slug>/
+.pi/aad/<task-id>/
 ```
 
-Example:
+This path must be ignored by git.
 
-```text
-docs/plans/2026-05-22-add-invoices-page/
+Before creating it:
+
+```bash
+exclude_file="$(git rev-parse --git-path info/exclude)"
+git check-ignore -q .pi/aad/.keep 2>/dev/null || {
+  mkdir -p "$(dirname "$exclude_file")"
+  grep -Fxq '.pi/aad/' "$exclude_file" 2>/dev/null || printf '%s\n' '.pi/aad/' >> "$exclude_file"
+}
 ```
 
-## Directory structure
+Use the local exclude file instead of changing a public project `.gitignore` merely for runtime artifacts.
 
-Use this structure unless the repo has a stricter convention:
+Typical structure:
 
 ```text
-docs/plans/YYYY-MM-DD-<task-slug>/
-  README.md
-  plan.md
-  reports/
-    explorer.md
-    aad-implementer-<task-id>.md
-    acceptance-auditor.md
-    aad-failure-classifier-<failure-id>.md
-    browser-<scope>.md
-  verification/
-    acceptance-plan.md
-    local.md
-    ci.md
-    browser.md
-    logs/
+.pi/aad/<task-id>/
+  task.md
+  discovery.md
+  implementation.md
+  browser.md
+  audit.md
+  slices/
   artifacts/
     screenshots/
-      <scope>/
-        <run-id>/
-          <viewport>-<section-or-scroll>.png
-  progress/
-    slice-owner.md
-    aad-implementer-<task-id>.md
+    logs/
+    patches/
 ```
 
-Add, rename, or omit files when the task shape demands it, but keep everything for the task under the task package directory.
+Create only files that carry distinct information.
 
-## Task package creation
+## Route defaults
 
-The slice owner creates the task package for implementation-bound work.
+- Direct: no task record by default.
+- Slice: `task.md`; add specialist files only when those agents run.
+- Root: `task.md` plus one record per genuinely independent slice.
+- Browser: `browser.md` and real screenshot artifacts.
+- Auditor: `audit.md`.
 
-Creation checklist:
+## `task.md`
 
-1. Choose a short, stable task slug from the task name.
-2. Create `docs/plans/YYYY-MM-DD-<task-slug>/` in the active worktree.
-3. Create `README.md` with:
-   - task name
-   - status
-   - owner / slice
-   - branch / worktree
-   - PR URL, if available
-   - report index
-4. Create `plan.md` with the current task intake, repo orientation, reuse discovery, missing pieces, plan tasks, dependency graph, and execution ledger.
-5. Create `reports/`, `verification/`, and `artifacts/` as needed.
-6. Commit and push the initial task package when opening an early draft PR.
+Use one living record:
 
-## Plan as execution ledger
+```md
+# <task>
 
-`plan.md` is not a write-once plan. Keep it current enough that another owner can continue without rediscovering task status.
+## Route
+- Route:
+- Owner:
+- Runtime model:
+- Human gate:
+- Worktree:
+- Browser:
+- Audit:
 
-Track:
+## Goal
 
-- task intake and assumptions
-- repo orientation evidence
-- reuse discovery
-- missing pieces
-- plan tasks and dependencies
-- assigned executors and report paths
-- task status: pending / running / done / blocked / follow-up
-- acceptance verification evidence
-- blockers and side findings
-- final done-state
+## Scope
+- In:
+- Out:
 
-Do not rewrite history-heavy details into prose. Prefer short, current status entries with links to the detailed report files.
+## Acceptance
+| ID | Criterion | Evidence | Status |
+| --- | --- | --- | --- |
 
-## Report path routing
+## Plan
+<!-- optional; only executable decisions and dependencies -->
 
-Every delegated prompt should include:
+## Decisions
+<!-- optional; only decisions that affect continuation -->
+
+## Current state
+- Phase:
+- Current action:
+- Blocked on:
+- Updated:
+
+## Issues
+<!-- optional -->
+
+## Verdict
+- Status:
+- Changed/inspected:
+- Evidence:
+- Caveats:
+- Next action:
+```
+
+Omit empty sections. Do not fill the record with `not applicable` lines.
+
+## Status updates
+
+Update `Current state` only at meaningful phase changes. Also emit:
 
 ```text
-Task name: <name>
-Task package: <docs/plans/YYYY-MM-DD-slug>
-Report path: <task-package>/reports/<agent-or-task>.md
-Verification path: <task-package>/verification/<file>.md, when relevant
+PI_PHASE <task-id> <phase> — <short factual summary>
 ```
 
-If a report path is provided, write or update that file before returning. If no task package is provided, return the report inline and say that no task package path was available.
+Allowed phases:
 
-## Agent report defaults
+```text
+routed
+orienting
+planning
+implementing
+verifying
+awaiting_audit
+blocked
+done
+```
 
-- `aad-explorer` → `reports/explorer.md`
-- `aad-slice-owner` progress → `progress/slice-owner.md`
-- `aad-implementer` → `reports/aad-implementer-<task-id>.md`
-- `aad-implementer` progress → `progress/aad-implementer-<task-id>.md`
-- `aad-acceptance-auditor` → `reports/acceptance-auditor.md` and `verification/acceptance-plan.md` when it creates or updates the acceptance plan
-- `aad-failure-classifier` → `reports/aad-failure-classifier-<failure-id>.md`
-- `chrome-browser-agent` → `reports/browser-<scope>.md` or `verification/browser.md`; visual screenshots under `artifacts/screenshots/<scope>/<run-id>/<viewport>-<section-or-scroll>.png`
-- `visual-critic` → `reports/visual-critic-<scope>.md` when delegated separately
-- owner final report → `final-report.md` or the final section of `plan.md`
+Do not create heartbeat prose or a separate progress diary. Pi-subagents runtime activity is the heartbeat.
 
-## Writing rules
+## Specialist files
 
-- Task package writes are allowed even for otherwise read-only support agents, but only inside the provided task package path.
-- Do not edit production code, tests, configs, or unrelated docs when acting as a read-only support agent.
-- Use concise markdown with exact evidence: paths, commands, URLs, PR/check links, refs, and short output excerpts.
-- Large logs may go under `verification/logs/`; summarize the relevant lines in markdown.
-- Do not store secrets, tokens, cookies, private credentials, or sensitive local environment dumps.
-- Prefer appending/updating the relevant report over scattering new files.
-- Use `progress/` for internal agent progress notes; progress files are allowed to be rougher than final reports but must not contain secrets.
-- If a file already contains another agent's report, append a timestamped section instead of overwriting it.
+Specialists should normally receive an `output` path from `pi-subagents`. Their final structured response is persisted there automatically.
 
-## Early draft PR convention
+Use:
 
-For implementation-bound root slice work:
+- `discovery.md` for exact evidence and reuse findings;
+- `implementation.md` only for a separate implementer;
+- `browser.md` for browser evidence;
+- `audit.md` for independent acceptance.
 
-1. Create/enter the worktree.
-2. Create the task package and initial plan.
-3. Commit and push the task package.
-4. Open a draft PR early, unless the user or repo policy says not to.
-5. Continue dispatching agents and updating task package artifacts through the PR branch.
+Parents reference specialist results and update the acceptance table. They do not copy the full report into `task.md`.
 
-For sub-slices, follow parent/child worktree lineage rules: child task package artifacts belong to the child worktree while executing and must be integrated back into the parent slice package or linked from it during parent integration.
+## Evidence
 
-## Common mistakes
+Store only safe, useful artifacts. Large logs belong under `artifacts/logs/` with a short relevant excerpt in the report. Never store secrets, cookies, credentials, private URLs, raw profiles, or unnecessary transcripts.
 
-- writing only chat summaries when a task package path was provided
-- creating reports outside the task package
-- treating `plan.md` as stale after dispatch begins
-- overwriting another agent's report
-- putting secrets or noisy raw logs into committed docs
-- opening implementation PRs without the plan package when the task is implementation-bound
+## Handoffs
+
+A file handoff should make the next action cheaper. It must state:
+
+- settled facts;
+- exact remaining question or action;
+- evidence paths;
+- boundaries;
+- expected closure signal.
+
+Do not preserve narrative history that no future actor needs.

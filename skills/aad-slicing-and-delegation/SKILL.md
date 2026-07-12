@@ -1,150 +1,228 @@
 ---
 name: aad-slicing-and-delegation
-description: Use when an AAD root orchestrator or slice owner must decide whether to keep work whole, split it into slices or sub-slices, or delegate to supporting agents while preserving ownership, dependencies, and routing context.
+description: Use when classifying work as Direct, Slice, or Root; choosing GPT-5.6 model profiles and human gates; or delegating bounded work while preserving ownership, worktree, browser, audit, dependency, and artifact rules.
 ---
 
-# AAD Slicing and Delegation
+# AAD Routing and Delegation
 
-## Overview
+Use this skill to choose the smallest reliable workflow. It owns routing policy, not the user task.
 
-Use this skill when you must choose the cheapest reliable ownership model for the current work.
+## 1. Build the routing descriptor
 
-The goal is not maximum delegation. The goal is stable ownership, clear routing, explicit dependencies, and cheap continuation.
+Record the task facts that matter:
 
-A slice owner should separate decomposition from scheduling: slices define scope and ownership, while each task's `Depends on`, `Blocks`, and `Can run in parallel with` relationships describe its place in the wider plan.
-
-## Keep work whole when
-
-- one local ownership boundary still holds
-- one clear verification story still holds
-- one owner can still carry the narrative cheaply
-- slicing would add more orchestration than value
-- dependency coordination would be more expensive than direct execution
-
-## Slice when
-
-- more than one local ownership boundary appears
-- more than one independent verification story appears
-- one owner would otherwise carry too many unrelated decisions
-- the scope is too large or varied for one owner to carry cheaply
-- a blocking subproblem needs focused ownership before the parent can continue
-
-## Delegate supporting work when
-
-- narrow discovery is cheaper than holding it in owner context
-- narrow review is cheaper than doing it inline
-- narrow verification audit is cheaper than carrying it yourself
-- failure classification or browser evidence would make the next owner decision cheaper
-
-Supporting agents help inside delegated scope. They do not take ownership.
-
-## Dependency graph
-
-When slicing or defining delegated tasks, record each task's relationship to prior, future, and parallel-safe work explicitly. Do not define a fixed wave structure or treat separate slices as automatically parallel. Use this shape for every task so each routing packet can stand on its own:
-
-```md
-Task A: <name>
-- Goal: <what becomes true>
-- Acceptance criteria: <short list or reference>
-- Verify scope: <tests/checks/artifacts>
-- Depends on: []
-- Blocks: [C]
-- Can run in parallel with: [B]
-- Executor: <aad-implementer / support-agent / sub-slice-owner if too large>
-
-Task B: <name>
-- Goal: <what becomes true>
-- Acceptance criteria: <short list or reference>
-- Verify scope: <tests/checks/artifacts>
-- Depends on: []
-- Blocks: [C]
-- Can run in parallel with: [A]
-- Executor: <aad-implementer / support-agent / sub-slice-owner if too large>
-
-Task C: <name>
-- Goal: <what becomes true>
-- Acceptance criteria: <short list or reference>
-- Verify scope: <tests/checks/artifacts>
-- Depends on: [A, B]
-- Blocks: []
-- Can run in parallel with: []
-- Executor: <aad-implementer / support-agent / sub-slice-owner if too large>
+```json
+{
+  "authorization": "inspect|change",
+  "directEligible": false,
+  "mutation": true,
+  "ownershipBoundaries": 1,
+  "acceptanceStories": 1,
+  "integrationRequired": false,
+  "browserMode": "none|functional|standard-ui|full-visual",
+  "discoveryNeeded": false,
+  "separateImplementationNeeded": false,
+  "contradictoryEvidence": false,
+  "previousFailedAttempt": false,
+  "novelArchitecture": false,
+  "consequentialAmbiguity": false,
+  "externalAction": false,
+  "destructiveAction": false,
+  "credentialOrSessionAccess": false,
+  "materialScopeExpansion": false,
+  "riskFlags": []
+}
 ```
 
-`Depends on` names the earlier results this task needs. `Blocks` names the future work waiting on this task. `Can run in parallel with` names peers that planning has explicitly judged safe to overlap; list the relationship on both tasks so either packet remains understandable independently.
+The model determines these semantic facts from the request and repository evidence. Do not manipulate values to obtain a preferred route.
 
-Before each delegation, re-evaluate these planned relationships. An item is ready when its `Depends on` items are complete. If two or more ready items explicitly list each other under `Can run in parallel with`, confirm that their shared contracts and boundaries are still settled, then dispatch them in one parallel `tasks: [...]` call. Otherwise use a single call or wait for the dependency.
+## 2. Run the deterministic policy
 
-## Dependency rules
+Use the installed config when present:
 
-- A task can run in parallel only when it does not require another task's unmerged implementation result.
-- A frontend and backend slice may run in parallel if they share a settled contract; integration must depend on both.
-- A test or CI failure fix may run in parallel with other fixes only when file ownership and root cause are independent.
-- A blocker for the current goal becomes part of the active plan, not a follow-up.
-- Non-blocking observations become follow-up issues and should not expand the active scope.
-
-## Routing packet
-
-Every delegated task should include all applicable routing context needed for safe execution.
-
-Use this packet shape and fill all applicable fields:
-
-```md
-## Routing context
-- Thread: <thread/request context>
-- Slice: <parent slice / child slice name>
-- Worktree: <path>
-- Branch: <branch>
-- Verify scope: <what evidence should prove this task>
-- Review target: <diff/files/behavior to review, when relevant>
-
-## Task package
-- Task name: <task name>
-- Task package path: <docs/plans/YYYY-MM-DD-slug>
-- Plan path: <task-package>/plan.md
-- Report path: <task-package>/reports/<agent-or-task>.md
-- Progress path: <task-package>/progress/<agent-or-task>.md, when relevant
-- Verification artifact path: <task-package>/verification/<file>.md, when relevant
-
-## Execution target
-- Plan task goal: <specific delegated goal>
-- Acceptance criteria: <criteria or plan references>
-- Test plan: <positive/negative/edge/manual checks or plan references>
-- Task relationships: <Depends on / Blocks / Can run in parallel with>
-- Existing patterns or reusable files to follow: <paths/symbols>
-- Do-not-touch boundaries: <files/areas/scope limits>
-- Expected output format: <report/status format>
-
-## pi-subagents options
-- mode: <use tasks: [...] when two or more ready items explicitly list each other under Can run in parallel with; otherwise use a single call>
-- concurrency: <explicit maximum for a parallel call; omit for a single call>
-- reads: <plan/report files to pass into the agent>
-- progress: <true for aad-implementer or long-running work>
-- async: <whether the whole run continues in the background; true only for long-running work with report path and completion signal>
-- worktree: <avoid for AAD implementation slices; use aad-worktree-management instead>
+```bash
+python3 "$HOME/.pi/agent/skills/aad-slicing-and-delegation/scripts/route-task.py" --pretty <<'JSON'
+{ ...descriptor... }
+JSON
 ```
 
-Pass all applicable fields. Supporting agents may refine their local target, but they do not redefine routing or ownership boundaries.
+Inside this repository, use:
 
-## Delegation checklist
+```bash
+python3 skills/aad-slicing-and-delegation/scripts/route-task.py \
+  --config settings/aad-routing.json --pretty <<'JSON'
+{ ...descriptor... }
+JSON
+```
 
-- [ ] Decide whether the work stays whole or should be sliced.
-- [ ] If slicing, define one owner per slice or sub-slice.
-- [ ] Give every task `Depends on`, `Blocks`, and `Can run in parallel with` relationships.
-- [ ] Before dispatch, identify tasks whose `Depends on` items are complete.
-- [ ] If two or more ready tasks explicitly list each other as parallel-safe, confirm the assumption and dispatch them in one parallel tasks call.
-- [ ] If delegating support work, keep ownership at the delegating owner.
-- [ ] Pass all applicable routing context.
-- [ ] Delegate only the narrow work needed.
-- [ ] Keep overlap acceptable and resolve it later during integration.
+Treat the returned route, human gate, worktree requirement, browser/audit requirements, artifact mode, and profile as policy. An owner may override a decision only when it records the concrete reason.
 
-## Common mistakes
+## 3. Route definitions
 
-- slicing for cosmetic reasons
-- delegating because delegation exists, not because it is cheaper
-- losing ownership when delegating support work
-- passing incomplete routing context
-- treating slices as execution waves or creating slices merely to manufacture parallelism
-- serializing ready tasks that are explicitly marked safe to run in parallel
-- running tasks in parallel when they share unsettled contracts
-- treating non-blocking observations as permission to refactor
+### Direct
+
+Use Direct only when all are true:
+
+- one coherent action;
+- one verification story;
+- no browser automation/evidence;
+- no delegation;
+- no integration narrative;
+- no consequential ambiguity or approval-gated action.
+
+Direct mutations still require an isolated worktree.
+
+### Slice
+
+Use one slice owner when one coherent outcome and one local done-state remain. Several files or a difficult implementation do not automatically require Root.
+
+The slice owner implements ordinary work directly. Add support only through the gates below.
+
+### Root
+
+Use one root owner when there are multiple ownership boundaries, independent acceptance stories, or material integration work. Do not create a root merely because a task feels large.
+
+## 4. Model profiles
+
+The routing config defines:
+
+```text
+evidence -> Luna medium
+work     -> Terra high
+deep     -> Sol high
+```
+
+`xhigh` and `max` are forbidden.
+
+Use a runtime `model` override in `subagent(...)`; do not clone role definitions to change model tier.
+
+### Steering depth
+
+```text
+Luna:
+- exact question and evidence target
+- exact allowed sources/tools
+- exact stop condition
+- fixed output schema
+- no ownership or broad inference
+
+Terra:
+- bounded goal
+- scope and approval boundaries
+- acceptance criteria
+- selected runbooks
+- implementation freedom inside the slice
+
+Sol:
+- mission
+- hard constraints
+- success criteria
+- consequential ambiguity rules
+- broad freedom inside the boundary
+```
+
+## 5. Support-agent gates
+
+### Explorer
+
+Use `aad-explorer` only for a bounded discovery question whose result will reduce owner context or prevent rediscovery. Give it exact targets, sources, stop conditions, and an output path.
+
+### Browser
+
+Any browser automation or browser evidence requires a separate `chrome-browser-agent` context. This is mandatory, including functional checks.
+
+### Implementer
+
+The slice owner implements directly by default. Delegate to `aad-implementer` only when:
+
+- a deep implementation problem needs Sol;
+- the work is independently scoped and large enough to benefit from isolated context;
+- a focused implementation path can run safely in parallel;
+- a prior owner attempt produced concrete evidence but did not resolve the issue.
+
+Pass prior evidence and state what must not be rediscovered or retried.
+
+### Failure classifier
+
+Use `aad-failure-classifier` only for concrete command, test, CI, log, or agent-attempt evidence.
+
+### Auditor
+
+Every Slice and Root boundary uses a separate `aad-acceptance-auditor` context. Audit once per boundary. After a focused fix, re-audit only changed or previously failed criteria unless integration changed the wider state.
+
+## 6. Human gates
+
+- `NONE`: autonomous.
+- `INFORM`: display route/model/support/artifacts and continue.
+- `CONSULT`: one consequential decision is unresolved.
+- `APPROVE`: external, destructive, costly, credential/session, merge/deploy, or scope-expanding action.
+
+Do not use CONSULT for naming, routine tests, obvious local patterns, or other low-consequence decisions.
+
+## 7. Skills
+
+Root and slice owners may inspect the full discovered catalog. Before delegating, select the exact specialist and project skills the child needs.
+
+For specialist children with `inheritSkills: false`, pass a complete explicit list, including the role's normal base skill if the runtime override replaces defaults.
+
+## 8. Dependencies and parallelism
+
+Each delegated item records:
+
+```md
+- Depends on:
+- Blocks:
+- Can run in parallel with:
+```
+
+Parallelize only when:
+
+- dependencies are complete;
+- shared contracts are settled;
+- mutable files/worktrees/browser sessions do not conflict;
+- output is independently verifiable;
+- failure is isolatable;
+- integration is cheaper than sequential work.
+
+Use one `tasks: [...]` call with an explicit concurrency limit. Background execution and parallel execution are separate decisions.
+
+## 9. Routing packet
+
+A compact delegated task should include:
+
+```md
+Task ID:
+Parent:
+Goal:
+Scope / do-not-touch:
+Acceptance criteria:
+Relevant evidence and reusable patterns:
+Selected skills:
+Model profile and runtime model:
+Worktree / cwd:
+Task record:
+Output path:
+Depends on / Blocks / Can run in parallel with:
+Human gate:
+Expected result schema:
+```
+
+Do not repeat universal policy text in every packet.
+
+## 10. Operator summary
+
+Before non-trivial Slice or Root work, emit one non-blocking summary:
+
+```text
+ROUTED
+Task: <id>
+Route: <DIRECT|SLICE|ROOT>
+Owner: <role>
+Model: <runtime model>
+Browser: <none/mode>
+Audit: <none/compact/full-risk>
+Worktree: <path or pending>
+Artifacts: .pi/aad/<task-id>/
+Human gate: <level>
+Reason: <one sentence>
+```
