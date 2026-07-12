@@ -272,6 +272,13 @@ def route(desc: dict[str, Any], config: dict[str, Any]) -> dict[str, Any]:
         "artifactRoot": (
             None if artifact_mode == "none" else ".pi/aad/<task-id>/"
         ),
+        "sessionDir": (
+            None if artifact_mode == "none" else ".pi/aad/<task-id>/sessions/"
+        ),
+        "chainDir": (
+            None if artifact_mode == "none" else ".pi/aad/<task-id>/runtime/"
+        ),
+        "debugArtifacts": False,
         "support": support,
         "approvalReasons": [
             key for key, enabled in approval_flags.items() if enabled
