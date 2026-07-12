@@ -1,135 +1,332 @@
 # Pi Agent Setup
 
-Public, non-secret bootstrap for my Pi/Codex agent stack and AAD (Agentic Application Development) workflow. This repository is not a universal product or turnkey installer; it is a practical, inspectable example of how I keep coding-agent infrastructure bounded, repeatable, and verification-oriented across local and remote machines.
+Public, non-secret bootstrap for my Pi/Codex agent stack and AAD (Agentic Application Development) workflow. This repository is not a universal product or turnkey installer. It is a practical, inspectable example of how I keep coding-agent work bounded, observable, verification-oriented, and safe across local and remote machines.
 
-It is meant to show the "how I work" layer: owner/implementer/auditor routing, reusable skills, browser tooling, setup scripts, secrets boundaries, and smoke checks. Hostnames, paths, credentials, sessions, and machine inventory are intentionally omitted or parameterized.
+The system optimizes for accepted outcomes rather than agent activity. It uses explicit ownership, dynamic model routing, isolated worktrees, separate browser and audit contexts, local human-readable task records, and fresh evidence before completion claims.
 
 ## What this installs
 
-- Pi CLI via Vite+: the current `@earendil-works/pi-coding-agent` release
-- OpenAI Codex CLI via Vite+: the current `@openai/codex` release
-- User settings at `$REMOTE_USER_HOME/.pi/agent/settings.json` on a target host
-- Global terminal append prompt at `$REMOTE_USER_HOME/.pi/agent/APPEND_SYSTEM.md`
-- Custom executable subagents and chains at `$REMOTE_USER_HOME/.pi/agent/agents/`:
+- Pi CLI via Vite+: the current `@earendil-works/pi-coding-agent` release.
+- OpenAI Codex CLI via Vite+: the current `@openai/codex` release.
+- User settings at `$REMOTE_USER_HOME/.pi/agent/settings.json`.
+- Global routing prompt at `$REMOTE_USER_HOME/.pi/agent/APPEND_SYSTEM.md`.
+- Active AAD agents at `$REMOTE_USER_HOME/.pi/agent/agents/`:
   - `aad-root-owner`
   - `aad-slice-owner`
   - `aad-implementer`
-  - `aad-failure-classifier`
-  - `chrome-browser-agent`
   - `aad-explorer`
+  - `aad-failure-classifier`
   - `aad-acceptance-auditor`
+  - `chrome-browser-agent`
   - `visual-critic`
-  - Optional/legacy manual AAD chains: `aad-discovery-plan`, `aad-owned-change`, `aad-problem-investigation`, `visual-ui-change`
-- Shared AAD skills at `$REMOTE_USER_HOME/.pi/agent/skills/aad-*`
-- Browser Chrome skill at `$REMOTE_USER_HOME/.pi/agent/skills/browser-chrome` via git submodule
-- Browser Chrome MCP entries in `$REMOTE_USER_HOME/.pi/agent/mcp.json` pointing directly at skill scripts:
-  - `browser-chrome-headed`
-  - `browser-chrome-headless`
-- 21st.dev Magic MCP skill and lazy MCP entry:
-  - skill: `$REMOTE_USER_HOME/.pi/agent/skills/21st-magic-mcp`
-  - MCP server: `21st-magic` using `npx -y @21st-dev/magic@latest`
-- Ready-notify extension at `$REMOTE_USER_HOME/.pi/agent/extensions/ready-notify.ts`
-- Pi-subagents control config at `$REMOTE_USER_HOME/.pi/agent/extensions/subagent/config.json` with a 3-minute `needs_attention` threshold
-- Pi packages/extensions from `settings/pi-settings.example.json` or a local settings file selected with `PI_SETTINGS_FILE`
+- Shared AAD and quality skills at `$REMOTE_USER_HOME/.pi/agent/skills/`.
+- Deterministic routing policy at `$REMOTE_USER_HOME/.pi/agent/aad-routing.json`.
+- Browser Chrome skill and headed/headless MCP entries.
+- 21st.dev Magic MCP integration.
+- Pi-subagents control settings with `needs_attention` notifications.
+- Ready-notify extension for interactive sessions.
+
+Legacy static agent chains are intentionally not installed. Owners construct each workflow dynamically from the current task descriptor, dependencies, model profile, selected skills, and evidence needs.
 
 ## Public-safety boundary
 
-This repository should remain useful without exposing private infrastructure. Do not commit secrets, raw logs, credentials, tokens, cookies, chat IDs, private URLs, browser profiles, or machine inventory. Put local overrides in ignored files such as `.env`, `.env.local`, `settings/*.local.json`, or shell profile exports.
+This repository must remain useful without exposing private infrastructure.
 
-See [`docs/secrets.md`](docs/secrets.md) and [`docs/public-readiness.md`](docs/public-readiness.md) for the exact boundary and customization model.
+Never commit secrets, credentials, tokens, cookies, chat IDs, webhooks, private URLs, raw logs, browser profiles, sessions, machine inventory, or real user/host paths. Put machine-specific settings in ignored `.env*`, `settings/*.local.json`, or shell environment variables.
+
+AAD task records and runtime artifacts live under ignored project-local `.pi/aad/`, not public `docs/` history. See [`docs/secrets.md`](docs/secrets.md) and [`docs/public-readiness.md`](docs/public-readiness.md).
+
+## Three ownership routes
+
+The terminal classifies work by ownership topology:
+
+```text
+User request
+    |
+    +-- DIRECT -- one coherent action, one proof, no browser/delegation/integration
+    |
+    +-- SLICE --- one coherent outcome, one working owner, one local done-state
+    |
+    `-- ROOT ---- multiple ownership or acceptance boundaries, then integration
+```
+
+### `DIRECT`
+
+The terminal handles the task without an AAD owner when it is one coherent action with one verification story, no browser automation, no delegation, and no integration narrative.
+
+A direct read/check/explanation may use the current checkout. Any direct mutation still uses an isolated worktree.
+
+### `SLICE`
+
+Exactly one `aad-slice-owner` owns one coherent outcome. The slice owner is a working owner: it normally inspects, implements, verifies, and prepares the local done-state itself.
+
+It may add focused support:
+
+- Luna explorer for bounded discovery;
+- separate Terra browser context whenever browser automation or browser evidence is required;
+- focused Sol implementer for deep or isolated implementation;
+- Luna failure classifier for concrete failed attempts;
+- separate Terra acceptance auditor once at the slice boundary.
+
+### `ROOT`
+
+Exactly one `aad-root-owner` owns work with multiple ownership boundaries, independent acceptance stories, or material integration risk. It settles shared contracts, routes slices, integrates results, verifies the combined state, and reports one root verdict.
+
+Difficulty alone does not imply root ownership. A hard race condition in one subsystem may remain one Sol-backed slice. Several individually simple API, UI, and runtime outcomes may require a root owner.
+
+Detailed rules and the deterministic descriptor are in `skills/aad-slicing-and-delegation/`.
+
+## Human interaction levels
+
+The workflow separates operator visibility from permission:
+
+| Level | Meaning |
+| --- | --- |
+| `NONE` | Proceed autonomously. |
+| `INFORM` | Show route, owner, model, artifacts, browser/audit needs, then continue. |
+| `CONSULT` | Ask one targeted question because the answer materially changes behavior, persistence, security, compatibility, cost, environment, or acceptance. |
+| `APPROVE` | Wait for explicit authorization before an external, destructive, costly, credential/session, merge/deploy, or material scope-expansion action. |
+
+Root and non-trivial slice work normally emits an `INFORM` routing summary so the human operator can see what is happening without becoming a blocking approval gate.
+
+## GPT-5.6 model steering
+
+The same role can run on different models through the `pi-subagents` runtime `model` override. Agent frontmatter provides a safe default, not a permanent allocation.
+
+```text
+LUNA
++ exact question
++ exact allowed sources
++ exact tools
++ exact stop condition
++ fixed output schema
++ no ownership or broad inference
+
+TERRA
++ bounded goal
++ scope and approval boundaries
++ acceptance criteria
++ relevant runbooks
++ implementation freedom inside the slice
+
+SOL
++ mission
++ hard constraints
++ success criteria
++ consequential ambiguity rules
++ broad freedom inside those boundaries
+```
+
+The checked-in routing profiles are:
+
+| Profile | Runtime model | Intended work |
+| --- | --- | --- |
+| `evidence` | `openai-codex/gpt-5.6-luna:medium` | discovery, search, extraction, concrete failure classification |
+| `work` | `openai-codex/gpt-5.6-terra:high` | normal slice ownership, implementation, browser work, visual critique, audit |
+| `deep` | `openai-codex/gpt-5.6-sol:high` | root ownership, difficult implementation/debugging, architecture, security/data risk |
+
+`xhigh` and `max` are outside this workflow policy.
+
+Example dynamic delegation:
+
+```ts
+subagent({
+  agent: "aad-slice-owner",
+  model: "openai-codex/gpt-5.6-terra:high",
+  task: "Own and implement the bounded slice."
+})
+
+subagent({
+  agent: "aad-implementer",
+  model: "openai-codex/gpt-5.6-sol:high",
+  task: "Resolve the isolated contradictory implementation problem."
+})
+```
+
+`pi-subagents` supports per-run, per-chain-step, and per-parallel-task model overrides. It also supports explicit runtime skill and output-path overrides, so roles do not need to be duplicated for each model.
+
+## Programmatic routing
+
+`settings/aad-routing.json` stores the model profiles, forbidden thinking levels, deep-work threshold, and hard workflow defaults.
+
+The routing helper accepts a small semantic descriptor and returns a deterministic decision:
+
+```bash
+python3 skills/aad-slicing-and-delegation/scripts/route-task.py <<'JSON'
+{
+  "authorization": "change",
+  "directEligible": false,
+  "mutation": true,
+  "ownershipBoundaries": 1,
+  "acceptanceStories": 1,
+  "integrationRequired": false,
+  "browserMode": "standard-ui",
+  "discoveryNeeded": false,
+  "contradictoryEvidence": false,
+  "previousFailedAttempt": false,
+  "novelArchitecture": false,
+  "consequentialAmbiguity": false,
+  "externalAction": false,
+  "destructiveAction": false,
+  "credentialOrSessionAccess": false,
+  "materialScopeExpansion": false,
+  "riskFlags": ["public-ui"]
+}
+JSON
+```
+
+The model supplies task facts that require semantic judgment. The helper converts those facts into route, owner profile, browser/audit requirements, human gate, worktree requirement, and artifact mode. This keeps consequences deterministic without pretending natural-language classification can be fully hard-coded.
+
+Run its built-in fixtures with:
+
+```bash
+python3 skills/aad-slicing-and-delegation/scripts/route-task.py --self-test
+```
+
+## Skill visibility
+
+Root and slice owners use `inheritSkills: true` so unknown project-level skills remain discoverable. They select only relevant skills and pass an explicit list to specialist children.
+
+Implementers, explorers, auditors, browser agents, critics, and classifiers use `inheritSkills: false`. Their prompts stay narrow; task-specific project skills are injected by the owner at runtime.
+
+Skills are runbooks and checklists. They do not become owners or decide acceptance.
+
+## Worktrees
+
+Any repository mutation uses an isolated worktree unless the user explicitly requests the current checkout.
+
+```text
+read-only direct work    -> current checkout allowed
+direct mutation          -> isolated lightweight worktree
+slice mutation           -> isolated slice worktree
+root mutation            -> root worktree
+child slice              -> branch/worktree from the parent branch
+parallel writers         -> separate worktree per writer
+```
+
+This default protects against other terminals or agent runs that the current model cannot see.
+
+## Browser and visual evidence
+
+Every task requiring browser automation or browser evidence uses `chrome-browser-agent` in a separate child context.
+
+Browser evidence has three modes:
+
+| Mode | Default coverage |
+| --- | --- |
+| `functional` | target viewport; add another only for responsive risk |
+| `standard-ui` | `390x844`, `768x1024`, `1440x900` |
+| `full-visual` | `320x800`, `390x844`, `768x1024`, `1280x800`, `1440x900`, `1680x945`, `1920x1080` |
+
+The full matrix remains the default for high-visibility public visual surfaces. Screenshot-first judgment, worst-screenshot reasoning, and obvious-failure rejection remain mandatory. DOM metrics support the verdict but cannot overrule a visible failure.
+
+## Independent acceptance
+
+Every slice and root boundary uses a separate `aad-acceptance-auditor` context.
+
+The normal audit is compact: acceptance criteria, fresh evidence, gaps, and verdict. Full-risk coverage is used for security, permissions, persistence, migrations, external integrations, deployment/runtime wiring, contradictory evidence, data-loss risk, root integration, or public visual surfaces.
+
+After a focused fix, re-audit only changed or previously failed criteria unless integration changed the wider system.
+
+## Local task records
+
+Human-readable orchestration artifacts live under:
+
+```text
+.pi/aad/<task-id>/
+  task.md
+  discovery.md        # only when explorer is used
+  implementation.md   # only for a separate implementer
+  browser.md          # only when browser evidence is required
+  audit.md            # slice/root boundary
+  slices/             # root only
+  artifacts/
+    screenshots/
+    logs/
+    patches/
+```
+
+`task.md` is one living record. Sections are optional and should appear only when they carry information. The workflow does not create `README.md`, `plan.md`, progress diaries, acceptance plans, and final reports that repeat the same facts.
+
+These files must be ignored by git. In arbitrary projects, the owner uses the repository-local path returned by `git rev-parse --git-path info/exclude` and adds `.pi/aad/` there when the project does not already ignore it. This avoids changing public project ignore policy merely for runtime artifacts.
+
+They are intended for live operator inspection, child handoffs, and session recovery—not public history.
+
+## Runtime observability
+
+Pi-subagents already exposes lifecycle state, current tool, recent output, tokens, duration, async status files, and `needs_attention` events. AAD agents add only semantic phase changes:
+
+```text
+PI_PHASE <task-id> routed — Terra/high slice owner; browser and audit required
+PI_PHASE <task-id> implementing — updating the bounded UI slice
+PI_PHASE <task-id> verifying — running targeted checks
+PI_PHASE <task-id> awaiting_audit — evidence ready
+PI_PHASE <task-id> done — accepted
+```
+
+A ready notification means Pi is idle and waiting for input. It is not completion or acceptance evidence.
+
+## Parallel delegation
+
+Slicing and scheduling are separate. Work runs in parallel only when:
+
+- inputs and contracts are settled;
+- dependencies are complete;
+- mutable surfaces do not conflict;
+- each output is independently verifiable;
+- failure is isolatable;
+- integration is cheaper than sequential execution.
+
+The checked-in harness allows at most six tasks per parallel call and at most three concurrent tasks per call. It does not claim a process-wide limit across separate terminal sessions.
 
 ## Ready notifications
 
-This repo includes `extensions/ready-notify.ts`. In interactive Pi sessions it sends a best-effort desktop/terminal notification or bell after an agent run ends and Pi is idle/waiting for input. It does not notify in print/RPC/non-TTY runs or while follow-up/steering messages are queued.
+`extensions/ready-notify.ts` sends a best-effort desktop/terminal notification or bell after an interactive Pi run ends and Pi is idle/waiting for input. It does not notify in print/RPC/non-TTY runs or while follow-up/steering messages are queued.
 
-Configure it in the shell (or service environment) that launches Pi:
+Example configuration:
 
 ```bash
-# disable all ready-notify side effects
-export PI_READY_NOTIFY=0
-# or
-export PI_READY_NOTIFY_DISABLED=1
-
-# skip short runs; default is 0
 export PI_READY_NOTIFY_MIN_DURATION_MS=30000
-
-# customize text; {session} expands to the visible Pi session title:
-# explicit session name first, otherwise the latest user prompt
 export PI_READY_NOTIFY_TITLE="Pi — {session}"
 export PI_READY_NOTIFY_BODY="Ready for input"
-
-# choose backend order: auto, osc, notify-send, osascript, powershell, bell
 export PI_READY_NOTIFY_BACKENDS=auto,bell
-# force terminal bell fallback only
-export PI_READY_NOTIFY_BACKENDS=bell
 ```
 
-Default title is `Pi — {session}`, so the popup identifies which Pi session finished. `{session}` expands to the explicit session display name when set; for unnamed sessions it uses the latest user prompt instead of the opaque session file id. Defaults prefer native desktop notification where available on local desktop sessions (`notify-send` on Linux, `osascript` on macOS, `powershell.exe` on Windows/WSL), then terminal OSC notification, then `bell`. In SSH sessions the default is OSC first, then `bell`, because remote `notify-send` usually cannot notify the local desktop. `osc` uses Kitty OSC 99 when `KITTY_WINDOW_ID` is present, otherwise OSC 777.
-
-After changing this repo locally, run `scripts/update-local.sh`, then use `/reload` in Pi or restart Pi. Test manually in an interactive session with:
+Test in an interactive session with:
 
 ```text
 /ready-notify-test
 ```
 
-For remote installs, `scripts/install-remote.sh` deploys the extension into `$REMOTE_USER_HOME/.pi/agent/extensions/`; set any `PI_READY_NOTIFY_*` variables in the remote Pi launch environment. No host-specific notification settings or secrets are stored in this repo.
-
-## AAD routing model
-
-The installed global append prompt (`APPEND_SYSTEM.md`) tells the terminal main assistant to keep direct handling only for trivial one-step edits, questions, or checks. Clear small/single-slice AAD implementation work routes directly to `aad-slice-owner`. Multi-step, unclear, multi-slice, cross-cutting, or integration-heavy AAD work routes to `aad-root-owner`, which slices the work, delegates to slice owners, integrates results, and reports the final done-state.
-
-Skills are runbooks/support material and do not replace the owner/subagent hierarchy. `aad-implementer` and support agents are internal execution/evidence targets delegated by owners, not top-level default terminal routes. `aad-owned-change.chain.md` remains available as an optional/legacy/manual workflow, but it is not the default owned-work path.
-
-This personal setup uses the GPT-5.6 model family in three tiers. The allocation follows each agent's expected workload; it is a local workflow choice rather than a universal recommendation.
-
-| Agent | Goal | Model |
-| --- | --- | --- |
-| `aad-root-owner` | Own multi-step or multi-slice work, coordinate slices, and integrate the final result. | `openai-codex/gpt-5.6-sol` |
-| `aad-implementer` | Execute scoped implementation tasks with verification and coherent handoff evidence. | `openai-codex/gpt-5.6-sol` |
-| `aad-slice-owner` | Own one scoped slice, delegate execution, and decide its local done-state. | `openai-codex/gpt-5.6-terra` |
-| `aad-acceptance-auditor` | Independently decide whether acceptance criteria and evidence are sufficient. | `openai-codex/gpt-5.6-terra` |
-| `chrome-browser-agent` | Collect browser automation and visual evidence using the appropriate Chrome mode. | `openai-codex/gpt-5.6-terra` |
-| `visual-critic` | Review screenshots for composition, hierarchy, responsiveness, and obvious visual failures. | `openai-codex/gpt-5.6-terra` |
-| `aad-explorer` | Perform read-only discovery, reuse analysis, and evidence gathering. | `openai-codex/gpt-5.6-luna` |
-| `aad-failure-classifier` | Classify concrete failures and recommend the narrow next action without editing source. | `openai-codex/gpt-5.6-luna` |
-
-Files ending in `.md.temp` are disabled templates and are not part of the installed active-agent set.
-
-### Parallel delegation
-
-Slicing and scheduling are separate decisions. Slices are defined by scope, ownership, size, and acceptance boundaries; they are not execution waves and are not automatically parallel. Planning gives every delegated task explicit `Depends on`, `Blocks`, and `Can run in parallel with` relationships so the task carries its prior-work, future-work, and concurrency context without fixing a permanent execution order.
-
-Before each delegation, an owner identifies tasks whose dependencies are complete. If two or more ready tasks explicitly list each other as safe to run in parallel, the owner confirms that their planned contracts and boundaries are still settled and sends them together in one `subagent` call using `tasks: [...]`; otherwise the owner uses a single call or waits for the dependency. Parallel execution and background execution are separate: `tasks: [...]` controls concurrency, while `async: true` lets the complete run continue without blocking the owner.
-
-One root request has one `aad-root-owner`. The root owner may dispatch independent slice owners together when safe, and slice owners apply the same rule to implementer or support tasks inside their scope. The checked-in harness configuration allows at most six tasks in a parallel call and runs at most three concurrently. This conservative per-run limit reduces nested fan-out; the harness does not currently enforce a process-wide concurrency limit across several simultaneous owners.
-
 ## Agent pipeline diagrams
 
-See [`docs/agent-pipelines.html`](docs/agent-pipelines.html) for Mermaid diagrams of the checked-in subagents, owner routing, optional AAD chains, and related worker loops.
+See [`docs/agent-pipelines.html`](docs/agent-pipelines.html) for the dynamic ownership, model, browser, audit, artifact, and human-gate diagrams.
 
-## Visual/UI lane
-
-For future public page visual work, landing pages, templates, hero sections, marketing blocks, or other product-quality UI surfaces, activate the optional `visual-ui-change` lane instead of the generic AAD flow. The slice owner should record a concise design/composition decision, route implementation with screenshot-first acceptance criteria, collect browser screenshots for the relevant viewports, identify the worst screenshot, and use `visual-critic` evidence before the acceptance auditor decides final status. DOM metrics, bounding boxes, and intersection checks remain supporting evidence only.
-
-## Update local Pi setup
-
-Use the local update script after changing checked-in agents or the vendored `pi-codex` submodule:
+## Update the local setup
 
 ```bash
 scripts/update-local.sh
 ```
 
-The local updater applies `defaultProvider`, `defaultModel`, and `defaultThinkingLevel` from `settings/pi-settings.example.json` while preserving other installed settings. To keep machine-specific defaults, pass an ignored local settings file explicitly:
+The updater installs the global prompt, active agent definitions, skills, routing config, extensions, and Pi-subagents control config. It removes obsolete legacy chains, preserves unrelated user skills, reinstalls the local `pi-codex` package dependencies, and verifies the deterministic routing fixtures.
+
+Use an ignored local settings file when machine defaults differ:
 
 ```bash
 PI_SETTINGS_FILE=settings/pi-settings.local.json scripts/update-local.sh
 ```
 
-It installs `APPEND_SYSTEM.md` into `$HOME/.pi/agent/APPEND_SYSTEM.md`, installs `agents/*.md` into `$HOME/.pi/agent/agents/`, installs `extensions/*.ts` into `$HOME/.pi/agent/extensions/`, syncs checked-in skills into `$HOME/.pi/agent/skills/`, installs `settings/pi-subagents.config.json` into `$HOME/.pi/agent/extensions/subagent/config.json`, merges the checked-in `21st-magic` MCP entry into `$HOME/.pi/agent/mcp.json`, reinstalls the vendored `packages/pi-codex` runtime dependencies with `npm ci`, verifies the ready-notify extension is declared, removes stale renamed agents/chains, rewrites the local Pi package entry for `pi-codex` to `packages/pi-codex`, backs up `$HOME/.pi/agent/settings.json`, and verifies that installed AAD agents do not expose `codex_task`.
+Validate the repository policy without installing:
+
+```bash
+npm run verify:aad
+```
+
+After changing installed resources, use `/reload` in Pi or restart it.
 
 ## Install on a remote host
 
-Prerequisite: Vite+ already installed for the remote install user. Set the target and optional paths explicitly for your environment:
+Prerequisite: Vite+ is already installed for the remote user.
 
 ```bash
 TARGET_HOST=<host> \
@@ -138,14 +335,7 @@ PI_SETTINGS_FILE=settings/pi-settings.example.json \
 scripts/install-remote.sh
 ```
 
-The installer uses each package's npm `latest` tag by default. Check the numeric versions currently behind those tags with:
-
-```bash
-npm view @earendil-works/pi-coding-agent version
-npm view @openai/codex version
-```
-
-For a reproducible install, resolve those versions first and pass explicit `PI_VERSION` and `CODEX_VERSION` values. The environment variables accept either a numeric version or another npm dist-tag:
+The installer uses npm `latest` tags unless `PI_VERSION` and `CODEX_VERSION` are provided explicitly.
 
 ```bash
 PI_VERSION=<version> \
@@ -154,30 +344,7 @@ TARGET_HOST=<host> \
 scripts/install-remote.sh
 ```
 
-`REMOTE_USER_HOME` is optional. If it is omitted, the scripts use the remote shell's `$HOME`; they only fall back to `/root` when no usable home is available. `PI_SETTINGS_FILE` may point to an ignored local settings file such as `settings/pi-settings.local.json`.
-
-## Codex login
-
-After install, log in interactively on the target host when needed:
-
-```bash
-ssh <host>
-$HOME/.vite-plus/bin/codex login
-```
-
-Do not commit Codex auth/session files to this repo.
-
-## Optional Pi auth import
-
-Only after explicit approval. Uses the same remote home resolution as install/verify unless `REMOTE_AUTH` is set explicitly:
-
-```bash
-CONFIRM_COPY_PI_AUTH=1 \
-TARGET_HOST=<host> \
-REMOTE_USER_HOME=/home/<user> \
-LOCAL_AUTH=$HOME/.pi/agent/auth.json \
-scripts/import-auth-remote.sh
-```
+Machine-specific notification settings, credentials, auth files, browser profiles, and task records are not stored in this repository.
 
 ## Verify a remote install
 
@@ -185,34 +352,19 @@ scripts/import-auth-remote.sh
 TARGET_HOST=<host> REMOTE_USER_HOME=/home/<user> scripts/verify-remote.sh
 ```
 
-The verifier checks the installed `APPEND_SYSTEM.md`, the `aad-root-owner` and `aad-slice-owner` agents, required skills, stale-agent cleanup, Pi packages, and a smoke prompt.
-
-## Notes
-
-`pi-subagents` discovers user agents from:
-
-```text
-$HOME/.pi/agent/agents/*.md
-$HOME/.agents/*.md
-```
-
-The older local stash at `$HOME/.pi/agents` is not used by current `pi-subagents` discovery, so this repo stores normalized agent definitions with YAML frontmatter and deploys them to `$HOME/.pi/agent/agents` on the install user.
-
-Pi loads global skills from `$HOME/.pi/agent/skills/`. This repo also declares `pi.skills` in `package.json`, so the `skills/` directory can be reused later as a git/npm Pi package, while the remote bootstrap still installs the skills directly for deterministic availability.
+The verifier checks active agents, removed chains, required skills, the routing config and fixtures, Pi-subagents control settings, MCP entries, packages, and a minimal Pi smoke prompt.
 
 ## Browser Chrome
 
-`skills/browser-chrome` is a submodule pointing at `github.com/blockedby/browser-chrome-skill`. Clone/update with submodules before installing:
+`skills/browser-chrome` is a submodule. Initialize it before installation:
 
 ```bash
 git submodule update --init --recursive
 ```
 
-The `browser-chrome` skill chooses between:
+The skill separates:
 
-- `browser-chrome-headless` — disposable headless Chrome for public/simple/parallel checks.
-- `browser-chrome-headed` — headed persistent Chrome only for auth/session/profile tasks.
+- `browser-chrome-headless` — disposable public/simple/parallel checks;
+- `browser-chrome-headed` — persistent profile only for explicitly authorized authentication/session work.
 
-The install script merges the Browser Chrome MCP servers into `$HOME/.pi/agent/mcp.json` using absolute paths to the installed skill scripts. It also merges `skills/21st-magic-mcp/mcp/21st-magic.mcp.json` for the lazy `21st-magic` server. It does not add wrapper commands to `$HOME/.local/bin`. The headed profile, Chrome cookies, saved sessions, browser cache, and 21st.dev API keys are not stored in this repository.
-
-For remote setups, headed and headless Chrome can both run on another host behind a LAN/VPN/SSH tunnel. Configure the skill with environment variables such as `BROWSER_CHROME_HEADED_URL`, `BROWSER_CHROME_HEADED_START_COMMAND`, `BROWSER_CHROME_HEADLESS_START_COMMAND`, and `BROWSER_CHROME_HEADLESS_CLOSE_COMMAND`.
+Cookies, saved sessions, profile data, cache, and API keys are never stored in this repository.
