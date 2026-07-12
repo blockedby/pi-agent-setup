@@ -52,7 +52,7 @@ If the slice develops multiple ownership or acceptance boundaries, return it to 
 
 ### Explorer
 
-Give Luna a narrow question, exact targets/sources, read-only tools, stop condition, selected skills, and `.pi/aad/<task-id>/discovery.md`.
+Give Luna a narrow question, exact targets/sources, read-only tools, stop condition, selected skills, `.pi/aad/<task-id>/discovery.md`, and the project-local session directory. Use `artifacts: false` unless debugging Pi-subagents itself.
 
 ### Browser
 

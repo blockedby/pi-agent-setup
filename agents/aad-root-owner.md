@@ -43,7 +43,7 @@ Do not call `aad-implementer` for normal slice implementation. A slice owner own
 
 ## Delegation
 
-Use support agents only under the gates in `aad-slicing-and-delegation`. Every child call includes task ID, goal, boundaries, acceptance, worktree/cwd, selected skills, runtime model, output path, dependencies, and expected result.
+Use support agents only under the gates in `aad-slicing-and-delegation`. Every child call includes task ID, goal, boundaries, acceptance, worktree/cwd, selected skills, runtime model, output path, `.pi/aad/<task-id>/sessions/` session directory, dependencies, and expected result. Use `artifacts: false` unless debugging Pi-subagents itself.
 
 Parallelize only mutually independent ready slices with settled contracts and separate mutable surfaces.
 

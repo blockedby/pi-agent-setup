@@ -37,13 +37,15 @@ Typical structure:
   browser.md
   audit.md
   slices/
+  sessions/
+  runtime/
   artifacts/
     screenshots/
     logs/
     patches/
 ```
 
-Create only files that carry distinct information.
+Create only files that carry distinct information. Pass `sessionDir` to Pi-subagents so child session files stay under `sessions/`. When a dynamic chain is used, pass `chainDir` under `runtime/`. Set Pi-subagents `artifacts: false` for normal AAD work because task records and sessions are already retained; enable its temp debug artifacts only while debugging Pi-subagents itself.
 
 ## Route defaults
 
