@@ -93,6 +93,12 @@ This personal setup uses the GPT-5.6 model family in three tiers. The allocation
 | `aad-explorer` | Perform read-only discovery, reuse analysis, and evidence gathering. | `openai-codex/gpt-5.6-luna` |
 | `aad-failure-classifier` | Classify concrete failures and recommend the narrow next action without editing source. | `openai-codex/gpt-5.6-luna` |
 
+### Runtime model overrides
+
+The model entries above are role defaults, not a requirement to duplicate an agent definition for every model tier. `pi-subagents` supports a runtime `model` override for single, chain, and parallel delegated runs, so an owner can select a different GPT-5.6 tier or thinking level for a particular task while retaining the same role prompt, tools, and acceptance boundary.
+
+This repository is evaluating a centralized task-routing policy for those overrides. Until that policy is checked in and validated, the agent frontmatter values remain the operational defaults.
+
 Files ending in `.md.temp` are disabled templates and are not part of the installed active-agent set.
 
 ### Parallel delegation
