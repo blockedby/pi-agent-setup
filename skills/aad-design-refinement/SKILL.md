@@ -1,40 +1,20 @@
 ---
 name: aad-design-refinement
-description: Use when an AAD owner needs to sharpen requirements or design before planning or implementation without falling into heavyweight brainstorming rituals.
+description: Use when a real AAD goal is still too ambiguous to implement safely; converge on one recommended approach and select NONE, INFORM, CONSULT, or APPROVE without turning refinement into a long ceremony.
 ---
 
 # AAD Design Refinement
 
-## Overview
+Produce only enough clarity to route and execute safely.
 
-Use this skill when the goal is real but the execution shape is still fuzzy.
+1. Read relevant repository context.
+2. Separate settled facts from consequential ambiguity.
+3. Prefer one recommended approach.
+4. Choose the human gate:
+   - `NONE` for safe autonomous inference;
+   - `INFORM` for a non-blocking route/plan update;
+   - `CONSULT` for one material product/architecture decision;
+   - `APPROVE` for an approval-gated action.
+5. Record goal, constraints, approach, main risks, and verification story in the task record.
 
-The objective is to produce just enough design clarity to move forward safely.
-
-Default to autonomous refinement. Ask the user only when ambiguity blocks safe progress or when a decision changes scope materially.
-
-## Workflow
-
-1. Read the local context that actually matters.
-2. Identify what is already settled versus what is still ambiguous.
-3. Collapse the work into one recommended approach unless multiple approaches are genuinely live.
-4. Ask only the minimum blocking question if a decision cannot be made safely from repo context.
-5. Produce a short design note that covers:
-   - goal
-   - constraints
-   - recommended approach
-   - main risks
-   - verification story
-
-## Output standard
-
-- Keep the design operational, not theatrical.
-- Prefer one recommended approach with brief trade-offs.
-- Keep the note short enough that an owner can execute or plan from it immediately.
-
-## Common mistakes
-
-- turning refinement into a long gated conversation
-- asking non-blocking questions the repo already answers
-- exploring multiple approaches when one is already clearly cheaper
-- writing a spec-sized document for a small implementation decision
+Do not ask about low-consequence details already answered by repository patterns. Do not write a spec-sized document for a small implementation decision.

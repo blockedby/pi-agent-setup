@@ -1,50 +1,44 @@
 ---
 name: aad-worktree-management
-description: Use when an AAD owner needs an isolated git worktree using the repo's conventions without external worktree rituals.
+description: Use before any authorized repository mutation to create or enter an isolated worktree with safe parent/child lineage, protecting against unseen parallel terminals and agent runs.
 ---
 
 # AAD Worktree Management
 
-## Overview
-
-Use this skill when isolated workspace setup is warranted for owned implementation work.
-
-Follow the repo convention directly. Do not ask the user where to place worktrees unless they explicitly request a different location.
-
-## Workflow
-
-1. Use `.worktrees/` at the repository root.
-2. Verify `.worktrees/` is ignored before creating a new worktree.
-3. Create the branch from the intended base branch.
-4. When creating a new task branch, prefer Conventional Branch-style lowercase prefixes: `feat/`, `fix/`, `hotfix/`, `release/`, or `chore/`. Use the prefix that best matches the delegated change and a concise description segment made only of lowercase letters, numbers, hyphens, and dots; do not use spaces or underscores. Follow an existing local branch convention instead if it is stricter.
-5. Do not rename or recreate existing branches just to satisfy the convention.
-6. Create the worktree under `.worktrees/<branch-or-topic>`.
-7. Report the resulting path and branch clearly.
-
-## Parent/child worktree lineage
-
-For root owned work, the default base branch is `main` unless the delegated task or repo state requires a different base.
-
-For sub-slice implementation work, default to the parent slice branch/worktree as the base, not `main`. A child sub-slice is part of the parent slice until integrated.
-
-Child sub-slice results should merge or otherwise integrate back into the parent slice worktree/branch first. The parent slice owner decides the parent done-state, resolves overlap, reruns needed verification, and prepares the parent branch/PR to the target branch.
-
-Do not send a child sub-slice directly to `main` unless the parent explicitly promotes it to an independent root-level slice.
-
-## Implementation-bound task package
-
-For implementation-bound root slice work, the owner should create the task package in the new worktree, commit and push it, and open a draft PR early unless the user or repo policy says not to. Use `aad-task-package` for the task package layout.
+Any repository mutation uses an isolated worktree unless the user explicitly requests the current checkout. Read-only work may use the current checkout.
 
 ## Defaults
 
-- Default base branch for root owned work: `main`, unless the delegated task or repo state requires a different base.
-- Default base branch for sub-slice work: the parent slice branch.
-- Default purpose: isolation for meaningful implementation work.
-- Default behavior: continue autonomously once the worktree is ready.
+- Root worktree base: intended target branch, normally `main`.
+- Slice worktree base: active parent branch for child work; target branch for top-level slice work.
+- Path: `.worktrees/<branch-or-topic>`.
+- Branch: `<type>/<short-lowercase-kebab-slug>` unless repository guidance is stricter.
 
-## Common mistakes
+## Workflow
 
-- asking for directory selection when repo policy already sets it
-- creating a worktree without checking ignore safety
-- treating worktree creation as a full workflow of its own
-- over-explaining routine git mechanics
+1. Verify `.worktrees/` is ignored.
+2. Inspect current branch and dirty state.
+3. Choose the correct base and branch.
+4. Create or enter the isolated worktree.
+5. Record path, branch, and base in `.pi/aad/<task-id>/task.md`.
+6. Continue without narrating routine git mechanics.
+
+## Parent/child lineage
+
+A child slice belongs to its parent until integrated:
+
+```text
+target branch
+  -> root/top-level slice branch
+      -> child slice branch
+```
+
+Integrate child results into the parent worktree before final target-branch preparation. Do not send a child directly to `main` unless it is promoted to an independent root-level slice.
+
+## Parallel writers
+
+Each concurrent writer requires a separate worktree. Read-only explorer/auditor agents may read the owner's worktree. A browser agent uses a separate agent context but may inspect a preview served from the owner worktree.
+
+## Safety
+
+Do not overwrite unrelated dirty state, delete unknown worktrees, switch a feature worktree to `main`, or merge from a feature worktree.

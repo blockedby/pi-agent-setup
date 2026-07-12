@@ -1,57 +1,28 @@
 ---
 name: agent-pipeline-feedback
-description: Use when an agent has concrete, reusable feedback about agent-pipeline friction after completing a task and needs to leave a concise, non-blocking note for setup/prompt/skill/tool improvement.
+description: Use opportunistically after concrete reusable workflow friction; write one concise local note under .pi/aad/feedback without blocking the task or committing private operational history.
 ---
 
 # Agent Pipeline Feedback
 
-Use this skill opportunistically after a task when you observed concrete friction in the agent pipeline that is likely reusable beyond the current task.
+Write feedback only when concrete friction is reusable across tasks and is not already captured.
 
-Do not use this as a mandatory done-state step. Do not invent feedback. Do not delay, block, or expand the user's task just to write feedback.
-
-## When to write feedback
-
-Write a note only when all are true:
-
-- You observed specific pipeline friction while doing the task.
-- The friction is reusable: it could inform a setup, prompt, skill, tool, routing, or workflow improvement.
-- You can describe it without secrets, credentials, private user data, sensitive repo content, or unnecessary transcript detail.
-- It is not already clearly covered by an existing recent feedback note.
-
-Do not write a note for one-off confusion, ordinary task complexity, speculative improvements, or feedback that would duplicate an existing note.
-
-## Where to write it
-
-Preferred location:
+Location:
 
 ```text
-~/code/tools/pi-agent-setup/feedback/
+.pi/aad/feedback/YYYY-MM-DD-short-topic.md
 ```
 
-Use a short, descriptive filename such as:
-
-```text
-YYYY-MM-DD-short-topic.md
-```
-
-If that directory is unavailable, skip the note or mention the feedback briefly in your normal report; do not block the task.
-
-## Compact template
+Template:
 
 ```md
-# <short feedback title>
-
-- Date: <YYYY-MM-DD>
-- Agent/task context: <agent role and brief task type>
-- Observed friction: <what happened, concretely>
-- Why it mattered: <cost, risk, confusion, repeated manual work, or quality impact>
-- Suggested setup/prompt/skill/tool change: <specific improvement idea>
-- Evidence: <minimal command/file/behavior reference; no secrets or sensitive details>
-- Risk/guardrails: <how to avoid overfitting, extra burden, privacy leakage, or false positives>
+# <topic>
+- Context:
+- Observed friction:
+- Why it mattered:
+- Suggested prompt/skill/tool/harness change:
+- Minimal evidence:
+- Risk / anti-overfitting guardrail:
 ```
 
-## Dedupe and privacy rules
-
-- Keep notes concise and actionable; avoid diary-style logs.
-- Redact paths, branch names, or snippets when they would reveal sensitive information and are not needed for the improvement.
-- Feedback is advisory only; it must not redefine task acceptance or claim the user task is incomplete.
+Do not create feedback for ordinary complexity, speculative ideas, or duplicate observations. Never include secrets, private payloads, raw transcripts, or machine-specific identifiers. Feedback is advisory and never changes the current task verdict.
