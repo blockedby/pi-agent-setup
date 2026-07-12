@@ -1,168 +1,57 @@
 ---
 name: aad-plan-writing
-description: Use when an AAD owner needs a repo-local, acceptance-driven implementation plan that follows the ownership model directly without external workflow choreography.
+description: Use when an AAD owner needs an acceptance-driven execution plan inside the local .pi/aad task record; keep it compact for a slice and explicit about dependencies only for real root or delegated work.
 ---
 
 # AAD Plan Writing
 
-## Overview
+Write just enough plan to make execution and verification safe.
 
-Use this skill when the design is settled enough to define execution.
+## Compact slice plan
 
-The plan should help an owner or slice owner execute directly. Supporting agents remain optional and should appear only where they make continuation cheaper.
-
-A good AAD plan is operational: it states what will change, what will prove each change, and how the work should be ordered.
-
-## Workflow
-
-1. Read the approved requirements, design notes, and local repo guidance.
-2. Normalize the task:
-   - goal
-   - in-scope behavior
-   - out-of-scope boundaries
-   - done-state
-   - known constraints and blocking unknowns
-3. Identify the files, components, services, data models, APIs, tests, or docs likely to change.
-4. Identify existing patterns or reusable implementations the plan should follow.
-5. Define the ownership model:
-   - stays whole under one owner
-   - or splits into named slices with clear boundaries
-6. Use `aad-task-package` to create or update the task package under `docs/plans/YYYY-MM-DD-<task-slug>/`.
-7. Write the execution plan to `<task-package>/plan.md` with:
-   - goal
-   - scope and do-not-touch boundaries
-   - task boundaries based on independently verifiable behavior
-   - acceptance criteria and test plan per task
-   - dependencies and optional delegation points only where they are genuinely cheaper
-   - report paths for delegated agents
-8. Keep the plan compact, directly executable, and current as the task execution ledger.
-
-## Task sizing
-
-A plan task is the smallest independently verifiable behavior change inside the current slice.
-
-Do not size plan tasks by file count, estimated minutes, or mechanical edit steps. Size them by the behavior they make true and the primary verification that can prove it.
-
-A good plan task is:
-
-- small enough that one aad-implementer agent can execute it and return a complete acceptance verification report
-- large enough to represent meaningful behavior, not just "create file", "add import", or "change CSS class"
-- centered on one primary system boundary and one primary verification story
-- explicit about what existing pattern or implementation it will reuse
-
-Prefer task boundaries around verification boundaries:
-
-- database schema, migration, or model behavior
-- backend service or API behavior
-- API client, SDK, or shared contract behavior
-- frontend page, component, hook, or state behavior
-- integration between components or services
-- browser, e2e, or final readiness behavior
-
-Split a plan task when:
-
-- it needs a different primary test type or verification command
-- it crosses independent ownership boundaries
-- part of it can run in parallel with another part
-- one part blocks another
-- acceptance criteria no longer fit one coherent verification story
-
-Do not split a plan task when:
-
-- the pieces are only mechanical file edits
-- no piece has independent acceptance criteria
-- verification only makes sense after the pieces are combined
-- splitting would create more coordination than clarity
-
-## Slices, tasks, and executors
-
-A slice is the ownership boundary. A plan task is the execution unit inside that slice.
-
-The parent slice owner remains responsible for the slice result even when tasks are delegated. Plan tasks do not create new ownership by default.
-
-Use an aad-implementer agent for a delegated plan task when the task is already clear enough to execute. Escalate a task to a child slice owner only when it needs its own planning, decomposition, coordination, or integration.
-
-## Task format
-
-Every meaningful plan task should use this structure:
+For a normal slice, add a short `Plan` section to `task.md`:
 
 ```md
-### Task N: <independently verifiable behavior>
-
-Goal:
-- <what this task makes true>
-
-Boundary:
-- System area: <backend/API/frontend/component/integration/etc>
-- Primary verification: <test suite/check/manual evidence that proves this task>
-
-Existing pattern / reuse:
-- <existing file/symbol/pattern to follow or reuse>
-
-Missing change:
-- <minimal new behavior/code needed>
-
-Scope / likely files:
-- <files, areas, components, services, APIs, schemas, tests>
-
-Acceptance criteria:
-- <observable criterion 1>
-- <observable criterion 2>
-
-Evidence route:
-- Existing automated checks first: <relevant existing tests/scripts/checks, or none found>
-- If existing checks do not cover a criterion: <add/extend a test, run a bounded runtime/browser/container/API probe, use parent/user-held env or credential via HANDOFF, or accept a limited claim>
-- Bounded acceptance probe: <smallest direct runtime/manual/browser/container/client reproduction that exercises the claim, or why not authorized/practical>
-- Access/runtime needed: <env/profile/device/service/credential path needed, if any; executor/parent/user responsible for providing it>
-- Outcome boundary: <what PASS/FAIL/HANDOFF/BLOCKED/limited claim can and cannot prove>
-
-Test plan:
-- Positive:
-  - <targeted test/check for happy path 1>
-  - <targeted test/check for happy path 2, when relevant>
-- Negative:
-  - <targeted test/check for invalid/error/unauthorized path 1, when relevant>
-  - <targeted test/check for invalid/error/unauthorized path 2, when relevant>
-- Edge cases:
-  - <targeted test/check for boundary/empty/large/special case 1, when relevant>
-  - <targeted test/check for boundary/empty/large/special case 2, when relevant>
-- Manual:
-  - <only when automation is not practical>
+## Plan
+1. <behavior change> — verify with <check>
+2. <behavior change> — verify with <check>
 
 Dependencies:
-- Depends on: <none / task IDs / external decision>
-- Blocks: <none / task IDs>
-- Can run parallel with: <none / task IDs>
-
-Executor:
-- <aad-implementer / browser-agent / aad-failure-classifier / child slice owner if too large>
+- none
 ```
 
-No meaningful plan task should omit acceptance criteria or a verification plan. If a criterion cannot be automated, state the manual evidence expected.
+Do not create a separate plan file unless the user or repository explicitly requires one.
 
-## Plan rules
+## Root plan
 
-- Use `aad-task-package` for all durable plan/report/verification artifacts.
-- Prefer one owner carrying the work when one owner can do it cheaply.
-- Do not inject mandatory review loops or external workflow skills.
-- Make verification explicit for each meaningful checkpoint.
-- Tie acceptance criteria to tests or checks wherever possible.
-- Prefer TDD for plan tasks where the repo has suitable test infrastructure.
-- Include an Evidence route for each meaningful task: start with existing automated checks, then name the smallest bounded acceptance probe needed to exercise uncovered criteria.
-- When existing tests do not cover a criterion, the plan must say whether to add or extend a test, run a bounded runtime/browser/container/API probe, use parent/user-held environment or credentials via `HANDOFF`, or accept a clearly limited claim.
-- Evidence routes must name access/runtime needs, including required env, profile, device, service, credential path, and whether the executor, parent, or user supplies them.
-- Evidence routes must state the outcome boundary: what the planned evidence can prove, what it cannot prove, and when the result should become `PASS`, `FAIL`, `HANDOFF`, `BLOCKED`, or a limited claim.
-- Use checklist steps inside a task when that makes execution easier, but do not mistake mechanical checklist items for plan tasks.
-- Record dependencies so the owner can later decide parallel execution waves.
+For Root work, define named slices with:
 
-## Common mistakes
+```md
+### <slice id>: <outcome>
+- Owner:
+- Runtime model:
+- Goal:
+- Scope:
+- Acceptance:
+- Evidence route:
+- Depends on:
+- Blocks:
+- Can run in parallel with:
+- Browser:
+- Audit:
+- Record:
+```
 
-- turning the plan into generic advice
-- forcing delegation where direct execution is cheaper
-- leaving verification implicit
-- splitting by mechanical file edits instead of independently verifiable behavior
-- listing implementation tasks without acceptance criteria
-- writing acceptance criteria that cannot be checked
-- making tasks so broad that they require unrelated verification stories
-- delegating a clear execution task to a child slice owner when an aad-implementer agent would be cheaper
-- bloating the plan with workflow ceremony unrelated to the actual change
+Slice boundaries follow independently accepted outcomes, not mechanical file edits.
+
+## Planning rules
+
+- Reuse repository patterns before proposing new abstractions.
+- One coherent verification story normally stays one slice.
+- Split when ownership or acceptance stories separate, not merely to gain parallelism.
+- Record consequential uncertainty and select `CONSULT` only when repository evidence cannot safely settle it.
+- Name the smallest proving check for each criterion.
+- Select task-specific skills explicitly.
+- The slice owner implements normal work directly; do not insert an implementer handoff by habit.
+- Browser work and acceptance audits remain separate contexts.
+- Keep the plan current, but do not turn it into a timeline or diary.
