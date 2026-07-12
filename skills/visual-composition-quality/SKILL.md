@@ -1,61 +1,38 @@
 ---
 name: visual-composition-quality
-description: Use when planning or reviewing product-quality visual surfaces that need a concise composition strategy, visual anti-pattern gates, and screenshot-first evidence mapping within existing AAD reports.
+description: Select for public or product-quality visual surfaces that need an explicit composition decision, screenshot-first anti-pattern gates, and a separate browser/critic evidence path.
 ---
 
 # Visual Composition Quality
 
-Use this skill as a focused checklist for product-quality visual composition. It is not a new agent, workflow, or report format. It complements `browser-visual-report`, which owns persisted screenshot evidence.
+Use only when first-glance composition and polish affect acceptance. It is not required for invisible, backend, config, or trivial copy-only work.
 
-## When to use
+## Minimal composition decision
 
-Use for public page visuals, landing pages, templates, hero sections, marketing blocks, dashboards, forms, or other UI surfaces where first-glance composition and polish affect acceptance.
+Before implementation, record only what the implementer needs:
 
-Do not use this as a heavyweight gate for trivial copy-only, backend-only, or invisible implementation changes.
+1. primary user message or task and main CTA;
+2. named layout/composition strategy;
+3. what should dominate, support, and recede;
+4. grouping, alignment, section rhythm, and whitespace intent;
+5. mobile/tablet simplification and wide-desktop behavior;
+6. brand, typography, contrast, image, and forbidden-motif constraints.
 
-## Inputs
+## Hard visual risks
 
-- Delegated design/composition decision or owner constraints.
-- Brand/layout constraints, target viewport set, route/URL, and visual acceptance criteria.
-- Existing components, sections, tokens, spacing/typography rules, and screenshot artifacts when available.
+Treat these as blocking unless explicitly waived:
 
-## Composition decision checklist
+- clipped, overlapping, hidden, or unusable primary content or controls;
+- broken responsive layout, horizontal overflow, or pathological wrapping;
+- collage/debug composition, disconnected cards, random decoration, or visual noise overpowering content;
+- generic low-trust template output, weak hierarchy, typography, spacing, or accidental dead zones;
+- unreadable contrast or missing, broken, stretched, pixelated, or placeholder-only assets.
 
-Before implementation or review, record the smallest useful decision:
+## Evidence path
 
-1. Primary user message and main CTA or task.
-2. Selected layout strategy: hero + proof, card grid, split panel, form flow, dashboard hierarchy, content-first page, or other named pattern.
-3. Visual hierarchy: what should dominate, support, and recede.
-4. Grouping/alignment rules: grids, columns, section rhythm, image/card placement, and whitespace intent.
-5. Responsive intent: how the composition should simplify on mobile/tablet and avoid over-wide desktop emptiness.
-6. Brand constraints: tone, color/contrast limits, typography style, image/mockup treatment, and forbidden motifs.
+- implementation remains with the working owner or delegated implementer;
+- screenshots come from a separate browser agent using `standard-ui` or `full-visual` coverage;
+- visual judgment comes from the separate visual critic;
+- final acceptance comes from the independent auditor.
 
-## Anti-pattern gate
-
-Treat these as hard visual risks unless the owner explicitly waives them:
-
-- clipped, overlapping, hidden, or unusably positioned primary text, forms, controls, or CTAs;
-- broken responsive layout, horizontal overflow, awkward one-word-per-line headings, or cramped mobile composition;
-- collage/debug-looking composition, random floating assets, disconnected cards, or decoration overpowering content;
-- generic low-premium template output, weak hierarchy, weak typography, inconsistent spacing, or unintentional dead zones;
-- unreadable contrast, same-tone text/background, missing/broken/stretched assets, or visibly placeholder-only visuals.
-
-## Evidence mapping
-
-Map findings into existing report fields instead of creating a new report shape:
-
-- `aad-reporting`
-  - `Spec compliance`: composition strategy and anti-pattern requirements satisfied or missing.
-  - `Acceptance verification`: screenshot/manual evidence tied to visual acceptance criteria.
-  - `Issues`: unresolved composition or anti-pattern failures.
-- `aad-implementation-report`
-  - `AC_VERIFICATION`: implemented visual behavior checked by route/viewport/manual evidence.
-  - `QUALITY_NOTES` → `Frontend/UI`: component/style reuse, responsive behavior, and visual-state handling.
-- `browser-visual-report`
-  - `Screenshot matrix`, `Worst screenshot`, `First-glance verdict`, and `Issues by priority` for screenshot-first visual evidence.
-- `aad-task-package`
-  - Put screenshots under `artifacts/screenshots/<scope>/<run-id>/` and reports under the task package paths.
-
-## Output guidance
-
-Use concise, screenshot-visible language: route, viewport, section, artifact path, and exact observed risk. Objective DOM metrics can support the decision, but they cannot override an obvious visual failure in the screenshot.
+Record the composition decision once in the task record. Reference browser and critic artifacts; do not copy them into another visual report. Objective DOM metrics can explain but never overrule an obvious screenshot failure.

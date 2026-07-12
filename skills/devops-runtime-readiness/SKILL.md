@@ -1,52 +1,23 @@
 ---
 name: devops-runtime-readiness
-description: Use when planning, implementing, or reviewing config, environment, deployment, container, CI, startup, or runtime-wiring changes that need readiness evidence within existing AAD reports.
+description: Select for config, environment, containers, CI, deployment, startup, healthchecks, or runtime wiring; apply focused readiness and secret-safety checks and surface only evidence or gaps that affect acceptance.
 ---
 
-# DevOps Runtime Readiness
+# DevOps / Runtime Readiness
 
-Use this skill as a focused checklist for runtime and deployment readiness. It is not a new agent, workflow, or report format. Record findings in the existing AAD task package and reports.
+This is a task-selected checklist, not a new workflow or report.
 
-## When to use
+## Check the touched runtime path
 
-Use when a task touches environment variables, config loading/validation, Dockerfiles, Compose/Kubernetes/deployment manifests, entrypoints, healthchecks, CI scripts, build args, service startup, migrations-at-startup, exposed ports, volumes, or runtime service dependencies.
+- pair config changes with the repository's examples/templates, docs, validation loaders, CI expectations, and deployment manifests;
+- use placeholders or secret names, never real values;
+- preserve container build args, environment propagation, ports, users, volumes, entrypoints, and service boundaries;
+- preserve startup dependencies, health/readiness checks, migration timing, bootstrap behavior, and rollback expectations;
+- update existing CI/build targets instead of adding unexplained parallel commands;
+- run the narrowest available config validation, build, container, startup, health, migration, or smoke proof;
+- identify environment-specific gaps such as unavailable services, secret sources, devices, production manifests, or credentials;
+- keep private hosts, env values, tokens, cookies, and sensitive payloads out of logs and task artifacts.
 
-## Inputs
+## Evidence
 
-- Delegated acceptance criteria, deployment assumptions, and verification plan.
-- Existing env examples/templates, docs, local/dev wiring, CI/secrets expectations, config loaders, container files, and startup scripts.
-- Applicable task package/report paths from `aad-task-package`.
-
-## Checklist
-
-1. Pair config changes with required declarations: examples/templates, docs, local/dev env wiring, CI/secrets expectations, deployment manifests, and runtime validation/config loaders.
-2. Do not commit secrets or real environment-specific values; use placeholders or documented secret names only.
-3. Preserve container conventions: build args, service env propagation, exposed ports, volumes, users, entrypoints, and frontend/backend boundaries.
-4. Preserve startup behavior: service dependencies, readiness/healthchecks, migration timing, seed/bootstrap commands, and rollback expectations.
-5. Check CI/build scripts affected by the change; prefer updating existing targets over adding parallel one-off commands.
-6. Verify local runtime paths when possible: config validation, build, container startup, health endpoint, migration dry run, or smoke test.
-7. Identify environment-specific gaps: missing secret source, unverified production manifest, unavailable external service, or stale deployment docs.
-8. Avoid unsafe logging of env values, tokens, credentials, cookies, private hostnames, or sensitive config.
-
-## Evidence mapping
-
-Map findings into existing report fields instead of creating a new report shape:
-
-- `aad-implementation-report`
-  - `AC_VERIFICATION`: runtime/config behavior proven by targeted checks or documented manual evidence.
-  - `QUALITY_CHECKS`: build, config validation, container, smoke, or CI-equivalent commands.
-  - `QUALITY_NOTES` → `DevOps/runtime`: paired files updated, startup/readiness/deployment wiring notes, unresolved readiness limits.
-  - `QUALITY_NOTES` → `Security` and `Compatibility/performance`: no secrets committed, no avoidable startup/runtime regressions.
-- `aad-reporting`
-  - `Acceptance verification`: runtime readiness criteria tied to exact checks, artifacts, or waivers.
-  - `System readiness` → `Config / env / secrets`, `Runtime / deployment wiring`, and container/Docker notes where applicable.
-  - `Verification run`: local targeted/full checks and remote CI after push when available.
-  - `Issues`: unresolved env, deployment, healthcheck, or CI gaps.
-- `aad-acceptance-auditor` report shape
-  - `System readiness coverage`: config/env/secrets, Docker/containers, runtime/deployment wiring, database/migration startup coverage.
-- `aad-task-package`
-  - Store safe build/runtime logs under `verification/logs/` only when they materially help continuation.
-
-## Output guidance
-
-Use exact file paths, variable names without values, command names, service names, and healthcheck URLs. If a production deployment check cannot be run locally, state the limitation and the required owner/CI evidence.
+Record exact files, variable names without values, services, commands, results, and remaining runtime boundary. Use full-risk audit depth for material deployment/runtime changes. Do not manufacture production readiness from a local static check or fill an all-purpose readiness table with irrelevant rows.
