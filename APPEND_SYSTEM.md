@@ -81,7 +81,7 @@ Workflow artifacts live under the project-local path:
 
 Before writing, verify the path is ignored. When the project does not already ignore it, add `.pi/aad/` to the repository-local exclude file resolved by `git rev-parse --git-path info/exclude`; do not modify a public `.gitignore` only for runtime artifacts.
 
-Use one living `task.md` record, optional specialist reports such as `discovery.md`, `browser.md`, `implementation.md`, and `audit.md`, plus real artifacts. Do not create report files merely to repeat information already present.
+Use one living `task.md` record, optional specialist reports such as `discovery.md`, `browser.md`, `implementation.md`, and `audit.md`, plus real artifacts. Put delegated session files under `.pi/aad/<task-id>/sessions/`; put dynamic-chain state under `.pi/aad/<task-id>/runtime/`. Disable Pi-subagents temp debug artifacts for normal AAD work unless debugging the extension itself. Do not create report files merely to repeat information already present.
 
 Emit semantic phase changes, not heartbeat prose:
 
