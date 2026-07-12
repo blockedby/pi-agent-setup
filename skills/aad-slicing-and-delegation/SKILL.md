@@ -202,6 +202,9 @@ Model profile and runtime model:
 Worktree / cwd:
 Task record:
 Output path:
+Session dir: .pi/aad/<task-id>/sessions/
+Chain dir: .pi/aad/<task-id>/runtime/ when a dynamic chain is used
+Debug artifacts: false unless debugging pi-subagents itself
 Depends on / Blocks / Can run in parallel with:
 Human gate:
 Expected result schema:
@@ -223,6 +226,7 @@ Browser: <none/mode>
 Audit: <none/compact/full-risk>
 Worktree: <path or pending>
 Artifacts: .pi/aad/<task-id>/
+Sessions: .pi/aad/<task-id>/sessions/
 Human gate: <level>
 Reason: <one sentence>
 ```
