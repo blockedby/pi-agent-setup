@@ -8,6 +8,7 @@ CODEX_SUBMODULE="$repo_root/packages/pi-codex"
 SETTINGS_PATH="$AGENT_DIR/settings.json"
 PI_SETTINGS_FILE="${PI_SETTINGS_FILE:-settings/pi-settings.example.json}"
 SETTINGS_SOURCE="$repo_root/$PI_SETTINGS_FILE"
+PI_VERSION="${PI_VERSION:-latest}"
 
 if [ ! -f "$SETTINGS_SOURCE" ]; then
   echo "PI_SETTINGS_FILE not found: $PI_SETTINGS_FILE" >&2
@@ -21,15 +22,36 @@ if [ ! -f "$CODEX_SUBMODULE/package.json" ]; then
 fi
 
 NPM_BIN="${NPM_BIN:-}"
+if [ -z "$NPM_BIN" ]; then
+  NPM_BIN="$(command -v npm || true)"
+fi
 if [ -z "$NPM_BIN" ] && [ -x "$LOCAL_USER_HOME/.vite-plus/bin/npm" ]; then
   NPM_BIN="$LOCAL_USER_HOME/.vite-plus/bin/npm"
 fi
 if [ -z "$NPM_BIN" ]; then
-  NPM_BIN="$(command -v npm || true)"
-fi
-if [ -z "$NPM_BIN" ]; then
   echo "npm not found; cannot install packages/pi-codex runtime dependencies" >&2
   exit 1
+fi
+
+# Vite+ remains the preferred Node/npm provider, but Pi itself must not run from
+# Vite+'s hashed package directories: their `#<id>` path segment is interpreted
+# as a URL fragment by Jiti while loading extensions. Repair that layout by
+# installing Pi with ordinary npm into the user's local prefix.
+ACTIVE_PI_BIN="${PI_BIN:-$(command -v pi || true)}"
+if [ -z "$ACTIVE_PI_BIN" ] || [[ "$ACTIVE_PI_BIN" == "$LOCAL_USER_HOME/.vite-plus/"* ]]; then
+  echo "Installing Pi outside Vite+ under $LOCAL_USER_HOME/.local"
+  mkdir -p "$LOCAL_USER_HOME/.local"
+  "$NPM_BIN" install -g --prefix "$LOCAL_USER_HOME/.local" \
+    "@earendil-works/pi-coding-agent@$PI_VERSION"
+  ACTIVE_PI_BIN="$LOCAL_USER_HOME/.local/bin/pi"
+fi
+if [ ! -x "$ACTIVE_PI_BIN" ]; then
+  echo "Resolved Pi executable is not executable: $ACTIVE_PI_BIN" >&2
+  exit 1
+fi
+echo "Using Pi executable: $ACTIVE_PI_BIN"
+if [ "$(command -v pi || true)" != "$ACTIVE_PI_BIN" ]; then
+  echo "NOTE: add $LOCAL_USER_HOME/.local/bin before Vite+ in PATH to make this Pi the shell default." >&2
 fi
 
 # packages/pi-codex is our vendored local Pi package. Reinstall dependencies on

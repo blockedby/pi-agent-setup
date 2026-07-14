@@ -6,7 +6,7 @@ It is meant to show the "how I work" layer: owner/implementer/auditor routing, r
 
 ## What this installs
 
-- Pi CLI via Vite+: the current `@earendil-works/pi-coding-agent` release
+- Pi CLI via ordinary npm into `$HOME/.local`: the current `@earendil-works/pi-coding-agent` release
 - OpenAI Codex CLI via Vite+: the current `@openai/codex` release
 - User settings at `$REMOTE_USER_HOME/.pi/agent/settings.json` on a target host
 - Global terminal append prompt at `$REMOTE_USER_HOME/.pi/agent/APPEND_SYSTEM.md`
@@ -119,17 +119,17 @@ Use the local update script after changing checked-in agents or the vendored `pi
 scripts/update-local.sh
 ```
 
-The local updater applies `defaultProvider`, `defaultModel`, and `defaultThinkingLevel` from `settings/pi-settings.example.json` while preserving other installed settings. To keep machine-specific defaults, pass an ignored local settings file explicitly:
+The local updater detects the active Pi executable. If Pi is missing or resolves to Vite+, it reinstalls Pi with ordinary npm under `$HOME/.local` to keep extension loading outside Vite+'s hashed package paths. It applies `defaultProvider`, `defaultModel`, and `defaultThinkingLevel` from `settings/pi-settings.example.json` while preserving other installed settings and packages; existing settings are backed up first. To keep machine-specific defaults, pass an ignored local settings file explicitly:
 
 ```bash
 PI_SETTINGS_FILE=settings/pi-settings.local.json scripts/update-local.sh
 ```
 
-It installs `APPEND_SYSTEM.md` into `$HOME/.pi/agent/APPEND_SYSTEM.md`, installs `agents/*.md` into `$HOME/.pi/agent/agents/`, installs `extensions/*.ts` into `$HOME/.pi/agent/extensions/`, syncs checked-in skills into `$HOME/.pi/agent/skills/`, installs `settings/pi-subagents.config.json` into `$HOME/.pi/agent/extensions/subagent/config.json`, merges the checked-in `21st-magic` MCP entry into `$HOME/.pi/agent/mcp.json`, reinstalls the vendored `packages/pi-codex` runtime dependencies with `npm ci`, verifies the ready-notify extension is declared, removes stale renamed agents/chains, rewrites the local Pi package entry for `pi-codex` to `packages/pi-codex`, backs up `$HOME/.pi/agent/settings.json`, and verifies that installed AAD agents do not expose `codex_task`.
+It installs `APPEND_SYSTEM.md` into `$HOME/.pi/agent/APPEND_SYSTEM.md`, installs `agents/*.md` into `$HOME/.pi/agent/agents/`, installs `extensions/*.ts` into `$HOME/.pi/agent/extensions/`, syncs checked-in skills into `$HOME/.pi/agent/skills/`, installs `settings/pi-subagents.config.json` into `$HOME/.pi/agent/extensions/subagent/config.json`, merges the checked-in `21st-magic` MCP entry into `$HOME/.pi/agent/mcp.json`, reinstalls the vendored `packages/pi-codex` runtime dependencies with `npm ci`, verifies the ready-notify extension is declared, removes stale renamed agents/chains, rewrites the local Pi package entry for `pi-codex` to `packages/pi-codex` while preserving other installed packages, backs up `$HOME/.pi/agent/settings.json`, and verifies that installed AAD agents do not expose `codex_task`.
 
 ## Install on a remote host
 
-Prerequisite: Vite+ already installed for the remote install user. Set the target and optional paths explicitly for your environment:
+Prerequisite: Vite+ already installed for the remote install user. The installer uses its Node/npm runtime, installs Pi with ordinary npm under `$REMOTE_USER_HOME/.local`, and continues to install Codex through Vite+. Keeping Pi outside Vite+'s hashed package directories avoids extension-loader resolution failures when an installation path contains `#`. Set the target and optional paths explicitly for your environment:
 
 ```bash
 TARGET_HOST=<host> \

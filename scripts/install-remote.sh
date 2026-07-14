@@ -56,9 +56,10 @@ fi
 
 VP_BIN="$REMOTE_USER_HOME/.vite-plus/bin/vp"
 NPM_BIN="$REMOTE_USER_HOME/.vite-plus/bin/npm"
-PI_BIN="$REMOTE_USER_HOME/.vite-plus/bin/pi"
+PI_BIN="$REMOTE_USER_HOME/.local/bin/pi"
 CODEX_BIN="$REMOTE_USER_HOME/.vite-plus/bin/codex"
 AGENT_DIR="$REMOTE_USER_HOME/.pi/agent"
+export PATH="$REMOTE_USER_HOME/.local/bin:$REMOTE_USER_HOME/.vite-plus/bin:$PATH"
 
 if [ ! -x "$NPM_BIN" ]; then
   echo "Vite+ npm not found at $NPM_BIN; install Vite+ first or set REMOTE_USER_HOME to the home containing .vite-plus." >&2
@@ -69,7 +70,8 @@ if [ ! -x "$VP_BIN" ]; then
   exit 1
 fi
 
-"$VP_BIN" install -g "@earendil-works/pi-coding-agent@$PI_VERSION"
+mkdir -p "$REMOTE_USER_HOME/.local"
+"$NPM_BIN" install -g --prefix "$REMOTE_USER_HOME/.local" "@earendil-works/pi-coding-agent@$PI_VERSION"
 "$VP_BIN" install -g "@openai/codex@$CODEX_VERSION"
 
 mkdir -p "$AGENT_DIR/agents" "$AGENT_DIR/extensions" "$AGENT_DIR/extensions/subagent" "$AGENT_DIR/skills"
