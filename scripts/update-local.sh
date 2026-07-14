@@ -4,6 +4,8 @@ set -euo pipefail
 LOCAL_USER_HOME="${LOCAL_USER_HOME:-$HOME}"
 AGENT_DIR="${PI_AGENT_DIR:-$LOCAL_USER_HOME/.pi/agent}"
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# shellcheck source=lib/runtime-paths.sh
+source "$repo_root/scripts/lib/runtime-paths.sh"
 CODEX_SUBMODULE="$repo_root/packages/pi-codex"
 SETTINGS_PATH="$AGENT_DIR/settings.json"
 PI_SETTINGS_FILE="${PI_SETTINGS_FILE:-settings/pi-settings.example.json}"
@@ -21,13 +23,7 @@ if [ ! -f "$CODEX_SUBMODULE/package.json" ]; then
   git -C "$repo_root" submodule update --init packages/pi-codex
 fi
 
-NPM_BIN="${NPM_BIN:-}"
-if [ -z "$NPM_BIN" ]; then
-  NPM_BIN="$(command -v npm || true)"
-fi
-if [ -z "$NPM_BIN" ] && [ -x "$LOCAL_USER_HOME/.vite-plus/bin/npm" ]; then
-  NPM_BIN="$LOCAL_USER_HOME/.vite-plus/bin/npm"
-fi
+NPM_BIN="$(resolve_pi_setup_npm "$LOCAL_USER_HOME")"
 if [ -z "$NPM_BIN" ]; then
   echo "npm not found; cannot install packages/pi-codex runtime dependencies" >&2
   exit 1
@@ -49,10 +45,11 @@ if [ ! -x "$ACTIVE_PI_BIN" ]; then
   echo "Resolved Pi executable is not executable: $ACTIVE_PI_BIN" >&2
   exit 1
 fi
+
+configure_pi_bash_path "$LOCAL_USER_HOME"
+export PATH="$LOCAL_USER_HOME/.local/bin:$LOCAL_USER_HOME/.vite-plus/bin:$PATH"
+echo "Configured Bash PATH startup for Pi under $LOCAL_USER_HOME/.local/bin"
 echo "Using Pi executable: $ACTIVE_PI_BIN"
-if [ "$(command -v pi || true)" != "$ACTIVE_PI_BIN" ]; then
-  echo "NOTE: add $LOCAL_USER_HOME/.local/bin before Vite+ in PATH to make this Pi the shell default." >&2
-fi
 
 # packages/pi-codex is our vendored local Pi package. Reinstall dependencies on
 # every local setup update so the local path package is deterministic and cannot

@@ -119,7 +119,9 @@ Use the local update script after changing checked-in agents or the vendored `pi
 scripts/update-local.sh
 ```
 
-The local updater detects the active Pi executable. If Pi is missing or resolves to Vite+, it reinstalls Pi with ordinary npm under `$HOME/.local` to keep extension loading outside Vite+'s hashed package paths. It applies `defaultProvider`, `defaultModel`, and `defaultThinkingLevel` from `settings/pi-settings.example.json` while preserving other installed settings and packages; existing settings are backed up first. To keep machine-specific defaults, pass an ignored local settings file explicitly:
+The local updater prefers Vite+'s npm runtime, detects the active Pi executable, and reinstalls Pi with ordinary npm under `$HOME/.local` when Pi is missing or resolves to Vite+. This keeps extension loading outside Vite+'s hashed package paths. It also installs one managed Bash PATH file under `$HOME/.config/pi-agent-setup/` and adds a delimited source block to the active Bash login startup file and `.bashrc`, so fresh Bash login and interactive shells resolve `$HOME/.local/bin/pi` before Vite+. Repeated runs update only the managed file and do not duplicate the source blocks or replace unrelated shell content.
+
+The updater applies `defaultProvider`, `defaultModel`, and `defaultThinkingLevel` from `settings/pi-settings.example.json` while preserving other installed settings and packages; existing settings are backed up first. To keep machine-specific defaults, pass an ignored local settings file explicitly:
 
 ```bash
 PI_SETTINGS_FILE=settings/pi-settings.local.json scripts/update-local.sh
@@ -129,7 +131,7 @@ It installs `APPEND_SYSTEM.md` into `$HOME/.pi/agent/APPEND_SYSTEM.md`, installs
 
 ## Install on a remote host
 
-Prerequisite: Vite+ already installed for the remote install user. The installer uses its Node/npm runtime, installs Pi with ordinary npm under `$REMOTE_USER_HOME/.local`, and continues to install Codex through Vite+. Keeping Pi outside Vite+'s hashed package directories avoids extension-loader resolution failures when an installation path contains `#`. Set the target and optional paths explicitly for your environment:
+Prerequisite: Vite+ already installed for the remote install user. The installer uses its Node/npm runtime, installs Pi with ordinary npm under `$REMOTE_USER_HOME/.local`, and continues to install Codex through Vite+. Keeping Pi outside Vite+'s hashed package directories avoids extension-loader resolution failures when an installation path contains `#`. The same managed Bash setup makes `.local/bin` precede `.vite-plus/bin` in fresh Bash login and interactive shells without replacing existing startup files. Set the target and optional paths explicitly for your environment:
 
 ```bash
 TARGET_HOST=<host> \

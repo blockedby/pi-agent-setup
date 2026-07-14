@@ -41,6 +41,12 @@ test "$(command -v pi)" = "$PI_BIN"
 "$PI_BIN" --version
 "$VP_BIN_DIR/codex" --version
 
+login_pi="$(HOME="$REMOTE_USER_HOME" PATH="$VP_BIN_DIR:/usr/bin:/bin" bash --login -i -c 'command -v pi' 2>/dev/null | tail -n 1)"
+interactive_pi="$(HOME="$REMOTE_USER_HOME" PATH="$VP_BIN_DIR:/usr/bin:/bin" bash -i -c 'command -v pi' 2>/dev/null | tail -n 1)"
+test "$login_pi" = "$PI_BIN"
+test "$interactive_pi" = "$PI_BIN"
+echo 'Fresh Bash login and interactive shells resolve Pi from .local/bin.'
+
 echo '== pi files =='
 test -f "$AGENT_DIR/settings.json"
 test -f "$AGENT_DIR/APPEND_SYSTEM.md"
