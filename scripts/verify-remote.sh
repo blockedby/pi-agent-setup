@@ -26,17 +26,26 @@ else
 fi
 
 VP_BIN_DIR="$REMOTE_USER_HOME/.vite-plus/bin"
+LOCAL_BIN_DIR="$REMOTE_USER_HOME/.local/bin"
+PI_BIN="$LOCAL_BIN_DIR/pi"
 AGENT_DIR="$REMOTE_USER_HOME/.pi/agent"
-export PATH="$VP_BIN_DIR:$PATH"
+export PATH="$LOCAL_BIN_DIR:$VP_BIN_DIR:$PATH"
 
 echo "== resolved home =="
 echo "$REMOTE_USER_HOME"
 
-echo '== vite/node/npm/pi =='
+echo '== vite node/npm/codex and npm-installed pi =='
 "$VP_BIN_DIR/node" --version
 "$VP_BIN_DIR/npm" --version
-"$VP_BIN_DIR/pi" --version
+test "$(command -v pi)" = "$PI_BIN"
+"$PI_BIN" --version
 "$VP_BIN_DIR/codex" --version
+
+login_pi="$(HOME="$REMOTE_USER_HOME" PATH="$VP_BIN_DIR:/usr/bin:/bin" bash --login -i -c 'command -v pi' 2>/dev/null | tail -n 1)"
+interactive_pi="$(HOME="$REMOTE_USER_HOME" PATH="$VP_BIN_DIR:/usr/bin:/bin" bash -i -c 'command -v pi' 2>/dev/null | tail -n 1)"
+test "$login_pi" = "$PI_BIN"
+test "$interactive_pi" = "$PI_BIN"
+echo 'Fresh Bash login and interactive shells resolve Pi from .local/bin.'
 
 echo '== pi files =='
 test -f "$AGENT_DIR/settings.json"
@@ -135,8 +144,8 @@ print("21st-magic MCP entry verified")
 PY
 
 echo '== pi packages =='
-"$VP_BIN_DIR/pi" list | sed -n '1,160p'
+"$PI_BIN" list | sed -n '1,160p'
 
 echo '== smoke =='
-timeout "${PI_SMOKE_TIMEOUT_SECONDS:-900}" "$VP_BIN_DIR/pi" --no-session --mode text -p 'Say OK and exit.' | tail -n 40
+timeout "${PI_SMOKE_TIMEOUT_SECONDS:-900}" "$PI_BIN" --no-session --mode text -p 'Say OK and exit.' | tail -n 40
 REMOTE

@@ -68,7 +68,8 @@ Useful loop:
 5. Smoke-test Pi startup/resource loading with a tiny prompt:
 
    ```bash
-   timeout 120 "$HOME/.vite-plus/bin/pi" --no-session --mode text -p 'Say OK and exit.' 2>&1 | tail -n 80
+   PI_BIN="$(command -v pi)"
+   timeout 120 "$PI_BIN" --no-session --mode text -p 'Say OK and exit.' 2>&1 | tail -n 80
    ```
 
    A clean run should end with `OK` and no skill/extension load errors. This is the quick check that caught the `aad-implementation-report` frontmatter issue and the missing `@mozilla/readability` dependency in the local `pi-codex` submodule.

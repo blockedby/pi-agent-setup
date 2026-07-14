@@ -18,10 +18,11 @@
     ]
   },
   "dependencies": {
-    "pi-subagents": "github:blockedby/pi-subagents"
+    "pi-subagents": "^0.34.0"
   },
   "scripts": {
     "secrets:check": "bash scripts/secrets-check.sh",
+    "test:runtime-resolution": "bash scripts/test-runtime-resolution.sh",
     "verify:remote": "bash scripts/verify-remote.sh",
     "install:remote": "bash scripts/install-remote.sh"
   },

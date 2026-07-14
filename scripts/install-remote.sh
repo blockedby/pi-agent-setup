@@ -26,8 +26,9 @@ cleanup_remote() {
 }
 trap cleanup_remote EXIT
 
-ssh "$TARGET_HOST" "rm -rf '$TMP_DIR' && mkdir -p '$TMP_DIR/agents' '$TMP_DIR/extensions' '$TMP_DIR/settings' '$TMP_DIR/skills'"
+ssh "$TARGET_HOST" "rm -rf '$TMP_DIR' && mkdir -p '$TMP_DIR/agents' '$TMP_DIR/extensions' '$TMP_DIR/settings' '$TMP_DIR/skills' '$TMP_DIR/scripts/lib'"
 rsync -a "$repo_root/APPEND_SYSTEM.md" "$TARGET_HOST:$TMP_DIR/APPEND_SYSTEM.md"
+rsync -a "$repo_root/scripts/lib/runtime-paths.sh" "$TARGET_HOST:$TMP_DIR/scripts/lib/runtime-paths.sh"
 rsync -a "$repo_root/agents/" "$TARGET_HOST:$TMP_DIR/agents/"
 rsync -a "$repo_root/extensions/" "$TARGET_HOST:$TMP_DIR/extensions/"
 rsync -a "$settings_path" "$TARGET_HOST:$TMP_DIR/settings/settings.json"
@@ -56,9 +57,12 @@ fi
 
 VP_BIN="$REMOTE_USER_HOME/.vite-plus/bin/vp"
 NPM_BIN="$REMOTE_USER_HOME/.vite-plus/bin/npm"
-PI_BIN="$REMOTE_USER_HOME/.vite-plus/bin/pi"
+PI_BIN="$REMOTE_USER_HOME/.local/bin/pi"
 CODEX_BIN="$REMOTE_USER_HOME/.vite-plus/bin/codex"
 AGENT_DIR="$REMOTE_USER_HOME/.pi/agent"
+# shellcheck source=lib/runtime-paths.sh
+source "$TMP_DIR/scripts/lib/runtime-paths.sh"
+export PATH="$REMOTE_USER_HOME/.local/bin:$REMOTE_USER_HOME/.vite-plus/bin:$PATH"
 
 if [ ! -x "$NPM_BIN" ]; then
   echo "Vite+ npm not found at $NPM_BIN; install Vite+ first or set REMOTE_USER_HOME to the home containing .vite-plus." >&2
@@ -69,8 +73,10 @@ if [ ! -x "$VP_BIN" ]; then
   exit 1
 fi
 
-"$VP_BIN" install -g "@earendil-works/pi-coding-agent@$PI_VERSION"
+mkdir -p "$REMOTE_USER_HOME/.local"
+"$NPM_BIN" install -g --prefix "$REMOTE_USER_HOME/.local" "@earendil-works/pi-coding-agent@$PI_VERSION"
 "$VP_BIN" install -g "@openai/codex@$CODEX_VERSION"
+configure_pi_bash_path "$REMOTE_USER_HOME"
 
 mkdir -p "$AGENT_DIR/agents" "$AGENT_DIR/extensions" "$AGENT_DIR/extensions/subagent" "$AGENT_DIR/skills"
 if [ -f "$AGENT_DIR/settings.json" ]; then
