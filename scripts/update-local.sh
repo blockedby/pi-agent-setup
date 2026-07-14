@@ -31,18 +31,17 @@ fi
 
 # Vite+ remains the preferred Node/npm provider, but Pi itself must not run from
 # Vite+'s hashed package directories: their `#<id>` path segment is interpreted
-# as a URL fragment by Jiti while loading extensions. Repair that layout by
-# installing Pi with ordinary npm into the user's local prefix.
-ACTIVE_PI_BIN="${PI_BIN:-$(command -v pi || true)}"
-if [ -z "$ACTIVE_PI_BIN" ] || [[ "$ACTIVE_PI_BIN" == "$LOCAL_USER_HOME/.vite-plus/"* ]]; then
+# as a URL fragment by Jiti while loading extensions. Ensure the local target
+# exists regardless of another Pi executable already present on PATH.
+ACTIVE_PI_BIN="$LOCAL_USER_HOME/.local/bin/pi"
+if [ ! -x "$ACTIVE_PI_BIN" ]; then
   echo "Installing Pi outside Vite+ under $LOCAL_USER_HOME/.local"
   mkdir -p "$LOCAL_USER_HOME/.local"
   "$NPM_BIN" install -g --prefix "$LOCAL_USER_HOME/.local" \
     "@earendil-works/pi-coding-agent@$PI_VERSION"
-  ACTIVE_PI_BIN="$LOCAL_USER_HOME/.local/bin/pi"
 fi
 if [ ! -x "$ACTIVE_PI_BIN" ]; then
-  echo "Resolved Pi executable is not executable: $ACTIVE_PI_BIN" >&2
+  echo "Local Pi executable is not executable after install: $ACTIVE_PI_BIN" >&2
   exit 1
 fi
 

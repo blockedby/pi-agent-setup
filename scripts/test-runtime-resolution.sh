@@ -58,6 +58,44 @@ rm "$npm_home/.vite-plus/bin/npm"
 grep -Fq 'NPM_BIN="$(resolve_pi_setup_npm "$LOCAL_USER_HOME")"' "$repo_root/scripts/update-local.sh" || fail "update-local does not use the resolver"
 grep -Fq '"$NPM_BIN" install -g --prefix "$LOCAL_USER_HOME/.local"' "$repo_root/scripts/update-local.sh" || fail "Pi local prefix changed"
 
+# The complete updater must create local Pi even when an executable non-local
+# PI_BIN is supplied. The npm stub handles both the global install and later ci.
+update_home="$tmp_root/update-home"
+update_agent_dir="$update_home/.pi/agent"
+update_tools="$tmp_root/update-tools"
+external_bin="$tmp_root/external-bin"
+npm_log="$tmp_root/npm.log"
+mkdir -p "$update_tools" "$external_bin"
+cat > "$update_tools/npm" <<'NPM_STUB'
+#!/usr/bin/env bash
+set -euo pipefail
+printf '%s\n' "$*" >> "$NPM_LOG"
+prefix=""
+previous=""
+for argument in "$@"; do
+  if [ "$previous" = "--prefix" ]; then
+    prefix="$argument"
+  fi
+  previous="$argument"
+done
+if [ "${1:-}" = "install" ] && [ -n "$prefix" ]; then
+  mkdir -p "$prefix/bin"
+  printf '#!/usr/bin/env bash\nprintf "local-pi\\n"\n' > "$prefix/bin/pi"
+  chmod +x "$prefix/bin/pi"
+fi
+NPM_STUB
+printf '#!/usr/bin/env bash\nprintf "external-pi\\n"\n' > "$external_bin/pi"
+chmod +x "$update_tools/npm" "$external_bin/pi"
+
+HOME="$update_home" LOCAL_USER_HOME="$update_home" PI_AGENT_DIR="$update_agent_dir" \
+  PI_BIN="$external_bin/pi" NPM_BIN="$update_tools/npm" NPM_LOG="$npm_log" \
+  PATH="$external_bin:/usr/bin:/bin" \
+  bash "$repo_root/scripts/update-local.sh" > "$tmp_root/update-local.log"
+[ -x "$update_home/.local/bin/pi" ] || fail "update-local accepted non-local Pi without installing local Pi"
+grep -Fq "install -g --prefix $update_home/.local" "$npm_log" || fail "update-local did not use the local prefix"
+assert_fresh_bash interactive "$update_home"
+assert_fresh_bash login "$update_home"
+
 # Managed startup: preserve content, avoid duplicate blocks, and prove both Bash routes.
 bash_home="$tmp_root/bash-home"
 mkdir -p "$bash_home/.local/bin" "$bash_home/.vite-plus/bin"
