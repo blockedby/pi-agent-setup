@@ -33,7 +33,7 @@ Do not send a child sub-slice directly to the target branch unless the parent ex
 
 ## Implementation-bound task package
 
-For implementation-bound root slice work, the owner should create the task package in the new worktree, commit and push it, and open a draft PR early unless the user or repo policy says not to. Use `aad-task-package` for the task package layout.
+For implementation-bound root slice work, the owner should locate the existing task package in the new worktree or create it there only when absent, commit and push it when tracked, and open a draft PR early unless the user or repo policy says not to. Use `aad-task-package` for the task package layout and active plan-coordinator contract.
 
 ## Defaults
 

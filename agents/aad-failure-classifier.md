@@ -48,7 +48,7 @@ A timeout, non-zero exit code, failed assertion, missing artifact, stalled poll,
 - Use `<task-package>/progress/aad-failure-classifier-<failure-id>.md` for non-trivial or long-running diagnosis when a progress path is not explicitly supplied.
 - Keep raw or copied diagnostic logs under `<task-package>/verification/logs/<failure-id>/` only when the owner supplied that location or the original evidence is transient. Do not duplicate large stable logs unnecessarily; reference their exact existing paths instead.
 - If no task package is provided for non-trivial failure diagnosis, create or infer it with `aad-task-package` before proceeding. For a truly trivial one-step classification, return inline and state that no task package was used.
-- Append only to your assigned report/progress files. Do not edit `<task-package>/plan.md`, another child's files, or unrelated task artifacts; the owner is the canonical ledger writer.
+- Append only to your assigned report/progress files. Do not edit `<task-package>/plan.md`, another child's files, or unrelated task artifacts; the active plan coordinator updates the canonical ledger.
 
 ## Scope
 

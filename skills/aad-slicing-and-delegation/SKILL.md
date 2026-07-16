@@ -11,13 +11,13 @@ Use this skill when you must choose the cheapest reliable ownership model for th
 
 The goal is not maximum delegation. The goal is stable ownership, clear routing, explicit dependencies, and cheap continuation.
 
-A slice owner should separate decomposition from scheduling: slices define scope and ownership, while each task's `Depends on`, `Blocks`, and `Can run in parallel with` relationships describe its place in the wider plan.
+An owner should separate decomposition from scheduling: slices define scope and ownership, while the plan's agent order and each task's `Depends on`, `Blocks`, and `Can run in parallel with` relationships describe who acts first, what follows, and what may overlap.
 
 ## Plan readiness prerequisite
 
-Do not delegate implementation, an owned slice, or supporting work that assumes an execution direction until `<task-package>/plan.md` contains the routed task, acceptance criteria, evidence route, test plan, dependencies, executor, report/progress paths, and relevant boundaries. Narrow discovery or design refinement may be delegated to complete the plan.
+Do not delegate implementation, an owned slice, or supporting work that assumes an execution direction until `<task-package>/plan.md` contains the routed task, acceptance criteria, evidence route, test plan, dependencies, executor, agent-order entry, plan context to pass, report/progress paths, and relevant boundaries. Narrow discovery or design refinement may be delegated to complete the plan.
 
-Before every delegation, read the current plan, confirm the task is `ready`, and copy its current contract into the routing packet. After every result, the owner updates the plan before routing dependent or changed work.
+Before every delegation, read the current plan, confirm the order entry is `ready`, and pass either the whole plan or the exact assigned section plus every referenced dependency and constraint. After every result, the active plan coordinator updates the plan before routing dependent or changed work.
 
 ## Keep work whole when
 
@@ -46,7 +46,7 @@ Supporting agents help inside delegated scope. They do not take ownership.
 
 ## Dependency graph
 
-When slicing or defining delegated tasks, record each task's relationship to prior, future, and parallel-safe work explicitly. Do not define a fixed wave structure or treat separate slices as automatically parallel. Use this shape for every task so each routing packet can stand on its own:
+When slicing or defining delegated tasks, record each task's relationship to prior, future, and parallel-safe work explicitly, then map its executor into the `Agent order` section defined by `aad-plan-writing`. Do not define a fixed wave structure or treat separate slices as automatically parallel. Use this shape for every task so each routing packet can stand on its own:
 
 ```md
 Task A: <name>
@@ -98,6 +98,7 @@ Use this packet shape and fill all applicable fields:
 ```md
 ## Routing context
 - Thread: <thread/request context>
+- Agent order entry: <O1 / O2 / ...>
 - Slice: <parent slice / child slice name>
 - Worktree: <path>
 - Branch: <branch>
@@ -108,6 +109,8 @@ Use this packet shape and fill all applicable fields:
 - Task name: <task name>
 - Task package path: <task-package or not used for trivial work>
 - Canonical owner ledger: <task-package>/plan.md
+- Active plan coordinator: <owner recorded in plan>
+- Plan context passed: <whole plan / exact assigned sections plus referenced dependencies>
 - Report path: <task-package>/reports/<agent-or-task>.md
 - Progress path: <task-package>/progress/<agent-or-task>.md, when relevant
 - Verification artifact path: <task-package>/verification/<file>.md when relevant
@@ -135,8 +138,9 @@ Pass all applicable fields. Supporting agents may refine their local target, but
 
 ## Delegation checklist
 
-- [ ] Read `<task-package>/plan.md` and confirm the delegated task is ready.
-- [ ] Confirm acceptance criteria, evidence route, test plan, dependencies, executor, report/progress paths, and boundaries are present.
+- [ ] Read `<task-package>/plan.md` and confirm the delegated agent-order entry is ready.
+- [ ] Confirm acceptance criteria, evidence route, test plan, dependencies, executor, plan context, report/progress paths, and boundaries are present.
+- [ ] Pass the whole plan or a self-contained assigned section with every referenced dependency and constraint.
 - [ ] Decide whether the work stays whole or should be sliced.
 - [ ] If slicing, define one owner per slice or sub-slice.
 - [ ] Give every task `Depends on`, `Blocks`, and `Can run in parallel with` relationships.
@@ -146,12 +150,14 @@ Pass all applicable fields. Supporting agents may refine their local target, but
 - [ ] Pass all applicable routing context.
 - [ ] Delegate only the narrow work needed.
 - [ ] Keep overlap acceptable and resolve it later during integration.
-- [ ] Update the plan with the delegated status and later result before routing dependent work.
+- [ ] The active plan coordinator updates the plan with the delegated status and later result before routing dependent work.
 
 ## Common mistakes
 
 - delegating implementation before the plan-readiness gate passes
-- routing work that is absent from the plan
+- routing work that is absent from the plan or its agent order
+- passing a plan fragment without its referenced dependencies or constraints
+- treating receipt of plan context as an implicit coordination transfer
 - failing to update the plan after delegated results
 - slicing for cosmetic reasons
 - delegating because delegation exists, not because it is cheaper
@@ -165,6 +171,6 @@ Pass all applicable fields. Supporting agents may refine their local target, but
 
 ## Progress and async contract
 
-For non-trivial routes, nominate one owner as the only writer of the canonical ledger at `<task-package>/plan.md`. Give every child unique report/progress files under the task package; the owner must read them before integrating, and children append only to their own files. The default `.pi/` task package is ignored canonical AAD state and is not committed. Pi-subagents 0.34 still creates `.pi-subagents/` debug artifacts upstream; that compatibility path is also ignored and is not the task package. Preserve raw evidence and diagnostics when a report is invalid, using `report-invalid` rather than an opaque task-failure status.
+For non-trivial routes, follow the active plan-coordinator contract in `aad-task-package`. Give every child unique report/progress files; the coordinator reads them before integration, and children append only to their own files unless coordination was explicitly transferred. Preserve raw evidence and diagnostics when a report is invalid, using `report-invalid` rather than an opaque task-failure status.
 
 In interactive sessions, `async: true` means dispatch then return control: do not invoke blocking `wait` merely to keep the turn alive, and defer dependent dispatch until a completion or `needs_attention` event. Explicit synchronous requests and non-interactive one-turn aggregation may wait. This is prompt-level discipline; the installed runtime/UI ultimately controls input availability and cancellation semantics.

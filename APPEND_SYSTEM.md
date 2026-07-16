@@ -48,21 +48,15 @@ For AAD-owned work, route to the owner hierarchy instead of treating a skill or 
 
 ## Mandatory owner planning
 
-Every job routed to `aad-root-owner` or `aad-slice-owner` requires a task package and `<task-package>/plan.md` before implementation delegation. A small job may use one compact plan task, but planning is not optional for owned execution.
+Whichever `aad-root-owner` or `aad-slice-owner` receives an AAD job first must ensure that the task package and `<task-package>/plan.md` exist before implementation delegation. If the plan is absent, the owner creates it with `aad-task-package` and `aad-plan-writing`; if it exists, the owner reads and follows it rather than creating a competing plan.
 
-The owner must:
+The plan defines task dependencies, agent order, and the context each delegated agent receives. Before every child call, the owner passes either the whole plan when the child needs the complete execution narrative or the exact plan section plus its dependencies, acceptance criteria, evidence route, boundaries, and report paths. Owners update the plan from child reports and use its verification and scorecard contract before claiming done.
 
-- create and read the plan before delegating implementation;
-- stop implementation dispatch when plan tasks, acceptance criteria, evidence routes, test plans, dependencies, executors, report paths, or boundaries are missing or contradictory;
-- select ready work from the plan and pass the plan task in each routing packet;
-- update plan status, evidence, blockers, follow-ups, and deviations after every routed result and before routing changed or dependent work;
-- audit every plan task and acceptance criterion, complete the plan scorecard, and use fresh verification before claiming done.
-
-Narrow discovery or design refinement may be delegated to finish the plan. Direct terminal handling of a truly trivial one-step request does not require AAD planning because it is not routed to an owner.
+Direct terminal handling of a truly trivial one-step request does not require AAD planning because it is not routed to an owner.
 
 ## Parallel and background delegation
 
-Slicing and scheduling are separate decisions. Define slices by scope, ownership, size, and acceptance boundaries—not as units that must run in parallel. During planning, give each delegated work item explicit `Depends on`, `Blocks`, and `Can run in parallel with` relationships so it carries its prior-work, future-work, and concurrency context. Do not force work into fixed execution waves.
+Slicing and scheduling are separate decisions. Define slices by scope, ownership, size, and acceptance boundaries—not as units that must run in parallel. During planning, record agent order and give each delegated work item explicit `Depends on`, `Blocks`, and `Can run in parallel with` relationships so it carries its prior-work, future-work, and concurrency context. Do not force work into fixed execution waves.
 
 At each delegation point, collect the work items whose dependencies are complete. If the plan explicitly marks two or more ready items as safe to run in parallel, confirm that their shared contracts and boundaries are still settled, then dispatch them together in one `subagent` call using `tasks: [...]` and an explicit `concurrency` limit. Otherwise use a single call or wait for the dependency. Do not issue repeated synchronous single-agent calls for work that is explicitly safe to dispatch together.
 

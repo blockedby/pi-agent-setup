@@ -19,7 +19,7 @@ Integration is where overlap is resolved, `<task-package>/plan.md` is updated, a
 4. Merge or otherwise integrate child implementation results into the parent slice worktree/branch before target-branch preparation.
 5. Merge `R-*`, `F-*`, and `U-*` into the parent picture.
 6. Resolve overlap between child results without reopening unnecessary rediscovery.
-7. Update `<task-package>/plan.md` with integrated task status, verification evidence, blockers, follow-ups, and deviations before routing more work.
+7. Update `<task-package>/plan.md` with integrated task status, agent-order status, verification evidence, blockers, follow-ups, and deviations before routing the next ready entry.
 8. Rerun the parent-level verification needed after integration.
 9. Audit every plan task, acceptance criterion, evidence route, deviation, and blocker.
 10. Update the plan scorecard and decide whether the parent goal is `pass`, `partial`, `fail`, or `blocked`.
@@ -50,4 +50,4 @@ Integration is where overlap is resolved, `<task-package>/plan.md` is updated, a
 
 ## File-backed integration rule
 
-For non-trivial work, first read the canonical parent ledger at `<task-package>/plan.md` and every routed child report/progress file it names. Treat inline child output and harness artifact locations as supplementary only. The default `.pi/` task package is ignored canonical AAD state and is not committed. Pi-subagents 0.34 still creates `.pi-subagents/` debug artifacts upstream; that compatibility path is also ignored and is not the task package. Preserve a child report that is `report-invalid`: record the validation diagnostic separately and integrate any readable findings/evidence rather than treating it as an opaque child failure. The parent owner alone updates the canonical ledger after this read.
+For non-trivial work, first read the canonical parent ledger at `<task-package>/plan.md` and every routed child report/progress file it names. Treat inline child output and harness artifact locations as supplementary only. The default `.pi/` task package is ignored canonical AAD state and is not committed. Preserve a child report that is `report-invalid`: record the validation diagnostic separately and integrate any readable findings/evidence rather than treating it as an opaque child failure. Only the active plan coordinator updates the canonical ledger after this read; a different owner may do so only after an explicit coordination transfer recorded in the plan.
