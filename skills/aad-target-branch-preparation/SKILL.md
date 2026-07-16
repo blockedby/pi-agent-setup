@@ -24,7 +24,7 @@ Treat PR creation as the first finish milestone. After the PR exists, prepare th
 7. If `gh pr view <N> --json state` reports `state=MERGED`, skip merge and proceed only to the post-merge root-sync rule below. In fork/upstream-ambiguous contexts, run this as `gh pr view <N> --repo owner/repo --json state`.
 8. If merge is authorized, move to the primary checkout and run the mandatory **pre-remote-merge** preflight below. It must be clean, on `main`, and exactly aligned with `origin/main` before `gh pr merge`; otherwise abort without a merge or any primary-checkout mutation.
 9. Only after that preflight passes, run `gh pr merge <N> --squash` from the primary checkout. In fork/upstream-ambiguous contexts, include `--repo owner/repo`.
-10. After the remote merge, apply the post-merge root-sync rule below. It permits only a clean, behind-only `git merge --ff-only origin/main` update after fetching; otherwise abort the sync without push, rebase, stash, reset, or remote mutation. Perform local worktree/branch cleanup only after a successful allowed sync.
+10. After the remote merge, apply the post-merge root-sync rule below. It permits only a clean, equal-state no-op cleanup or behind-only `git merge --ff-only origin/main` update after fetching; otherwise abort the sync without push, rebase, stash, reset, or remote mutation. Perform local worktree/branch cleanup only after a successful allowed no-op or sync.
 11. Report the PR URL, rebase result, verification result, pre-merge preflight result, merge result, post-merge sync result, and cleanup result. Do not report or create a stash as part of this flow.
 
 ## Re-run regression rules
@@ -64,14 +64,15 @@ After `gh pr merge` advances remote `main` (or when the PR is already merged), t
 
 1. Run `git fetch origin main` (inspection only).
 2. Require branch `main` and an empty `git status --porcelain`.
-3. Require local `HEAD` to be an ancestor of `origin/main` and `git rev-list --left-right --count HEAD...origin/main` to show `0 <behind>` with `<behind>` greater than zero. This rejects equal, ahead, and diverged states.
-4. Run only `git merge --ff-only origin/main`.
+3. Require local `HEAD` to be an ancestor of `origin/main` and `git rev-list --left-right --count HEAD...origin/main` to show either `0 0` (equal) or `0 <behind>` with `<behind>` greater than zero. Equal is an allowed no-op sync state; ahead and diverged states are rejected.
+4. If behind, run only `git merge --ff-only origin/main`; if equal, do not mutate `main` and proceed with local cleanup.
 
-If any condition fails, abort with no push, rebase, stash, reset, or remote mutation. Do not use a sync helper that performs any broader action. A local-only commit is never an implicit publish candidate.
+If any condition fails, abort with no push, rebase, stash, reset, or remote mutation. A local-only commit is never an implicit publish candidate.
 
 ## Helper scripts
 
 - `scripts/aad/target-branch-prepare.sh` — feature-branch fetch / rebase / status helper
+- `scripts/aad/root-main-sync.sh` — bounded equal/behind-only primary-checkout sync and local cleanup helper; it must enforce the post-merge root-sync contract above
 
 ## Common mistakes
 
