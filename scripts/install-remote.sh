@@ -92,14 +92,22 @@ for stale in \
   tdd-coder.md \
   implementer.md \
   failure-classifier.md \
-  aad-test-auditor.md \
   aad-reviewer.md \
+  aad-test-auditor.md \
+  aad-reviewer.md.temp \
+  aad-test-auditor.md.temp \
   quinn-validator.md \
   aad-parallel-investigation.chain.md; do
   rm -f "$AGENT_DIR/agents/$stale" "$REMOTE_USER_HOME/.agents/$stale"
 done
 
 install -m 0644 "$TMP_DIR/agents/"*.md "$AGENT_DIR/agents/"
+for required_agent in aad-reviewer.md aad-test-auditor.md; do
+  test -f "$AGENT_DIR/agents/$required_agent" || {
+    echo "required active AAD agent was not installed: $required_agent" >&2
+    exit 1
+  }
+done
 install -m 0644 "$TMP_DIR/extensions/"*.ts "$AGENT_DIR/extensions/"
 rsync -a --delete "$TMP_DIR/skills/" "$AGENT_DIR/skills/"
 

@@ -123,12 +123,15 @@ for stale in \
   tdd-coder.md \
   implementer.md \
   failure-classifier.md \
-  aad-test-auditor.md \
-  aad-reviewer.md \
+  aad-reviewer.md.temp \
+  aad-test-auditor.md.temp \
   quinn-validator.md \
   aad-parallel-investigation.chain.md; do
   rm -f "$AGENT_DIR/agents/$stale" "$LOCAL_USER_HOME/.agents/$stale"
 done
+# ~/.agents participates in discovery too; remove old project-era active copies
+# there without deleting the freshly installed managed definitions above.
+rm -f "$LOCAL_USER_HOME/.agents/aad-reviewer.md" "$LOCAL_USER_HOME/.agents/aad-test-auditor.md"
 
 mkdir -p "$AGENT_DIR"
 if [ ! -f "$SETTINGS_PATH" ]; then
@@ -219,7 +222,14 @@ fi
 rm -f /tmp/pi-agent-setup-codex-task-check.$$
 
 echo "Installed local APPEND_SYSTEM.md to $AGENT_DIR/APPEND_SYSTEM.md"
+for required_agent in aad-reviewer.md aad-test-auditor.md; do
+  if [ ! -f "$AGENT_DIR/agents/$required_agent" ]; then
+    echo "ERROR: required active AAD agent was not installed: $required_agent" >&2
+    exit 1
+  fi
+done
+
 echo "Installed local agents to $AGENT_DIR/agents"
-echo "Verified codex_task is absent from installed local agents."
+echo "Verified active reviewer/auditor installation and codex_task absence from installed local agents."
 echo "Ready-notify config is read from PI_READY_NOTIFY_* in the shell that launches Pi."
 echo "Reload or restart Pi to pick up the updated agents/packages."

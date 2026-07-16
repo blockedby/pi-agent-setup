@@ -65,6 +65,8 @@ for required in \
   aad-acceptance-auditor.md \
   aad-implementer.md \
   aad-failure-classifier.md \
+  aad-reviewer.md \
+  aad-test-auditor.md \
   chrome-browser-agent.md \
   aad-discovery-plan.chain.md \
   aad-owned-change.chain.md \
@@ -76,8 +78,8 @@ for stale in \
   tdd-coder.md \
   implementer.md \
   failure-classifier.md \
-  aad-test-auditor.md \
-  aad-reviewer.md \
+  aad-reviewer.md.temp \
+  aad-test-auditor.md.temp \
   quinn-validator.md \
   aad-parallel-investigation.chain.md; do
   for stale_dir in "$AGENT_DIR/agents" "$REMOTE_USER_HOME/.agents"; do
@@ -86,6 +88,15 @@ for stale in \
       exit 1
     fi
   done
+done
+
+# pi-subagents also discovers ~/.agents. Remove/reject copies there so a stale
+# project-era reviewer/auditor cannot shadow the managed global definitions.
+for shadow in aad-reviewer.md aad-test-auditor.md; do
+  if [ -e "$REMOTE_USER_HOME/.agents/$shadow" ]; then
+    echo "stale shadow agent still installed: $REMOTE_USER_HOME/.agents/$shadow" >&2
+    exit 1
+  fi
 done
 
 for required in \

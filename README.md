@@ -15,6 +15,8 @@ It is meant to show the "how I work" layer: owner/implementer/auditor routing, r
   - `aad-slice-owner`
   - `aad-implementer`
   - `aad-failure-classifier`
+  - `aad-reviewer`
+  - `aad-test-auditor`
   - `chrome-browser-agent`
   - `aad-explorer`
   - `aad-acceptance-auditor`
@@ -88,6 +90,8 @@ This personal setup uses the GPT-5.6 model family in three tiers. The allocation
 | `aad-implementer` | Execute scoped implementation tasks with verification and coherent handoff evidence. | `openai-codex/gpt-5.6-sol` |
 | `aad-slice-owner` | Own one scoped slice, delegate execution, and decide its local done-state. | `openai-codex/gpt-5.6-terra` |
 | `aad-acceptance-auditor` | Independently decide whether acceptance criteria and evidence are sufficient. | `openai-codex/gpt-5.6-terra` |
+| `aad-reviewer` | Perform narrow read-only correctness, verification, and workflow-drift review. | `openai-codex/gpt-5.6-terra` |
+| `aad-test-auditor` | Audit verification sufficiency and evidence freshness without implementing fixes. | `openai-codex/gpt-5.6-terra` |
 | `chrome-browser-agent` | Collect browser automation and visual evidence using the appropriate Chrome mode. | `openai-codex/gpt-5.6-terra` |
 | `visual-critic` | Review screenshots for composition, hierarchy, responsiveness, and obvious visual failures. | `openai-codex/gpt-5.6-terra` |
 | `aad-explorer` | Perform read-only discovery, reuse analysis, and evidence gathering. | `openai-codex/gpt-5.6-luna` |
@@ -137,7 +141,7 @@ The updater applies `defaultProvider`, `defaultModel`, and `defaultThinkingLevel
 PI_SETTINGS_FILE=settings/pi-settings.local.json scripts/update-local.sh
 ```
 
-It installs `APPEND_SYSTEM.md` into `$HOME/.pi/agent/APPEND_SYSTEM.md`, installs `agents/*.md` into `$HOME/.pi/agent/agents/`, installs `extensions/*.ts` into `$HOME/.pi/agent/extensions/`, syncs checked-in skills into `$HOME/.pi/agent/skills/`, installs `settings/pi-subagents.config.json` into `$HOME/.pi/agent/extensions/subagent/config.json`, merges the checked-in `21st-magic` MCP entry into `$HOME/.pi/agent/mcp.json`, reinstalls the vendored `packages/pi-codex` runtime dependencies with `npm ci`, verifies the ready-notify extension is declared, removes stale renamed agents/chains, rewrites the local Pi package entry for `pi-codex` to `packages/pi-codex` while preserving other installed packages, backs up `$HOME/.pi/agent/settings.json`, and verifies that installed AAD agents do not expose `codex_task`.
+It installs `APPEND_SYSTEM.md` into `$HOME/.pi/agent/APPEND_SYSTEM.md`, installs `agents/*.md` into `$HOME/.pi/agent/agents/`, installs `extensions/*.ts` into `$HOME/.pi/agent/extensions/`, syncs checked-in skills into `$HOME/.pi/agent/skills/`, installs `settings/pi-subagents.config.json` into `$HOME/.pi/agent/extensions/subagent/config.json`, merges the checked-in `21st-magic` MCP entry into `$HOME/.pi/agent/mcp.json`, reinstalls the vendored `packages/pi-codex` runtime dependencies with `npm ci`, verifies the ready-notify extension is declared, removes stale renamed/temp agents and `~/.agents` shadows before installing the managed active roles, rewrites the local Pi package entry for `pi-codex` to `packages/pi-codex` while preserving other installed packages, backs up `$HOME/.pi/agent/settings.json`, and verifies that installed AAD agents do not expose `codex_task`.
 
 ## Install on a remote host
 
@@ -197,7 +201,7 @@ scripts/import-auth-remote.sh
 TARGET_HOST=<host> REMOTE_USER_HOME=/home/<user> scripts/verify-remote.sh
 ```
 
-The verifier checks the installed `APPEND_SYSTEM.md`, the `aad-root-owner` and `aad-slice-owner` agents, required skills, stale-agent cleanup, Pi packages, and a smoke prompt.
+The verifier checks the installed `APPEND_SYSTEM.md`, owner roles plus active `aad-reviewer` and `aad-test-auditor`, required skills, stale/`~/.agents` shadow cleanup, Pi packages, and a smoke prompt.
 
 ## Notes
 

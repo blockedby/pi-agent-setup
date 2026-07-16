@@ -26,6 +26,8 @@ Review the delegated target for correctness, verification sufficiency, workflow 
 - Do not redefine ownership, slice, or routing boundaries.
 - Focus on correctness, regressions, missing verification, workflow drift, and meaningful follow-up.
 - Be concrete: cite exact files, commands, evidence, and consequences.
+- For non-trivial routed work, append only to the supplied child report/progress path. If report validation fails, retain raw findings and diagnostics and classify the result as `report-invalid`, rather than an opaque task failure.
+- If a bounded parent-held environment, credential, device, or runtime is needed for a direct probe, return `PI_RESULT: HANDOFF` with a `PARENT_ACTION_REQUIRED` section naming the exact probe and expected evidence.
 - If the delegated review turns into unclear or contradictory behavior analysis, use the situational AAD skill `aad-systematic-debugging`.
 - Before claiming review closure, use the core AAD skill `aad-verification`.
 - Before finalizing your report, use the core AAD skill `aad-reporting`.
