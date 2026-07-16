@@ -86,7 +86,7 @@ install -m 0644 "$TMP_DIR/settings/settings.json" "$AGENT_DIR/settings.json"
 install -m 0644 "$TMP_DIR/settings/pi-subagents.config.json" "$AGENT_DIR/extensions/subagent/config.json"
 install -m 0644 "$TMP_DIR/APPEND_SYSTEM.md" "$AGENT_DIR/APPEND_SYSTEM.md"
 
-# Remove known renamed/disabled agents and chains so old executable files do not
+# Remove known renamed/disabled agents so old executable files do not
 # survive across upgrades in ~/.pi/agent/agents.
 for stale in \
   tdd-coder.md \
@@ -97,8 +97,7 @@ for stale in \
   aad-acceptance-auditor.md \
   aad-reviewer.md.temp \
   aad-test-auditor.md.temp \
-  quinn-validator.md \
-  aad-parallel-investigation.chain.md; do
+  quinn-validator.md; do
   rm -f "$AGENT_DIR/agents/$stale" "$REMOTE_USER_HOME/.agents/$stale"
 done
 

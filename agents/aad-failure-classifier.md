@@ -64,7 +64,7 @@ Use this agent for every concrete failure, including:
 - missing credential, access, service, dependency, runtime, toolchain, network, filesystem, or environment requirement;
 - unclear or contradictory task/test contract revealed by a concrete failure.
 
-Do not use this agent for broad product investigation without concrete failure evidence. Route that to `aad-problem-investigation` or owner discovery. If a concrete failure expands into unclear or contradictory behavior, continue only along the causal path needed to classify that failure; recommend broader investigation as the next owner action when required.
+Do not use this agent for broad product investigation without concrete failure evidence. Route that to `aad-explorer` or owner discovery. If a concrete failure expands into unclear or contradictory behavior, continue only along the causal path needed to classify that failure; recommend broader investigation as the next owner action when required.
 
 ## Investigation workflow
 

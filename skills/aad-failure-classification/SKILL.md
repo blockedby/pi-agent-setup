@@ -22,7 +22,7 @@ Use when there is concrete failure evidence:
 - error log or stack trace
 - repeated agent loop or stalled attempt
 
-Do not use for broad design concerns, side observations without a failed check, or normal feature planning. Use `aad-problem-investigation` or owner discovery for those.
+Do not use for broad design concerns, side observations without a failed check, or normal feature planning. Use `aad-explorer` or owner discovery for those.
 
 ## Categories
 

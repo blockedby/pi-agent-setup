@@ -1,6 +1,6 @@
 # Global Pi terminal routing for AAD work
 
-Use these routing rules before choosing a skill, chain, or subagent for repository work.
+Use these routing rules before choosing a skill or subagent for repository work.
 
 ## Default terminal posture
 
@@ -72,11 +72,9 @@ Use `async: true` when a safe delegated run should continue in the background wh
 
 For async subagents, do not run polling loops such as `sleep 20` followed by repeated `subagent({ action: "status" })` checks. Check async status only when the user asks for it or when a completion / `needs_attention` event arrives.
 
-## Skills and chains
+## Skills
 
 Skills are runbooks and support material. They do not replace the owner/subagent hierarchy, do not own acceptance, and do not decide done-state by themselves.
-
-`aad-owned-change.chain.md` and other chain files remain available for optional legacy/manual workflows, but the default AAD-owned implementation path is terminal routing to `aad-slice-owner` or `aad-root-owner` as described above.
 
 ## Long-running process output discipline
 

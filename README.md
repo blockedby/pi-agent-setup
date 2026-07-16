@@ -10,7 +10,7 @@ It is meant to show the "how I work" layer: owner/implementer/auditor routing, r
 - OpenAI Codex CLI via Vite+: the current `@openai/codex` release
 - User settings at `$REMOTE_USER_HOME/.pi/agent/settings.json` on a target host
 - Global terminal append prompt at `$REMOTE_USER_HOME/.pi/agent/APPEND_SYSTEM.md`
-- Custom executable subagents and chains at `$REMOTE_USER_HOME/.pi/agent/agents/`:
+- Custom executable subagents at `$REMOTE_USER_HOME/.pi/agent/agents/`:
   - `aad-root-owner`
   - `aad-slice-owner`
   - `aad-implementer`
@@ -19,7 +19,6 @@ It is meant to show the "how I work" layer: owner/implementer/auditor routing, r
   - `aad-explorer`
   - `aad-auditor`
   - `visual-critic`
-  - Optional/legacy manual AAD chains: `aad-discovery-plan`, `aad-owned-change`, `aad-problem-investigation`, `visual-ui-change`
 - Shared AAD skills at `$REMOTE_USER_HOME/.pi/agent/skills/aad-*`
 - Browser Chrome skill at `$REMOTE_USER_HOME/.pi/agent/skills/browser-chrome` via git submodule
 - Browser Chrome MCP entries in `$REMOTE_USER_HOME/.pi/agent/mcp.json` pointing directly at skill scripts:
@@ -78,7 +77,7 @@ For remote installs, `scripts/install-remote.sh` deploys the extension into `$RE
 
 The installed global append prompt (`APPEND_SYSTEM.md`) tells the terminal main assistant to keep direct handling only for trivial one-step edits, questions, or checks. Clear small/single-slice AAD implementation work routes directly to `aad-slice-owner`. Multi-step, unclear, multi-slice, cross-cutting, or integration-heavy AAD work routes to `aad-root-owner`, which slices the work, delegates to slice owners, integrates results, and reports the final done-state.
 
-Skills are runbooks/support material and do not replace the owner/subagent hierarchy. `aad-implementer` and support agents are internal execution/evidence targets delegated by owners, not top-level default terminal routes. `aad-owned-change.chain.md` remains available as an optional/legacy/manual workflow, but it is not the default owned-work path.
+Skills are runbooks/support material and do not replace the owner/subagent hierarchy. `aad-implementer` and support agents are internal execution/evidence targets delegated by owners, not top-level default terminal routes. Owners coordinate multi-step work programmatically at runtime from the current plan and dependency graph.
 
 This personal setup uses the GPT-5.6 model family in three tiers. The allocation follows each agent's expected workload; it is a local workflow choice rather than a universal recommendation.
 
@@ -115,11 +114,11 @@ See [pi-subagents evidence routing research](docs/pi-subagents-research.md) for 
 
 ## Agent pipeline diagrams
 
-See [`docs/agent-pipelines.html`](docs/agent-pipelines.html) for Mermaid diagrams of the checked-in subagents, owner routing, optional AAD chains, and related worker loops.
+See [`docs/agent-pipelines.html`](docs/agent-pipelines.html) for Mermaid diagrams of the checked-in subagents, runtime owner routing, and related worker loops.
 
 ## Visual/UI lane
 
-For future public page visual work, landing pages, templates, hero sections, marketing blocks, or other product-quality UI surfaces, activate the optional `visual-ui-change` lane instead of the generic AAD flow. The slice owner should record a concise design/composition decision, route implementation with screenshot-first acceptance criteria, collect browser screenshots for the relevant viewports, identify the worst screenshot, and use `visual-critic` evidence before the acceptance auditor decides final status. DOM metrics, bounding boxes, and intersection checks remain supporting evidence only.
+For future public page visual work, landing pages, templates, hero sections, marketing blocks, or other product-quality UI surfaces, the slice owner should assemble the required visual evidence steps at runtime: record a concise design/composition decision, route implementation with screenshot-first acceptance criteria, collect browser screenshots for the relevant viewports, identify the worst screenshot, and use `visual-critic` evidence before the acceptance auditor decides final status. DOM metrics, bounding boxes, and intersection checks remain supporting evidence only.
 
 ## Update local Pi setup
 

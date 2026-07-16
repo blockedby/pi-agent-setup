@@ -117,7 +117,7 @@ find "$AGENT_DIR/skills" -type d -exec chmod 700 {} +
 find "$AGENT_DIR/skills" -type f -exec chmod 600 {} +
 find "$AGENT_DIR/extensions" -type f -exec chmod 600 {} +
 
-# Remove known renamed/disabled agents and chains so old executable files do not
+# Remove known renamed/disabled agents so old executable files do not
 # survive across local setup updates.
 for stale in \
   tdd-coder.md \
@@ -128,8 +128,7 @@ for stale in \
   aad-acceptance-auditor.md \
   aad-reviewer.md.temp \
   aad-test-auditor.md.temp \
-  quinn-validator.md \
-  aad-parallel-investigation.chain.md; do
+  quinn-validator.md; do
   rm -f "$AGENT_DIR/agents/$stale" "$LOCAL_USER_HOME/.agents/$stale"
 done
 # ~/.agents participates in discovery too; remove old project-era active copies
