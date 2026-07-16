@@ -20,7 +20,7 @@ Prefer explicit paths from the delegated prompt. When only a task package is pro
 <task-package>/progress/aad-implementer-<task-id>.md
 ```
 
-If no task package path is provided for non-trivial routed work, write to the owner-supplied `.pi/aad/routes/<task-id>/reports/aad-implementer-<task-id>.md` and progress path under the same task route. `.pi/` is ignored canonical AAD state and is not committed. Pi-subagents 0.34 still creates `.pi-subagents/` debug artifacts upstream; that compatibility path is also ignored and is not the canonical ledger. Otherwise return the report inline and state that no durable route was available.
+If no task package path is provided for non-trivial routed work, create or infer the task package through `aad-task-package` before writing the report and progress files. The default `.pi/` task package is ignored canonical AAD state and is not committed. Pi-subagents 0.34 still creates `.pi-subagents/` debug artifacts upstream; that compatibility path is also ignored and is not the task package. For trivial work, return the report inline and state that no task package was used.
 
 ## Progress notes
 

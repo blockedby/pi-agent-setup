@@ -14,13 +14,13 @@ A task package is the shared buffer between agents. It keeps the plan, delegated
 Default location:
 
 ```text
-docs/plans/YYYY-MM-DD-<task-slug>/
+.pi/aad/tasks/YYYY-MM-DD-<task-slug>/
 ```
 
 Example:
 
 ```text
-docs/plans/2026-05-22-add-invoices-page/
+.pi/aad/tasks/2026-05-22-add-invoices-page/
 ```
 
 ## Directory structure
@@ -28,7 +28,7 @@ docs/plans/2026-05-22-add-invoices-page/
 Use this structure unless the repo has a stricter convention:
 
 ```text
-docs/plans/YYYY-MM-DD-<task-slug>/
+.pi/aad/tasks/YYYY-MM-DD-<task-slug>/
   README.md
   plan.md
   reports/
@@ -62,7 +62,7 @@ The slice owner creates the task package for implementation-bound work.
 Creation checklist:
 
 1. Choose a short, stable task slug from the task name.
-2. Create `docs/plans/YYYY-MM-DD-<task-slug>/` in the active worktree.
+2. Create `.pi/aad/tasks/YYYY-MM-DD-<task-slug>/` in the active worktree, unless the owner provides a repo-specific task package path.
 3. Create `README.md` with:
    - task name
    - status
@@ -72,13 +72,13 @@ Creation checklist:
    - report index
 4. Create `plan.md` with the current task intake, repo orientation, reuse discovery, missing pieces, plan tasks, dependency graph, and execution ledger.
 5. Create `reports/`, `verification/`, and `artifacts/` as needed.
-6. Commit and push the initial task package when opening an early draft PR.
+6. Commit and push the initial task package when it uses an owner-provided tracked repository path and an early draft PR is being opened.
 
 ## Canonical route/slice progress ledger
 
-For non-trivial delegated work, use one file-backed route ledger in addition to any plan: normally `<task-package>/plan.md` when repo policy requires committed task docs; otherwise `.pi/aad/routes/<task-id>/<route-id>.md`. The owning root or slice owner is the **only writer** of that canonical ledger. It records route/task IDs chosen by the owner, status, dependencies, assigned child report/progress paths, validation state, and integration evidence.
+For non-trivial delegated work, use `<task-package>/plan.md` as the one file-backed route ledger. The owning root or slice owner is the **only writer** of that canonical ledger. It records route/task IDs chosen by the owner, status, dependencies, assigned child report/progress paths, validation state, and integration evidence.
 
-Each child receives a distinct, file-backed report path and, for non-trivial work, a distinct progress path. Without a task package, route them under `.pi/aad/routes/<task-id>/reports/<agent-or-task>.md` and `.pi/aad/routes/<task-id>/progress/<agent-or-task>.md`. A child may append dated status/comments only to its own supplied report/progress file; it must not edit the parent ledger or another child file. Owners update the ledger after reading those canonical child files. `.pi/` is ignored canonical AAD state and is not committed. Pi-subagents 0.34 still creates `.pi-subagents/` debug artifacts upstream; that compatibility path is also ignored and is not the canonical ledger. For trivial one-step work, omit the ledger and return a concise inline result.
+Each child receives a distinct, file-backed report path and, for non-trivial work, a distinct progress path under the task package. A child may append dated status/comments only to its own supplied report/progress file; it must not edit the parent ledger or another child file. Owners update the ledger after reading those canonical child files. The default `.pi/` task package is ignored canonical AAD state and is not committed. Pi-subagents 0.34 still creates `.pi-subagents/` debug artifacts upstream; that compatibility path is also ignored and is not the canonical ledger. For trivial one-step work, omit the task package and return a concise inline result.
 
 Before relying on harness inline output, a parent reads the child's routed report and progress files when provided. Inline output, transient run IDs, and temporary harness artifact paths are convenience signals, not the acceptance record.
 
@@ -109,12 +109,12 @@ Every delegated prompt should include:
 
 ```text
 Task name: <name>
-Task package: <docs/plans/YYYY-MM-DD-slug>
+Task package: <task-package>
 Report path: <task-package>/reports/<agent-or-task>.md
 Verification path: <task-package>/verification/<file>.md, when relevant
 ```
 
-If a report path is provided, write or update that file before returning. If no task package is provided for non-trivial routed work, use the owner-supplied `.pi/aad/routes/<task-id>/reports/<agent-or-task>.md` path; otherwise return the report inline and say no durable route was provided.
+If a report path is provided, write or update that file before returning. If no task package is provided for non-trivial routed work, create or infer the task package through this skill before delegation. For trivial work, return the report inline and say no task package was used.
 
 ## Agent report defaults
 
@@ -145,7 +145,7 @@ For implementation-bound root slice work:
 
 1. Create/enter the worktree.
 2. Create the task package and initial plan.
-3. Commit and push the task package.
+3. Commit and push the task package when it uses an owner-provided tracked repository path.
 4. Open a draft PR early, unless the user or repo policy says not to.
 5. Continue dispatching agents and updating task package artifacts through the PR branch.
 

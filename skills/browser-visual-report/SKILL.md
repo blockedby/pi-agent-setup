@@ -29,9 +29,9 @@ Where:
 Examples:
 
 ```text
-docs/plans/2026-05-24-landing-polish/artifacts/screenshots/landing-hero/2026-05-24T142233Z/390x844-hero.png
-docs/plans/2026-05-24-landing-polish/artifacts/screenshots/landing-hero/2026-05-24T142233Z/1440x900-top.png
-docs/plans/2026-05-24-landing-polish/reports/browser-landing-hero.md
+<task-package>/artifacts/screenshots/landing-hero/2026-05-24T142233Z/390x844-hero.png
+<task-package>/artifacts/screenshots/landing-hero/2026-05-24T142233Z/1440x900-top.png
+<task-package>/reports/browser-landing-hero.md
 ```
 
 If no task package path is provided, return the report inline and state that screenshots were not persisted to a task package.

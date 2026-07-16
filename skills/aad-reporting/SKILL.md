@@ -27,7 +27,7 @@ When a task package path is available, use `aad-task-package` and write the repo
 - Thread: <...>
 - Slice: <...>
 - Task name: <...>
-- Task package: <docs/plans/YYYY-MM-DD-slug or not provided>
+- Task package: <task-package or not used for trivial work>
 - Report path: <path written or not provided>
 - Worktree: <...>
 - Branch: <...>
@@ -151,6 +151,6 @@ Use every section that applies to the report scope. Owner-level and final report
 
 ## File-backed route evidence
 
-For non-trivial routed work, identify the canonical owner ledger plus this report/progress path in `Context`: `<task-package>/plan.md` when committed task docs are required, otherwise `.pi/aad/routes/<task-id>/<route-id>.md` with child files under `.pi/aad/routes/<task-id>/`. The owner writes the ledger; this agent writes only its assigned report/progress file and may append dated status/comments there. `.pi/` is ignored canonical AAD state and is not committed. Pi-subagents 0.34 still creates `.pi-subagents/` debug artifacts upstream; that compatibility path is also ignored and is not the canonical ledger. Before synthesizing results, parents read these files rather than relying only on transient inline output or inferred harness paths.
+For non-trivial routed work, identify the canonical owner ledger at `<task-package>/plan.md` plus this report/progress path in `Context`. The owner writes the ledger; this agent writes only its assigned report/progress file and may append dated status/comments there. The default `.pi/` task package is ignored canonical AAD state and is not committed. Pi-subagents 0.34 still creates `.pi-subagents/` debug artifacts upstream; that compatibility path is also ignored and is not the task package. Before synthesizing results, parents read these files rather than relying only on transient inline output or inferred harness paths.
 
 When a harness rejects a report shape, retain the raw report and its useful findings at the assigned path, and surface `report-invalid` with the validation diagnostics. Do not relabel it as a product/task failure merely because report validation failed. No report-schema versioning is implied by this rule.

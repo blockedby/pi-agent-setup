@@ -100,12 +100,12 @@ Use this packet shape and fill all applicable fields:
 
 ## Task package
 - Task name: <task name>
-- Task package path: <docs/plans/YYYY-MM-DD-slug or not used>
-- Canonical owner ledger: <task-package>/plan.md when committed task docs are required; otherwise `.pi/aad/routes/<task-id>/<route-id>.md`
-- Report path: <task-package>/reports/<agent-or-task>.md or `.pi/aad/routes/<task-id>/reports/<agent-or-task>.md`
-- Progress path: <task-package>/progress/<agent-or-task>.md or `.pi/aad/routes/<task-id>/progress/<agent-or-task>.md`, when relevant
+- Task package path: <task-package or not used for trivial work>
+- Canonical owner ledger: <task-package>/plan.md
+- Report path: <task-package>/reports/<agent-or-task>.md
+- Progress path: <task-package>/progress/<agent-or-task>.md, when relevant
 - Verification artifact path: <task-package>/verification/<file>.md when relevant
-- Runtime-state note: `.pi/aad/` is canonical ignored AAD state; pi-subagents 0.34 `.pi-subagents/` debug artifacts are ignored compatibility output, not ledgers
+- Runtime-state note: the default `.pi/aad/tasks/` contains canonical ignored AAD state; pi-subagents 0.34 `.pi-subagents/` debug artifacts are ignored compatibility output, not task packages
 
 ## Execution target
 - Plan task goal: <specific delegated goal>
@@ -153,6 +153,6 @@ Pass all applicable fields. Supporting agents may refine their local target, but
 
 ## Progress and async contract
 
-For non-trivial routes, nominate one owner as the only writer of the canonical ledger: `<task-package>/plan.md` when committed task docs are required, otherwise `.pi/aad/routes/<task-id>/<route-id>.md`. Give every child unique report/progress files under the task package or `.pi/aad/routes/<task-id>/`; the owner must read them before integrating, and children append only to their own files. `.pi/` is ignored canonical AAD state and is not committed. Pi-subagents 0.34 still creates `.pi-subagents/` debug artifacts upstream; that compatibility path is also ignored and is not the canonical ledger. Preserve raw evidence and diagnostics when a report is invalid, using `report-invalid` rather than an opaque task-failure status.
+For non-trivial routes, nominate one owner as the only writer of the canonical ledger at `<task-package>/plan.md`. Give every child unique report/progress files under the task package; the owner must read them before integrating, and children append only to their own files. The default `.pi/` task package is ignored canonical AAD state and is not committed. Pi-subagents 0.34 still creates `.pi-subagents/` debug artifacts upstream; that compatibility path is also ignored and is not the task package. Preserve raw evidence and diagnostics when a report is invalid, using `report-invalid` rather than an opaque task-failure status.
 
 In interactive sessions, `async: true` means dispatch then return control: do not invoke blocking `wait` merely to keep the turn alive, and defer dependent dispatch until a completion or `needs_attention` event. Explicit synchronous requests and non-interactive one-turn aggregation may wait. This is prompt-level discipline; the installed runtime/UI ultimately controls input availability and cancellation semantics.

@@ -32,4 +32,4 @@ Review posture:
 
 Do not inspect or exfiltrate cookies, tokens, passwords, local storage, or private profile data unless the user explicitly asks. Close headless instances after use. In headed mode, close only tabs you opened and do not close the persistent browser unless explicitly requested.
 
-If a task package/report path is provided, use `aad-task-package` and write browser evidence there, typically `reports/browser-<scope>.md` or `verification/browser.md`. Otherwise return the evidence inline and state that no task package path was provided.
+If a task package/report path is provided, use `aad-task-package` and write browser evidence there, typically `<task-package>/reports/browser-<scope>.md` or `<task-package>/verification/browser.md`. Otherwise return the evidence inline and state that no task package path was provided.

@@ -12,7 +12,7 @@ Request: {task}
 
 ## aad-slice-owner
 
-Using the discovery report below, decide whether the work should stay whole or be sliced. If implementation is not explicitly requested, produce a compact AAD-style plan and next actions only. If a durable plan is useful, use `aad-task-package` and `aad-plan-writing` to create/update `docs/plans/YYYY-MM-DD-<slug>/plan.md`. If implementation is explicitly requested, proceed according to AAD slice-owner rules, including task package and draft PR conventions.
+Using the discovery report below, decide whether the work should stay whole or be sliced. If implementation is not explicitly requested, produce a compact AAD-style plan and next actions only. If a durable plan is useful, use `aad-task-package` and `aad-plan-writing` to create/update `<task-package>/plan.md`. If implementation is explicitly requested, proceed according to AAD slice-owner rules, including task package and draft PR conventions.
 
 Discovery report:
 
