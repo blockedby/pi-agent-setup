@@ -46,6 +46,20 @@ For AAD-owned work, route to the owner hierarchy instead of treating a skill or 
 
 `aad-implementer` and support agents are internal execution and evidence targets. Do not use them as top-level default routes from the terminal main assistant unless the user explicitly asks for a direct specialist invocation and the task is not AAD-owned.
 
+## Mandatory owner planning
+
+Every job routed to `aad-root-owner` or `aad-slice-owner` requires a task package and `<task-package>/plan.md` before implementation delegation. A small job may use one compact plan task, but planning is not optional for owned execution.
+
+The owner must:
+
+- create and read the plan before delegating implementation;
+- stop implementation dispatch when plan tasks, acceptance criteria, evidence routes, test plans, dependencies, executors, report paths, or boundaries are missing or contradictory;
+- select ready work from the plan and pass the plan task in each routing packet;
+- update plan status, evidence, blockers, follow-ups, and deviations after every routed result and before routing changed or dependent work;
+- audit every plan task and acceptance criterion, complete the plan scorecard, and use fresh verification before claiming done.
+
+Narrow discovery or design refinement may be delegated to finish the plan. Direct terminal handling of a truly trivial one-step request does not require AAD planning because it is not routed to an owner.
+
 ## Parallel and background delegation
 
 Slicing and scheduling are separate decisions. Define slices by scope, ownership, size, and acceptance boundaries—not as units that must run in parallel. During planning, give each delegated work item explicit `Depends on`, `Blocks`, and `Can run in parallel with` relationships so it carries its prior-work, future-work, and concurrency context. Do not force work into fixed execution waves.

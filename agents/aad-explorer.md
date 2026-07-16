@@ -1,8 +1,8 @@
 ---
 name: aad-explorer
 description: AAD read-only discovery and evidence-gathering agent for this repo.
-model: openai-codex/gpt-5.6-luna
-thinking: medium
+model: openai-codex/gpt-5.6-terra
+thinking: low
 tools: read, write, edit, bash, web_search_codex, web_fetch_codex, apply_patch_codex
 systemPromptMode: replace
 inheritProjectContext: true

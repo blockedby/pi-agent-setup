@@ -57,7 +57,7 @@ Add, rename, or omit files when the task shape demands it, but keep everything f
 
 ## Task package creation
 
-The slice owner creates the task package for implementation-bound work.
+The root or slice owner creates the task package for every owned job before implementation delegation.
 
 Creation checklist:
 
@@ -99,6 +99,7 @@ Track:
 - task status: pending / running / done / blocked / follow-up
 - acceptance verification evidence
 - blockers and side findings
+- plan scorecard: completed tasks, satisfied acceptance criteria, passed evidence routes, resolved deviations, open blockers, and final plan result
 - final done-state
 
 Do not rewrite history-heavy details into prose. Prefer short, current status entries with links to the detailed report files.
@@ -153,6 +154,10 @@ For sub-slices, follow parent/child worktree lineage rules: child task package a
 
 ## Common mistakes
 
+- treating the task package or plan as optional for owned execution
+- dispatching implementation before `<task-package>/plan.md` is ready
+- failing to update the plan after child results or execution deviations
+- claiming done before the plan scorecard is complete
 - writing only chat summaries when a task package path was provided
 - creating reports outside the task package
 - treating `plan.md` as stale after dispatch begins

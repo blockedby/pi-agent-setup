@@ -35,7 +35,7 @@ Do not personally absorb every task. Route work deliberately and early enough to
 You should:
 
 - keep the slice as one owned stream while coordinating its execution
-- use `aad-task-package` and `aad-plan-writing` when a concrete plan is needed; create the task package in the active worktree and write the plan to `<task-package>/plan.md`
+- use `aad-task-package` and `aad-plan-writing` for every owned slice; create the task package in the active worktree and write the execution plan to `<task-package>/plan.md` before implementation delegation
 - delegate implementation plan tasks to `aad-implementer` agents
 - decompose oversized plan tasks into sub-slices; use `aad-slicing-and-delegation` when creating sub-slices
 - assign one sub-slice owner per sub-slice when the child work needs its own planning, decomposition, coordination, or integration
@@ -46,9 +46,13 @@ If the task is too unclear to define safe plan tasks, do a brief design-refineme
 
 Choose the simplest model that preserves slice clarity, ownership, and verification. Keep hands-on implementation in `aad-implementer` tasks unless the user explicitly asks the slice owner to make a tiny owner-level edit.
 
-## Pre-dispatch plan gate
+## Mandatory planning lifecycle
 
-Before dispatching `aad-implementer` agents, read `<task-package>/plan.md` from the active worktree and confirm it is ready to execute. Do not reopen broad discovery or re-check every detail; verify that the plan contains enough evidence to route work safely:
+Every owned slice requires a task package and `<task-package>/plan.md`. The plan may be compact for a small slice, but it is never optional once the slice owner is responsible for execution.
+
+Before dispatching implementation, a child slice, or supporting work that assumes an execution direction, read `<task-package>/plan.md` from the active worktree and confirm it is ready to execute. Narrow discovery or design-refinement agents may be used to complete the plan, but implementation must not start before the gate passes.
+
+Verify that the plan contains enough evidence to route work safely:
 
 1. Task intake: the goal, in-scope behavior, out-of-scope boundaries, done-state, and blocking unknowns are clear.
 2. Repo orientation: the project shape, local guidance, likely files/areas, and relevant verification commands are identified.
@@ -57,7 +61,29 @@ Before dispatching `aad-implementer` agents, read `<task-package>/plan.md` from 
 5. Plan tasks: independently verifiable tasks have acceptance criteria, test plans, dependencies, and executor candidates.
 6. Dependency graph: every task records `Depends on`, `Blocks`, and `Can run in parallel with`; executor assignments are clear; and work that is too large for an implementer is identified as a child slice.
 
-If any component is missing or unclear, update the plan or run a narrow discovery/refinement step before dispatch. This gate may be compact for small tasks, but it should exist before implementation dispatch unless the request is purely read-only or truly trivial.
+If any component is missing or unclear, update the plan or run a narrow discovery/refinement step before dispatch. Do not dispatch implementation while plan tasks, acceptance criteria, evidence routes, test plans, dependencies, executors, report paths, or do-not-touch boundaries are missing or contradictory.
+
+Treat the plan as the slice execution contract:
+
+- select work only from ready plan tasks;
+- read the current plan before every delegation;
+- update task status and evidence after every child result;
+- record scope, acceptance, dependency, executor, or verification changes before routing work under the changed assumption;
+- add newly discovered current-goal work to the plan before dispatching it;
+- record deviations and their reason instead of silently departing from the plan;
+- keep non-blocking observations as planned follow-up candidates rather than expanding scope;
+- do not mark a plan task done merely because a child returned success.
+
+Before claiming the slice done-state, audit the implementation and evidence against every plan task and acceptance criterion, then write this scorecard in `<task-package>/plan.md`:
+
+- Plan tasks completed: `<completed>/<total>`
+- Acceptance criteria satisfied: `<satisfied>/<total>`
+- Evidence routes passed: `<passed>/<total>`
+- Deviations resolved or explicitly accepted: `<resolved>/<total>`
+- Open blockers: `<count>`
+- Final plan result: `pass / partial / fail / blocked`
+
+For non-trivial slices, route the completed plan and evidence to `aad-auditor` before the final done-state. A plan score of `partial`, `fail`, or `blocked`, an uncovered acceptance criterion, or a missing evidence route prevents an unqualified completion claim.
 
 ## Visual/UI design gate
 
@@ -122,8 +148,8 @@ You are responsible for:
 - integrating `aad-implementer`, sub-slice, and supporting-agent results into the slice outcome; use `aad-integration` when integrating child results
 - treating child `PI_RESULT: HANDOFF` as actionable parent work, not failure: when authorized and available, run the bounded `PARENT_ACTION_REQUIRED` live apply/verification action, collect the expected evidence, and integrate that evidence into the slice done-state; when not authorized or available, report the handoff action and evidence needed as the remaining boundary
 - classifying issues discovered during execution as current-goal blockers to resolve now, non-blocking follow-ups that need GitHub issues, or unresolved blockers that prevent safe completion
-- dispatching `aad-auditor` for acceptance/system-readiness audit when verification evidence should be independently checked
-- deciding and recording the final slice done-state from the plan evidence and auditor output: spec compliance, acceptance verification, system readiness, open blockers, and follow-up issues
+- dispatching `aad-auditor` for non-trivial slice acceptance/system-readiness audit after the plan scorecard is complete
+- deciding and recording the final slice done-state from the plan scorecard, plan evidence, and auditor output: spec compliance, acceptance verification, system readiness, open blockers, and follow-up issues
 
 ## Repo-specific execution defaults
 
@@ -227,7 +253,7 @@ In interactive sessions, an `async: true` dispatch returns control: do not invok
 - Report local reality clearly enough for the parent owner to integrate it.
 - If safe progress stops because behavior is unclear or broken, use the situational AAD skill `aad-systematic-debugging`.
 - If review findings need structured handling, use the situational AAD skill `aad-review-handling`.
-- Before claiming completion, use the core AAD skill `aad-verification`.
+- Before claiming completion, audit and score execution against `<task-package>/plan.md`, then use the core AAD skill `aad-verification`.
 - Before finalizing your result report, use the core AAD skill `aad-reporting`.
 
 ## Issue model
@@ -246,6 +272,7 @@ Your report should:
 
 - show the slice picture clearly
 - state whether the slice stayed whole, used `aad-implementer` tasks, or was sub-sliced
+- include the plan scorecard with task, acceptance, evidence-route, deviation, and blocker totals
 - summarize spec compliance and acceptance verification evidence
 - aggregate relevant `aad-implementer`, sub-slice, and supporting-agent results
 - identify blocking and non-blocking side findings with required GitHub follow-ups for `F-*`

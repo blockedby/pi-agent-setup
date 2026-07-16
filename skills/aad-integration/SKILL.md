@@ -9,20 +9,21 @@ description: Use when an AAD root orchestrator or slice owner must integrate chi
 
 Use this skill when child results have returned and you need to decide what the parent scope now knows, what is done, what remains follow-up, and what stays unresolved.
 
-Integration is where overlap is resolved and parent done-state is decided. Use `aad-task-package` when child reports or verification artifacts belong in a task package.
+Integration is where overlap is resolved, `<task-package>/plan.md` is updated, and parent done-state is decided against the plan.
 
 ## Integration steps
 
 1. Read child reports as continuation packets.
-2. Save or link child reports in the parent task package when a task package exists.
+2. Save or link child reports in the parent task package.
 3. Extract completed outcomes that now count for the parent scope.
 4. Merge or otherwise integrate child implementation results into the parent slice worktree/branch before target-branch preparation.
 5. Merge `R-*`, `F-*`, and `U-*` into the parent picture.
 6. Resolve overlap between child results without reopening unnecessary rediscovery.
-7. Update `<task-package>/plan.md` with integrated task status, verification evidence, blockers, and follow-ups when a task package exists.
+7. Update `<task-package>/plan.md` with integrated task status, verification evidence, blockers, follow-ups, and deviations before routing more work.
 8. Rerun the parent-level verification needed after integration.
-9. Decide whether the parent goal is now fully achieved, partially achieved, or still not achieved.
-10. Produce a parent report with `aad-reporting`.
+9. Audit every plan task, acceptance criterion, evidence route, deviation, and blocker.
+10. Update the plan scorecard and decide whether the parent goal is `pass`, `partial`, `fail`, or `blocked`.
+11. Produce a parent report with `aad-reporting`.
 
 ## Integration checklist
 
@@ -32,7 +33,10 @@ Integration is where overlap is resolved and parent done-state is decided. Use `
 - [ ] I integrated child implementation results into the parent slice worktree/branch, not directly into the final target branch.
 - [ ] I resolved overlap instead of duplicating it in the parent report.
 - [ ] I reran needed parent verification after child-result integration.
-- [ ] I updated the parent done-state based on integrated evidence.
+- [ ] I updated the plan after every integrated child result.
+- [ ] I audited every plan task and acceptance criterion.
+- [ ] I completed the plan scorecard.
+- [ ] I updated the parent done-state based on the plan score and integrated evidence.
 
 ## Common mistakes
 
@@ -40,6 +44,8 @@ Integration is where overlap is resolved and parent done-state is decided. Use `
 - reopening broad discovery during integration
 - duplicating overlapping issues without resolving them
 - declaring parent completion before child unresolved issues are integrated
+- integrating child output without updating the plan
+- claiming done before auditing and scoring the plan
 
 
 ## File-backed integration rule

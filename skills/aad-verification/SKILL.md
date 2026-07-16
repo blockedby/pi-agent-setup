@@ -9,17 +9,19 @@ description: Use before claiming completion, closure, readiness, or correctness 
 
 Use this skill before claiming that work is complete, fixed, reviewed, or ready.
 
-Evidence comes before claims. Acceptance criteria should map to tests, checks, or explicit manual evidence. When a task package exists, record verification evidence under `<task-package>/verification/` and summarize it in `<task-package>/plan.md` or the relevant report.
+Evidence comes before claims. Acceptance criteria should map to tests, checks, or explicit manual evidence. For AAD-owned work, read `<task-package>/plan.md`, record verification evidence under `<task-package>/verification/`, update the corresponding plan tasks and criteria, and complete the plan scorecard before done-state.
 
 ## Workflow
 
-1. Identify the exact claim being made.
-2. Identify the acceptance criteria, contract, or risk that proves the claim.
+1. Read `<task-package>/plan.md` and identify the exact plan task and claim being verified.
+2. Identify the acceptance criteria, evidence route, contract, or risk that proves the claim.
 3. Select the narrowest fresh command, check, or artifact that directly proves it.
 4. Run that check freshly.
 5. Read the actual result, including failures.
-6. Record the evidence in an acceptance verification entry, preferably in the task package when one exists.
-7. Only then claim completion, readiness, or closure.
+6. Record the evidence under `<task-package>/verification/` and update the matching plan task and acceptance criterion.
+7. Audit every plan task, acceptance criterion, evidence route, deviation, and blocker.
+8. Complete the plan scorecard.
+9. Only then claim completion, readiness, or closure.
 
 ## Verification modes
 
@@ -70,7 +72,7 @@ Acceptance verification:
   - Evidence: <command, file, artifact, or short output>
 ```
 
-A task is not verified if acceptance criteria have no check or explicit waiver.
+A task is not verified if acceptance criteria have no check or explicit waiver. An owned job is not verified until every plan task and criterion is represented in the completed plan scorecard.
 
 ## Failure handling
 
@@ -102,6 +104,9 @@ Credentials and access are not automatic skip reasons. Use authorized available 
 - Narrow verification is fine when it directly proves the changed path.
 - Final readiness needs broader evidence than a local task check.
 - Acceptance criteria must be covered by tests or explicit manual checks wherever possible.
+- Verify against the current task-package plan, not only the latest child report or diff.
+- Update plan task status and evidence before scoring completion.
+- A `partial`, `fail`, or `blocked` plan score prevents an unqualified completion claim.
 - Execute the planned Evidence route before any terminal outcome, or revise it with the closest bounded direct evidence that was actually available.
 - If the proving check fails, report failure instead of softening it.
 - Do not rely on earlier runs once new changes have been made.
@@ -115,3 +120,5 @@ Credentials and access are not automatic skip reasons. Use authorized available 
 - treating confidence as proof
 - running broad tests while skipping the targeted check that proves the change
 - omitting failed or skipped acceptance criteria from the report
+- verifying child outputs without auditing every plan task
+- claiming done before the plan scorecard is complete

@@ -1,15 +1,15 @@
 ---
 name: aad-plan-writing
-description: Use when an AAD owner needs a repo-local, acceptance-driven implementation plan that follows the ownership model directly without external workflow choreography.
+description: Use for every AAD-owned job to create, execute, maintain, and audit a task-package plan with acceptance-driven tasks before delegation and done-state decisions.
 ---
 
 # AAD Plan Writing
 
 ## Overview
 
-Use this skill when the design is settled enough to define execution.
+Use this skill for every AAD-owned job. If the design is not settled enough to define execution, record the blocking questions and use narrow discovery or design refinement to settle them before implementation delegation.
 
-The plan should help an owner or slice owner execute directly. Supporting agents remain optional and should appear only where they make continuation cheaper.
+The plan is the execution contract for the owner or slice owner, not optional preparation. Supporting agents remain optional and should appear only where they make continuation cheaper.
 
 A good AAD plan is operational: it states what will change, what will prove each change, and how the work should be ordered.
 
@@ -35,7 +35,22 @@ A good AAD plan is operational: it states what will change, what will prove each
    - acceptance criteria and test plan per task
    - dependencies and optional delegation points only where they are genuinely cheaper
    - report paths for delegated agents
-8. Keep the plan compact, directly executable, and current as the task execution ledger.
+8. Check plan readiness before delegation: every task has a goal, acceptance criteria, evidence route, test plan, dependencies, executor, report path, and do-not-touch boundaries where relevant.
+9. Execute only ready tasks from the plan and update task status, evidence, blockers, follow-ups, and deviations after every routed result.
+10. Before done-state, audit every task and acceptance criterion against fresh evidence and write the plan scorecard.
+
+## Mandatory planning lifecycle
+
+Every root or slice owner must:
+
+1. **Plan** — create `<task-package>/plan.md` before implementation delegation.
+2. **Gate** — stop implementation dispatch until the plan is complete enough to execute and verify.
+3. **Follow** — select ready work from the plan and pass the plan task into every routing packet.
+4. **Update** — record child results, task status, evidence, blockers, and deviations before routing subsequent work.
+5. **Audit** — compare the integrated result with every task and acceptance criterion.
+6. **Score** — write the plan scorecard before any unqualified completion claim.
+
+A small job may use one compact plan task. It may not omit the plan, acceptance criteria, evidence route, or final scorecard once an AAD owner is executing the job.
 
 ## Task sizing
 
@@ -136,13 +151,43 @@ Dependencies:
 
 Executor:
 - <aad-implementer / browser-agent / aad-failure-classifier / child slice owner if too large>
+
+Routed files:
+- Report path: <task-package>/reports/<agent-or-task>.md
+- Progress path: <task-package>/progress/<agent-or-task>.md or not needed
+
+Execution status:
+- Status: <pending / ready / running / done / blocked / follow-up>
+- Evidence: <not run / exact test, check, artifact, or report reference>
+- Deviation: <none / recorded scope, acceptance, dependency, executor, or verification change>
 ```
 
 No meaningful plan task should omit acceptance criteria or a verification plan. If a criterion cannot be automated, state the manual evidence expected.
 
+## Plan audit and scorecard
+
+Before an owner claims done-state, append or update:
+
+```md
+## Plan scorecard
+- Plan tasks completed: <completed>/<total>
+- Acceptance criteria satisfied: <satisfied>/<total>
+- Evidence routes passed: <passed>/<total>
+- Deviations resolved or explicitly accepted: <resolved>/<total>
+- Open blockers: <count>
+- Final plan result: <pass / partial / fail / blocked>
+```
+
+Each total must link to the corresponding plan task, criterion, evidence, or deviation entry. A `partial`, `fail`, or `blocked` result, uncovered criterion, missing evidence route, or unresolved blocker prevents an unqualified completion claim.
+
 ## Plan rules
 
 - Use `aad-task-package` for all durable plan/report/verification artifacts.
+- Create and read `<task-package>/plan.md` before implementation delegation for every AAD-owned job.
+- Do not dispatch implementation while required plan fields are missing, contradictory, or unverifiable.
+- Follow ready plan tasks instead of inventing unrecorded work during execution.
+- Update the plan after every routed result and before acting on a changed scope, acceptance criterion, dependency, executor, or verification route.
+- Audit and score the completed work against the plan before done-state.
 - Prefer one owner carrying the work when one owner can do it cheaply.
 - Do not inject mandatory review loops or external workflow skills.
 - Make verification explicit for each meaningful checkpoint.
@@ -157,6 +202,10 @@ No meaningful plan task should omit acceptance criteria or a verification plan. 
 
 ## Common mistakes
 
+- treating planning as optional because the requested change looks small
+- delegating implementation before the plan-readiness gate passes
+- following child output instead of updating and following the plan
+- claiming done without auditing and scoring the plan
 - turning the plan into generic advice
 - forcing delegation where direct execution is cheaper
 - leaving verification implicit

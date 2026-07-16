@@ -13,6 +13,12 @@ The goal is not maximum delegation. The goal is stable ownership, clear routing,
 
 A slice owner should separate decomposition from scheduling: slices define scope and ownership, while each task's `Depends on`, `Blocks`, and `Can run in parallel with` relationships describe its place in the wider plan.
 
+## Plan readiness prerequisite
+
+Do not delegate implementation, an owned slice, or supporting work that assumes an execution direction until `<task-package>/plan.md` contains the routed task, acceptance criteria, evidence route, test plan, dependencies, executor, report/progress paths, and relevant boundaries. Narrow discovery or design refinement may be delegated to complete the plan.
+
+Before every delegation, read the current plan, confirm the task is `ready`, and copy its current contract into the routing packet. After every result, the owner updates the plan before routing dependent or changed work.
+
 ## Keep work whole when
 
 - one local ownership boundary still holds
@@ -129,6 +135,8 @@ Pass all applicable fields. Supporting agents may refine their local target, but
 
 ## Delegation checklist
 
+- [ ] Read `<task-package>/plan.md` and confirm the delegated task is ready.
+- [ ] Confirm acceptance criteria, evidence route, test plan, dependencies, executor, report/progress paths, and boundaries are present.
 - [ ] Decide whether the work stays whole or should be sliced.
 - [ ] If slicing, define one owner per slice or sub-slice.
 - [ ] Give every task `Depends on`, `Blocks`, and `Can run in parallel with` relationships.
@@ -138,9 +146,13 @@ Pass all applicable fields. Supporting agents may refine their local target, but
 - [ ] Pass all applicable routing context.
 - [ ] Delegate only the narrow work needed.
 - [ ] Keep overlap acceptable and resolve it later during integration.
+- [ ] Update the plan with the delegated status and later result before routing dependent work.
 
 ## Common mistakes
 
+- delegating implementation before the plan-readiness gate passes
+- routing work that is absent from the plan
+- failing to update the plan after delegated results
 - slicing for cosmetic reasons
 - delegating because delegation exists, not because it is cheaper
 - losing ownership when delegating support work
