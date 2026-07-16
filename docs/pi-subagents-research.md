@@ -11,6 +11,6 @@ This note records a bounded review of the installed `pi-subagents` 0.34.0 source
 
 ## Workflow decision
 
-Use a routed report/progress file as the durable AAD evidence record, not a guessed temporary artifact path or a run/session identifier. Owners should record the async ID only as transient control metadata, read child files before integration, and preserve raw evidence plus validation diagnostics as `report-invalid` when validation is unstable.
+Use a routed report/progress file as the durable AAD evidence record, not a guessed temporary artifact path or a run/session identifier. Without a task package, the owner ledger defaults to `.pi-subagents/routes/<task-id>/<route-id>.md`, with distinct child report/progress files under that task route. `.pi-subagents/` is ignored generated runtime state and is not committed. Owners should record the async ID only as transient control metadata, read child files before integration, and preserve raw evidence plus validation diagnostics as `report-invalid` when validation is unstable.
 
 No repo-level runtime helper or configuration change is justified from this review. Stable cross-resume task/child identities and interactive UI behavior remain runtime concerns for `pi-subagents`; this repository does not patch dependency sources or promise them.

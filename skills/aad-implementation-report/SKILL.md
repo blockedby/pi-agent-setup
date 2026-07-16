@@ -20,7 +20,7 @@ Prefer explicit paths from the delegated prompt. When only a task package is pro
 <task-package>/progress/aad-implementer-<task-id>.md
 ```
 
-If no task package path is provided, return the report inline and state that no task package path was available.
+If no task package path is provided for non-trivial routed work, write to the owner-supplied `.pi-subagents/routes/<task-id>/reports/aad-implementer-<task-id>.md` and progress path under the same task route. `.pi-subagents/` is ignored generated runtime state and is not committed. Otherwise return the report inline and state that no durable route was available.
 
 ## Progress notes
 

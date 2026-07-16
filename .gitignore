@@ -5,6 +5,7 @@ dist/
 *.log
 .worktrees/
 feedback/
+.pi-subagents/
 
 # secrets/runtime state - never commit
 .env

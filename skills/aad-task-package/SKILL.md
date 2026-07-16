@@ -76,9 +76,9 @@ Creation checklist:
 
 ## Canonical route/slice progress ledger
 
-For non-trivial delegated work, use one file-backed route ledger in addition to any plan: normally `<task-package>/plan.md` (or an explicit sanitized external ledger when the owner forbids a repo-local package). The owning root or slice owner is the **only writer** of that canonical ledger. It records route/task IDs chosen by the owner, status, dependencies, assigned child report/progress paths, validation state, and integration evidence.
+For non-trivial delegated work, use one file-backed route ledger in addition to any plan: normally `<task-package>/plan.md` when repo policy requires committed task docs; otherwise `.pi-subagents/routes/<task-id>/<route-id>.md`. The owning root or slice owner is the **only writer** of that canonical ledger. It records route/task IDs chosen by the owner, status, dependencies, assigned child report/progress paths, validation state, and integration evidence.
 
-Each child receives a distinct, file-backed report path and, for non-trivial work, a distinct progress path. A child may append dated status/comments only to its own supplied report/progress file; it must not edit the parent ledger or another child file. Owners update the ledger after reading those canonical child files. For trivial one-step work, omit the ledger and return a concise inline result.
+Each child receives a distinct, file-backed report path and, for non-trivial work, a distinct progress path. Without a task package, route them under `.pi-subagents/routes/<task-id>/reports/<agent-or-task>.md` and `.pi-subagents/routes/<task-id>/progress/<agent-or-task>.md`. A child may append dated status/comments only to its own supplied report/progress file; it must not edit the parent ledger or another child file. Owners update the ledger after reading those canonical child files. `.pi-subagents/` is ignored generated runtime state and is not committed. For trivial one-step work, omit the ledger and return a concise inline result.
 
 Before relying on harness inline output, a parent reads the child's routed report and progress files when provided. Inline output, transient run IDs, and temporary harness artifact paths are convenience signals, not the acceptance record.
 
@@ -114,7 +114,7 @@ Report path: <task-package>/reports/<agent-or-task>.md
 Verification path: <task-package>/verification/<file>.md, when relevant
 ```
 
-If a report path is provided, write or update that file before returning. If no task package is provided, return the report inline and say that no task package path was available.
+If a report path is provided, write or update that file before returning. If no task package is provided for non-trivial routed work, use the owner-supplied `.pi-subagents/routes/<task-id>/reports/<agent-or-task>.md` path; otherwise return the report inline and say no durable route was provided.
 
 ## Agent report defaults
 

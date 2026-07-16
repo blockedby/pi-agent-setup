@@ -21,10 +21,11 @@ Treat PR creation as the first finish milestone. After the PR exists, prepare th
    - if `rerun_required=true`, run fresh regression verification now
    - if you add new fix-up commits after rebase fallout, rerun fresh verification again after those commits
 6. Push the refreshed branch.
-7. If `gh pr view <N> --json state` reports `state=MERGED`, skip merge and continue with local sync / cleanup reporting. In fork/upstream-ambiguous contexts, run this as `gh pr view <N> --repo owner/repo --json state`.
-8. If merge is authorized, move to the primary checkout on `main` and run `gh pr merge <N> --squash`. In fork/upstream-ambiguous contexts, include `--repo owner/repo`.
-9. From the primary checkout, run `bash scripts/aad/root-main-sync.sh --delete-worktree "<feature-worktree-path>" --delete-branch "<feature-branch>"`.
-10. Report the PR URL, rebase result, verification result, merge result, cleanup result, and any stash label used to preserve root-checkout state.
+7. If `gh pr view <N> --json state` reports `state=MERGED`, skip merge and proceed only to the post-merge root-sync rule below. In fork/upstream-ambiguous contexts, run this as `gh pr view <N> --repo owner/repo --json state`.
+8. If merge is authorized, move to the primary checkout and run the mandatory **pre-remote-merge** preflight below. It must be clean, on `main`, and exactly aligned with `origin/main` before `gh pr merge`; otherwise abort without a merge or any primary-checkout mutation.
+9. Only after that preflight passes, run `gh pr merge <N> --squash` from the primary checkout. In fork/upstream-ambiguous contexts, include `--repo owner/repo`.
+10. After the remote merge, apply the post-merge root-sync rule below. It permits only a clean, behind-only `git merge --ff-only origin/main` update after fetching; otherwise abort the sync without push, rebase, stash, reset, or remote mutation. Perform local worktree/branch cleanup only after a successful allowed sync.
+11. Report the PR URL, rebase result, verification result, pre-merge preflight result, merge result, post-merge sync result, and cleanup result. Do not report or create a stash as part of this flow.
 
 ## Re-run regression rules
 
@@ -43,12 +44,12 @@ Treat PR creation as the first finish milestone. After the PR exists, prepare th
 ## Root sync rules
 
 - The primary checkout must stay on `main`.
-- A dirty primary checkout fails the mandatory preflight; do not stash it as part of this finalization flow.
-- Resolve or deliberately preserve dirty state outside this flow, then restart the preflight.
+- A dirty primary checkout fails both preflight and post-merge sync; do not stash it as part of this finalization flow.
+- Resolve or deliberately preserve dirty state outside this flow, then restart the appropriate check.
 
-## Fail-closed primary-checkout preflight
+## Fail-closed pre-remote-merge primary-checkout preflight
 
-Before **any** primary-checkout mutation (including a rebase, merge, push, sync helper, or stash), run this preflight from the primary checkout. It is mandatory even if a prompt says the checkout should be clean:
+Before **remote merge** (`gh pr merge`) and before any other primary-checkout mutation, run this preflight from the primary checkout. It is mandatory even if a prompt says the checkout should be clean:
 
 1. `git fetch origin main` (inspection only).
 2. Require `git branch --show-current` to be exactly `main`.
@@ -57,12 +58,20 @@ Before **any** primary-checkout mutation (including a rebase, merge, push, sync 
 
 If any check fails, stop non-zero and report the branch, cleanliness result, ahead/behind counts, and local-only commit subjects when present. **Do not** rebase, merge, push, stash, reset, or invoke a sync helper. A local-only primary commit is never an implicit publish candidate. Resolve divergence deliberately outside this finalization flow, then restart the preflight.
 
-The deterministic primary-checkout helper is owned elsewhere; do not invent or substitute a helper in this workflow. Prompt guidance supplements, but does not replace, that deterministic enforcement.
+## Fail-closed post-merge root sync
+
+After `gh pr merge` advances remote `main` (or when the PR is already merged), the primary checkout may sync only through this bounded path:
+
+1. Run `git fetch origin main` (inspection only).
+2. Require branch `main` and an empty `git status --porcelain`.
+3. Require local `HEAD` to be an ancestor of `origin/main` and `git rev-list --left-right --count HEAD...origin/main` to show `0 <behind>` with `<behind>` greater than zero. This rejects equal, ahead, and diverged states.
+4. Run only `git merge --ff-only origin/main`.
+
+If any condition fails, abort with no push, rebase, stash, reset, or remote mutation. Do not use a sync helper that performs any broader action. A local-only commit is never an implicit publish candidate.
 
 ## Helper scripts
 
 - `scripts/aad/target-branch-prepare.sh` — feature-branch fetch / rebase / status helper
-- `scripts/aad/root-main-sync.sh` — primary-checkout sync / stash restore / local cleanup helper
 
 ## Common mistakes
 
