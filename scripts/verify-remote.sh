@@ -114,12 +114,15 @@ from pathlib import Path
 
 config_path = Path(sys.argv[1])
 data = json.loads(config_path.read_text())
+scheduled_runs = data.get("scheduledRuns", {})
+if scheduled_runs.get("enabled") is not True:
+    raise SystemExit("pi-subagents scheduledRuns.enabled is not true")
 control = data.get("control", {})
 if control.get("needsAttentionAfterMs") != 180000:
     raise SystemExit("pi-subagents needsAttentionAfterMs is not 180000")
 if control.get("notifyOn") != ["needs_attention"]:
     raise SystemExit("pi-subagents notifyOn must be ['needs_attention']")
-print("pi-subagents control config verified")
+print("pi-subagents scheduled-runs and control config verified")
 PY
 
 python3 - "$AGENT_DIR/mcp.json" <<'PY'

@@ -3,6 +3,9 @@
     "maxTasks": 6,
     "concurrency": 3
   },
+  "scheduledRuns": {
+    "enabled": true
+  },
   "control": {
     "enabled": true,
     "needsAttentionAfterMs": 180000,

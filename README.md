@@ -29,7 +29,7 @@ It is meant to show the "how I work" layer: owner/implementer/auditor routing, r
   - skill: `$REMOTE_USER_HOME/.pi/agent/skills/21st-magic-mcp`
   - MCP server: `21st-magic` using `npx -y @21st-dev/magic@latest`
 - Ready-notify extension at `$REMOTE_USER_HOME/.pi/agent/extensions/ready-notify.ts`
-- Pi-subagents control config at `$REMOTE_USER_HOME/.pi/agent/extensions/subagent/config.json` with a 3-minute `needs_attention` threshold
+- Pi-subagents config at `$REMOTE_USER_HOME/.pi/agent/extensions/subagent/config.json` with scheduled runs enabled and a 3-minute `needs_attention` threshold
 - Pi packages/extensions from `settings/pi-settings.example.json` or a local settings file selected with `PI_SETTINGS_FILE`
 
 ## Public-safety boundary
