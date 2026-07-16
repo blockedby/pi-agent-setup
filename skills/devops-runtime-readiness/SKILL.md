@@ -42,7 +42,7 @@ Map findings into existing report fields instead of creating a new report shape:
   - `System readiness` → `Config / env / secrets`, `Runtime / deployment wiring`, and container/Docker notes where applicable.
   - `Verification run`: local targeted/full checks and remote CI after push when available.
   - `Issues`: unresolved env, deployment, healthcheck, or CI gaps.
-- `aad-acceptance-auditor` report shape
+- `aad-auditor` report shape
   - `System readiness coverage`: config/env/secrets, Docker/containers, runtime/deployment wiring, database/migration startup coverage.
 - `aad-task-package`
   - Store safe build/runtime logs under `verification/logs/` only when they materially help continuation.

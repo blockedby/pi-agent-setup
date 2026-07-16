@@ -94,6 +94,7 @@ for stale in \
   failure-classifier.md \
   aad-reviewer.md \
   aad-test-auditor.md \
+  aad-acceptance-auditor.md \
   aad-reviewer.md.temp \
   aad-test-auditor.md.temp \
   quinn-validator.md \
@@ -102,7 +103,7 @@ for stale in \
 done
 
 install -m 0644 "$TMP_DIR/agents/"*.md "$AGENT_DIR/agents/"
-for required_agent in aad-reviewer.md aad-test-auditor.md; do
+for required_agent in aad-auditor.md; do
   test -f "$AGENT_DIR/agents/$required_agent" || {
     echo "required active AAD agent was not installed: $required_agent" >&2
     exit 1

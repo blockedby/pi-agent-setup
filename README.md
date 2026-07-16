@@ -15,11 +15,9 @@ It is meant to show the "how I work" layer: owner/implementer/auditor routing, r
   - `aad-slice-owner`
   - `aad-implementer`
   - `aad-failure-classifier`
-  - `aad-reviewer`
-  - `aad-test-auditor`
   - `chrome-browser-agent`
   - `aad-explorer`
-  - `aad-acceptance-auditor`
+  - `aad-auditor`
   - `visual-critic`
   - Optional/legacy manual AAD chains: `aad-discovery-plan`, `aad-owned-change`, `aad-problem-investigation`, `visual-ui-change`
 - Shared AAD skills at `$REMOTE_USER_HOME/.pi/agent/skills/aad-*`
@@ -89,9 +87,7 @@ This personal setup uses the GPT-5.6 model family in three tiers. The allocation
 | `aad-root-owner` | Own multi-step or multi-slice work, coordinate slices, and integrate the final result. | `openai-codex/gpt-5.6-sol` |
 | `aad-implementer` | Execute scoped implementation tasks with verification and coherent handoff evidence. | `openai-codex/gpt-5.6-sol` |
 | `aad-slice-owner` | Own one scoped slice, delegate execution, and decide its local done-state. | `openai-codex/gpt-5.6-terra` |
-| `aad-acceptance-auditor` | Independently decide whether acceptance criteria and evidence are sufficient. | `openai-codex/gpt-5.6-terra` |
-| `aad-reviewer` | Perform narrow read-only correctness, verification, and workflow-drift review. | `openai-codex/gpt-5.6-terra` |
-| `aad-test-auditor` | Audit verification sufficiency and evidence freshness without implementing fixes. | `openai-codex/gpt-5.6-terra` |
+| `aad-auditor` | Perform delegated correctness review, verification sufficiency, and acceptance/system-readiness audit. | `openai-codex/gpt-5.6-terra` |
 | `chrome-browser-agent` | Collect browser automation and visual evidence using the appropriate Chrome mode. | `openai-codex/gpt-5.6-terra` |
 | `visual-critic` | Review screenshots for composition, hierarchy, responsiveness, and obvious visual failures. | `openai-codex/gpt-5.6-terra` |
 | `aad-explorer` | Perform read-only discovery, reuse analysis, and evidence gathering. | `openai-codex/gpt-5.6-luna` |
@@ -109,7 +105,7 @@ One root request has one `aad-root-owner`. The root owner may dispatch independe
 
 ## AAD reliability boundaries
 
-For non-trivial AAD work, the owner keeps one canonical, file-backed route ledger: normally the task-package plan when repo policy requires committed task docs; otherwise `.pi-subagents/routes/<task-id>/<route-id>.md`. The owner alone updates that ledger. Each child receives a distinct routed report/progress file and may append only there; integration reads those canonical files before relying on inline harness output. `.pi-subagents/` is ignored generated runtime state and is never committed. If report validation is unstable, raw evidence and validation diagnostics are retained and classified as `report-invalid` rather than discarded as an opaque task failure. This is intentionally not a versioned report-schema system.
+For non-trivial AAD work, the owner keeps one canonical, file-backed route ledger: normally the task-package plan when repo policy requires committed task docs; otherwise `.pi/aad/routes/<task-id>/<route-id>.md`. The owner alone updates that ledger. Each child receives a distinct routed report/progress file and may append only there; integration reads those canonical files before relying on inline harness output. `.pi/` is ignored durable AAD state and is never committed. Pi-subagents 0.34 still generates its own `.pi-subagents/` debug artifacts upstream; it remains ignored only as a runtime-compatibility path, while canonical AAD ledgers live in `.pi/aad/`. If report validation is unstable, raw evidence and validation diagnostics are retained and classified as `report-invalid` rather than discarded as an opaque task failure. This is intentionally not a versioned report-schema system.
 
 Interactive `async: true` dispatch is intended to return control without an automatic blocking wait; dependent work waits for completion or `needs_attention` events. Explicit synchronous and non-interactive aggregation can wait. This is prompt-level policy: the installed Pi/pi-subagents runtime and UI ultimately determine whether input is available and whether waits are interruptible, so this repository does not claim to fix that runtime limitation.
 
@@ -201,7 +197,7 @@ scripts/import-auth-remote.sh
 TARGET_HOST=<host> REMOTE_USER_HOME=/home/<user> scripts/verify-remote.sh
 ```
 
-The verifier checks the installed `APPEND_SYSTEM.md`, owner roles plus active `aad-reviewer` and `aad-test-auditor`, required skills, stale/`~/.agents` shadow cleanup, Pi packages, and a smoke prompt.
+The verifier checks the installed `APPEND_SYSTEM.md`, owner roles plus active `aad-auditor`, required skills, stale/`~/.agents` shadow cleanup, Pi packages, and a smoke prompt.
 
 ## Notes
 

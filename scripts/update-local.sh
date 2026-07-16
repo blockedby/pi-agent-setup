@@ -123,6 +123,9 @@ for stale in \
   tdd-coder.md \
   implementer.md \
   failure-classifier.md \
+  aad-reviewer.md \
+  aad-test-auditor.md \
+  aad-acceptance-auditor.md \
   aad-reviewer.md.temp \
   aad-test-auditor.md.temp \
   quinn-validator.md \
@@ -222,7 +225,7 @@ fi
 rm -f /tmp/pi-agent-setup-codex-task-check.$$
 
 echo "Installed local APPEND_SYSTEM.md to $AGENT_DIR/APPEND_SYSTEM.md"
-for required_agent in aad-reviewer.md aad-test-auditor.md; do
+for required_agent in aad-auditor.md; do
   if [ ! -f "$AGENT_DIR/agents/$required_agent" ]; then
     echo "ERROR: required active AAD agent was not installed: $required_agent" >&2
     exit 1
@@ -230,6 +233,6 @@ for required_agent in aad-reviewer.md aad-test-auditor.md; do
 done
 
 echo "Installed local agents to $AGENT_DIR/agents"
-echo "Verified active reviewer/auditor installation and codex_task absence from installed local agents."
+echo "Verified active auditor installation and codex_task absence from installed local agents."
 echo "Ready-notify config is read from PI_READY_NOTIFY_* in the shell that launches Pi."
 echo "Reload or restart Pi to pick up the updated agents/packages."

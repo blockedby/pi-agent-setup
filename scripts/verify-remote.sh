@@ -62,11 +62,9 @@ for required in \
   aad-explorer.md \
   aad-root-owner.md \
   aad-slice-owner.md \
-  aad-acceptance-auditor.md \
+  aad-auditor.md \
   aad-implementer.md \
   aad-failure-classifier.md \
-  aad-reviewer.md \
-  aad-test-auditor.md \
   chrome-browser-agent.md \
   aad-discovery-plan.chain.md \
   aad-owned-change.chain.md \
@@ -78,6 +76,9 @@ for stale in \
   tdd-coder.md \
   implementer.md \
   failure-classifier.md \
+  aad-reviewer.md \
+  aad-test-auditor.md \
+  aad-acceptance-auditor.md \
   aad-reviewer.md.temp \
   aad-test-auditor.md.temp \
   quinn-validator.md \

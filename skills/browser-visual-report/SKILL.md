@@ -7,7 +7,7 @@ description: Use when a browser or visual-review agent needs to save screenshot 
 
 Use this skill when `chrome-browser-agent`, `visual-critic`, an acceptance auditor, or another delegated browser/visual reviewer is collecting screenshot-first evidence for a visual/UI task.
 
-The report is visual evidence, not implementation ownership and not final acceptance by itself. The slice owner and `aad-acceptance-auditor` decide final done-state.
+The report is visual evidence, not implementation ownership and not final acceptance by itself. The slice owner and `aad-auditor` decide final done-state.
 
 ## Durable paths
 

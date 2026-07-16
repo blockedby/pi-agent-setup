@@ -30,7 +30,7 @@ Browser evidence:
 
 {previous}
 
-## aad-acceptance-auditor
+## aad-auditor
 
 Audit the visual/UI/public-page slice using the owner context, browser screenshots, and visual critic verdict as acceptance evidence. Do not implement fixes. Do not accept a visual/UI slice without screenshot evidence or an explicit waiver, worst-screenshot reasoning, and resolved visual-critic concerns.
 

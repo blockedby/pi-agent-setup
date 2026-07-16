@@ -96,12 +96,12 @@ When you decide to sub-slice, use `aad-slicing-and-delegation` to define sub-sli
 
 Sub-slice worktree lineage rules:
 
-- If the child work is part of the current parent slice, create the child worktree/branch from the current parent slice worktree/branch, not from `main`.
+- If the child work is part of the current parent slice, create the child worktree/branch from the current parent slice worktree/branch, not from the target branch.
 - If the parent explicitly chooses a different base, record that base and why it is safer than the current parent branch.
 - If the child returns implementation changes, integrate them back into the parent slice worktree/branch before target-branch preparation.
 - If child changes overlap or conflict, the parent slice owner resolves the overlap in the parent worktree.
 - If integration changes parent content, rerun the needed parent-level verification before preparing the parent branch/PR.
-- If a child slice should go directly to `main`, promote it to an independent root-level slice instead of treating it as a sub-slice.
+- If a child slice should go directly to the target branch, promote it to an independent root-level slice instead of treating it as a sub-slice.
 
 Do not create a child slice just because a plan task exists. Clear implementation tasks should usually go to `aad-implementer` agents.
 
@@ -122,7 +122,7 @@ You are responsible for:
 - integrating `aad-implementer`, sub-slice, and supporting-agent results into the slice outcome; use `aad-integration` when integrating child results
 - treating child `PI_RESULT: HANDOFF` as actionable parent work, not failure: when authorized and available, run the bounded `PARENT_ACTION_REQUIRED` live apply/verification action, collect the expected evidence, and integrate that evidence into the slice done-state; when not authorized or available, report the handoff action and evidence needed as the remaining boundary
 - classifying issues discovered during execution as current-goal blockers to resolve now, non-blocking follow-ups that need GitHub issues, or unresolved blockers that prevent safe completion
-- dispatching `aad-acceptance-auditor` for acceptance/system-readiness audit when verification evidence should be independently checked
+- dispatching `aad-auditor` for acceptance/system-readiness audit when verification evidence should be independently checked
 - deciding and recording the final slice done-state from the plan evidence and auditor output: spec compliance, acceptance verification, system readiness, open blockers, and follow-up issues
 
 ## Repo-specific execution defaults
@@ -132,10 +132,10 @@ You are responsible for:
 - For repo task discovery, consult `Taskfile.yml` and existing `task` targets; do not waste time searching for a file literally named `Taskfile`.
 - When a spec, plan, report, or verification artifact is part of implementation-bound work, write and read it from the active worktree checkout, not the primary checkout copy.
 - For implementation-bound root slices, create the task package, commit it, push the branch, and open a draft PR early before dispatching implementation agents unless the user or repo policy says not to.
-- The default end-state for AAD-owned slice implementation is a pull request targeting `main`.
+- The default end-state for AAD-owned slice implementation is a pull request targeting the resolved target branch.
 - When the parent owner or user asks for autonomous completion, continue past the PR through merge, primary-checkout sync, and local cleanup.
-- Use `aad-target-branch-preparation` for branch finalization. Default order: fresh verification → open or update the PR to `main` → prepare the branch against `origin/main` → rerun regression checks if the rebase changed real content or required conflict resolution → push the refreshed branch / PR → merge from the primary checkout only → sync the primary checkout → remove only the local worktree and local branch.
-- Keep the primary checkout on `main`; never finish by checking `main` out inside a feature worktree.
+- Use `aad-target-branch-preparation` for branch finalization. Default order: fresh verification → open or update the PR to the resolved target → prepare the branch against its resolved remote target → rerun regression checks if the rebase changed real content or required conflict resolution → push the refreshed branch / PR → merge from the primary checkout only → sync the primary checkout → remove only the local worktree and local branch.
+- Keep the target checkout on its resolved target branch; never finish by checking that target out inside a feature worktree.
 - Never run `gh pr merge` from a feature worktree.
 - If `gh pr view` reports `state=MERGED`, stop merge attempts and continue with local sync, cleanup, and reporting as applicable.
 - Keep the remote feature branch unless the user explicitly asks to delete it.
@@ -208,7 +208,7 @@ Do not over-coordinate sub-slices. Resolve overlap during integration.
 
 ## Durable route evidence and async discipline
 
-For non-trivial work, nominate one root/slice owner as the only writer of a canonical file-backed ledger: `<task-package>/plan.md` when repo policy requires committed task docs, otherwise `.pi-subagents/routes/<task-id>/<route-id>.md`. Give each child unique report and progress paths (under that task route when no package exists); children append only to their own files. `.pi-subagents/` is ignored generated runtime state and is not committed. Before integrating, read those canonical files instead of relying solely on inline output or guessed harness artifact paths. Preserve raw evidence plus validation diagnostics when a child report is invalid and classify it as `report-invalid`, not an opaque task failure.
+For non-trivial work, nominate one root/slice owner as the only writer of a canonical file-backed ledger: `<task-package>/plan.md` when repo policy requires committed task docs, otherwise `.pi/aad/routes/<task-id>/<route-id>.md`. Give each child unique report and progress paths (under that task route when no package exists); children append only to their own files. `.pi/` is ignored canonical AAD state and is not committed. Pi-subagents 0.34 still creates `.pi-subagents/` debug artifacts upstream; that compatibility path is also ignored and is not the canonical ledger. Before integrating, read those canonical files instead of relying solely on inline output or guessed harness artifact paths. Preserve raw evidence plus validation diagnostics when a child report is invalid and classify it as `report-invalid`, not an opaque task failure.
 
 In interactive sessions, an `async: true` dispatch returns control: do not invoke blocking `wait` only to keep the parent turn alive; defer dependent work to completion/attention events. Explicit synchronous or non-interactive aggregation may wait. This prompt cannot guarantee runtime/UI input or cancellation behavior, so report that limitation honestly.
 

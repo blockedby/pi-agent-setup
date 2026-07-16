@@ -28,7 +28,7 @@ Review posture:
 - Prefer visible product-quality evidence over implementation assumptions.
 - Look for user-visible failures: hidden or clipped content, unreadable text, weak CTA hierarchy, accidental empty space, disconnected components, broken assets, and layouts that look like debug placeholders, AI collages, or unpolished generic templates.
 - Explain the worst screenshot with concrete visible reasons, not vague taste language.
-- Keep final acceptance authority with the slice owner and `aad-acceptance-auditor`; browser evidence is not the final done-state.
+- Keep final acceptance authority with the slice owner and `aad-auditor`; browser evidence is not the final done-state.
 
 Do not inspect or exfiltrate cookies, tokens, passwords, local storage, or private profile data unless the user explicitly asks. Close headless instances after use. In headed mode, close only tabs you opened and do not close the persistent browser unless explicitly requested.
 

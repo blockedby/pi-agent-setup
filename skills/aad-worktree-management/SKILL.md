@@ -23,13 +23,13 @@ Follow the repo convention directly. Do not ask the user where to place worktree
 
 ## Parent/child worktree lineage
 
-For root owned work, the default base branch is `main` unless the delegated task or repo state requires a different base.
+For root owned work, use the target branch explicitly supplied by the user or repository guidance; do not assume a branch name. After creating the feature branch, record provenance with `git config branch.<feature>.aadTarget <target>`.
 
-For sub-slice implementation work, default to the parent slice branch/worktree as the base, not `main`. A child sub-slice is part of the parent slice until integrated.
+For sub-slice implementation work, default to the parent slice branch/worktree as the base, not the target branch. A child sub-slice is part of the parent slice until integrated.
 
 Child sub-slice results should merge or otherwise integrate back into the parent slice worktree/branch first. The parent slice owner decides the parent done-state, resolves overlap, reruns needed verification, and prepares the parent branch/PR to the target branch.
 
-Do not send a child sub-slice directly to `main` unless the parent explicitly promotes it to an independent root-level slice.
+Do not send a child sub-slice directly to the target branch unless the parent explicitly promotes it to an independent root-level slice.
 
 ## Implementation-bound task package
 
@@ -37,7 +37,7 @@ For implementation-bound root slice work, the owner should create the task packa
 
 ## Defaults
 
-- Default base branch for root owned work: `main`, unless the delegated task or repo state requires a different base.
+- Default base branch for root owned work: explicit user/repository target; otherwise stop rather than guessing.
 - Default base branch for sub-slice work: the parent slice branch.
 - Default purpose: isolation for meaningful implementation work.
 - Default behavior: continue autonomously once the worktree is ready.

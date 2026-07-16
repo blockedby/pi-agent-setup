@@ -5,6 +5,8 @@ dist/
 *.log
 .worktrees/
 feedback/
+# Canonical ignored AAD ledgers; pi-subagents 0.34 also emits compatibility debug artifacts.
+.pi/
 .pi-subagents/
 
 # secrets/runtime state - never commit

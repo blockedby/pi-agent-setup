@@ -9,7 +9,7 @@ Use this skill when an `aad-implementer` is finishing a delegated implementation
 
 ## Purpose
 
-Produce a compact, reusable implementation report for the slice owner. The report is implementation evidence, not an acceptance verdict. The slice owner and `aad-acceptance-auditor` decide final done-state.
+Produce a compact, reusable implementation report for the slice owner. The report is implementation evidence, not an acceptance verdict. The slice owner and `aad-auditor` decide final done-state.
 
 ## Durable paths
 
@@ -20,7 +20,7 @@ Prefer explicit paths from the delegated prompt. When only a task package is pro
 <task-package>/progress/aad-implementer-<task-id>.md
 ```
 
-If no task package path is provided for non-trivial routed work, write to the owner-supplied `.pi-subagents/routes/<task-id>/reports/aad-implementer-<task-id>.md` and progress path under the same task route. `.pi-subagents/` is ignored generated runtime state and is not committed. Otherwise return the report inline and state that no durable route was available.
+If no task package path is provided for non-trivial routed work, write to the owner-supplied `.pi/aad/routes/<task-id>/reports/aad-implementer-<task-id>.md` and progress path under the same task route. `.pi/` is ignored canonical AAD state and is not committed. Pi-subagents 0.34 still creates `.pi-subagents/` debug artifacts upstream; that compatibility path is also ignored and is not the canonical ledger. Otherwise return the report inline and state that no durable route was available.
 
 ## Progress notes
 

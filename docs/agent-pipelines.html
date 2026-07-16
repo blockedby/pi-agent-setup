@@ -164,7 +164,7 @@
       <div class="grid">
         <article class="card">
           <h3>AAD owner/support agents</h3>
-          <p><code>aad-root-owner</code> owns multi-step or multi-slice root work. <code>aad-slice-owner</code> owns one slice. <code>aad-explorer</code> and <code>aad-acceptance-auditor</code> provide evidence and verification audit support.</p>
+          <p><code>aad-root-owner</code> owns multi-step or multi-slice root work. <code>aad-slice-owner</code> owns one slice. <code>aad-explorer</code> and <code>aad-auditor</code> provide evidence and verification audit support.</p>
         </article>
         <article class="card">
           <h3>AAD worker agents</h3>
@@ -223,11 +223,11 @@ flowchart LR
 flowchart TD
   Task["{task}: requested change"] --> Owner1["aad-slice-owner\nown change end-to-end\ntask package, draft PR, implementation dispatch"]
   Owner1 --> SliceReport["{previous}: slice report / context"]
-  SliceReport --> Audit["aad-acceptance-auditor\nacceptance audit"]
+  SliceReport --> Audit["aad-auditor\nacceptance audit"]
   Audit --> Feedback["{previous}: audit feedback"]
   Feedback --> Owner2["aad-slice-owner\nintegrate feedback\nfix current-goal issues\nrerun verification"]
   Owner2 --> OwnerReport["final owner report\nno merge unless explicitly asked"]
-  OwnerReport --> FinalAudit["aad-acceptance-auditor\nfinal acceptance gate"]
+  OwnerReport --> FinalAudit["aad-auditor\nfinal acceptance gate"]
   FinalAudit --> Final["final acceptance verdict"]
         </pre>
       </div>
@@ -243,7 +243,7 @@ flowchart TD
         <pre class="mermaid">
 flowchart LR
   Task["{task}: problem / failing behavior"] --> Explorer["aad-explorer\nevidence + reproduction\nrisk signals + scope"]
-  Explorer --> Auditor["aad-acceptance-auditor\nacceptance verification story\nred/proving test recommendation"]
+  Explorer --> Auditor["aad-auditor\nacceptance verification story\nred/proving test recommendation"]
   Auditor --> Output["problem packet\nblocker/follow-up/false alarm\nrecommended next action"]
         </pre>
       </div>
@@ -313,7 +313,7 @@ flowchart TD
             <td><code>replace</code>, project context <span class="ok">on</span>, skills <span class="ok">on</span>, <code>subagent</code> with <code>maxSubagentDepth</code></td>
           </tr>
           <tr>
-            <td><code>aad-acceptance-auditor</code></td>
+            <td><code>aad-auditor</code></td>
             <td>Read-only acceptance audit</td>
             <td><span class="warn">Prompt says read-only except harmless verification commands</span></td>
             <td><code>replace</code>, project context <span class="ok">on</span>, skills <span class="ok">on</span></td>

@@ -85,12 +85,12 @@ After slice owners report back:
 - identify overlaps, conflicts, unresolved blockers, readiness gaps, and follow-up candidates
 - dispatch additional slice work only for current-goal blockers; do not expand scope opportunistically
 - run or request root-level verification needed after integration
-- use `aad-acceptance-auditor` when an independent acceptance/system-readiness audit is useful or required
+- use `aad-auditor` when an independent acceptance/system-readiness audit is useful or required
 - return a final root report with the root done-state, slice outcomes, verification evidence, blockers, and follow-ups
 
 ## Durable route evidence and async discipline
 
-For non-trivial work, nominate one root/slice owner as the only writer of a canonical file-backed ledger: `<task-package>/plan.md` when repo policy requires committed task docs, otherwise `.pi-subagents/routes/<task-id>/<route-id>.md`. Give each child unique report and progress paths (under that task route when no package exists); children append only to their own files. `.pi-subagents/` is ignored generated runtime state and is not committed. Before integrating, read those canonical files instead of relying solely on inline output or guessed harness artifact paths. Preserve raw evidence plus validation diagnostics when a child report is invalid and classify it as `report-invalid`, not an opaque task failure.
+For non-trivial work, nominate one root/slice owner as the only writer of a canonical file-backed ledger: `<task-package>/plan.md` when repo policy requires committed task docs, otherwise `.pi/aad/routes/<task-id>/<route-id>.md`. Give each child unique report and progress paths (under that task route when no package exists); children append only to their own files. `.pi/` is ignored canonical AAD state and is not committed. Pi-subagents 0.34 still creates `.pi-subagents/` debug artifacts upstream; that compatibility path is also ignored and is not the canonical ledger. Before integrating, read those canonical files instead of relying solely on inline output or guessed harness artifact paths. Preserve raw evidence plus validation diagnostics when a child report is invalid and classify it as `report-invalid`, not an opaque task failure.
 
 In interactive sessions, an `async: true` dispatch returns control: do not invoke blocking `wait` only to keep the parent turn alive; defer dependent work to completion/attention events. Explicit synchronous or non-interactive aggregation may wait. This prompt cannot guarantee runtime/UI input or cancellation behavior, so report that limitation honestly.
 

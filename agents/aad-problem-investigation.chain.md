@@ -19,7 +19,7 @@ Return:
 Task name: {task}
 Problem request: {task}
 
-## aad-acceptance-auditor
+## aad-auditor
 
 Using the investigation context below, define the acceptance verification story for the problem and produce the final problem investigation packet. If a Task package path is present, read `<task-package>/plan.md`, relevant `<task-package>/reports/*`, and `<task-package>/verification/*` artifacts before deciding. This workflow does not implement a fix. It may recommend a red/proving test or exact check that should fail before the fix and pass after the fix. If a Task package path is present, create/update `<task-package>/verification/problem-acceptance-plan.md` and write the audit to `<task-package>/reports/problem-acceptance-auditor.md` using `aad-task-package`.
 

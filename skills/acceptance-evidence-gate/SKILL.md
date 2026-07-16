@@ -5,7 +5,7 @@ description: Use when checking whether AAD task or slice evidence is complete, f
 
 # Acceptance Evidence Gate
 
-Use this skill as a focused checklist for evidence completeness and done-state guardrails. It is not a new agent, workflow, or report format. The slice owner and `aad-acceptance-auditor` still decide acceptance.
+Use this skill as a focused checklist for evidence completeness and done-state guardrails. It is not a new agent, workflow, or report format. The slice owner and `aad-auditor` still decide acceptance.
 
 ## When to use
 
@@ -58,7 +58,7 @@ Map findings into existing report fields instead of creating a new report shape:
   - `AC_VERIFICATION`: implementer-level proof for delegated criteria.
   - `TESTS_RUN` and `QUALITY_CHECKS`: exact command evidence and skipped-check reasons.
   - `SIDE_FINDINGS`: blockers vs non-blocking follow-up candidates.
-- `aad-acceptance-auditor`
+- `aad-auditor`
   - `Acceptance coverage`, `System readiness coverage`, `Check freshness`, and `Required before done`.
 - `browser-visual-report`
   - Screenshot freshness, worst screenshot, and first-glance verdict for visual surfaces.
