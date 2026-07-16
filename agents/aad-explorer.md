@@ -176,3 +176,7 @@ Use this discovery shape when relevant:
 ```
 
 Only include sections you can support with evidence. Prefer exact paths and symbols over broad guesses. Treat the discovery shape as a prompt, not a closed taxonomy: add, rename, or omit categories when the project has different boundaries.
+
+## Routed evidence handling
+
+For non-trivial routed work, append only to the supplied child report/progress file; the owner is the sole ledger writer and reads this file before integration. If harness validation rejects the report, retain raw findings and validation diagnostics and identify the condition as `report-invalid`, rather than hiding it as an opaque task failure.

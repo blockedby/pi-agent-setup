@@ -43,8 +43,21 @@ Treat PR creation as the first finish milestone. After the PR exists, prepare th
 ## Root sync rules
 
 - The primary checkout must stay on `main`.
-- Dirty primary-checkout state may be stashed, synced, and restored automatically.
-- `root-main-sync.sh` must report the stash label and stop without dropping it if stash restore conflicts appear.
+- A dirty primary checkout fails the mandatory preflight; do not stash it as part of this finalization flow.
+- Resolve or deliberately preserve dirty state outside this flow, then restart the preflight.
+
+## Fail-closed primary-checkout preflight
+
+Before **any** primary-checkout mutation (including a rebase, merge, push, sync helper, or stash), run this preflight from the primary checkout. It is mandatory even if a prompt says the checkout should be clean:
+
+1. `git fetch origin main` (inspection only).
+2. Require `git branch --show-current` to be exactly `main`.
+3. Require both index and worktree to be clean (`git status --porcelain` is empty).
+4. Require `HEAD` to equal `origin/main` exactly, and require `git rev-list --left-right --count origin/main...HEAD` to report `0 0`.
+
+If any check fails, stop non-zero and report the branch, cleanliness result, ahead/behind counts, and local-only commit subjects when present. **Do not** rebase, merge, push, stash, reset, or invoke a sync helper. A local-only primary commit is never an implicit publish candidate. Resolve divergence deliberately outside this finalization flow, then restart the preflight.
+
+The deterministic primary-checkout helper is owned elsewhere; do not invent or substitute a helper in this workflow. Prompt guidance supplements, but does not replace, that deterministic enforcement.
 
 ## Helper scripts
 

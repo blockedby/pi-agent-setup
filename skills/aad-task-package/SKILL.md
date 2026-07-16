@@ -74,6 +74,16 @@ Creation checklist:
 5. Create `reports/`, `verification/`, and `artifacts/` as needed.
 6. Commit and push the initial task package when opening an early draft PR.
 
+## Canonical route/slice progress ledger
+
+For non-trivial delegated work, use one file-backed route ledger in addition to any plan: normally `<task-package>/plan.md` (or an explicit sanitized external ledger when the owner forbids a repo-local package). The owning root or slice owner is the **only writer** of that canonical ledger. It records route/task IDs chosen by the owner, status, dependencies, assigned child report/progress paths, validation state, and integration evidence.
+
+Each child receives a distinct, file-backed report path and, for non-trivial work, a distinct progress path. A child may append dated status/comments only to its own supplied report/progress file; it must not edit the parent ledger or another child file. Owners update the ledger after reading those canonical child files. For trivial one-step work, omit the ledger and return a concise inline result.
+
+Before relying on harness inline output, a parent reads the child's routed report and progress files when provided. Inline output, transient run IDs, and temporary harness artifact paths are convenience signals, not the acceptance record.
+
+If report validation fails, preserve the raw child report at its routed file and record a `report-invalid` status plus validation diagnostics in the ledger. Do not collapse useful findings into an opaque task failure. This is deliberately a narrow handling rule, not a versioned schema system.
+
 ## Plan as execution ledger
 
 `plan.md` is not a write-once plan. Keep it current enough that another owner can continue without rediscovering task status.

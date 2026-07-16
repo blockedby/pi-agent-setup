@@ -40,3 +40,8 @@ Integration is where overlap is resolved and parent done-state is decided. Use `
 - reopening broad discovery during integration
 - duplicating overlapping issues without resolving them
 - declaring parent completion before child unresolved issues are integrated
+
+
+## File-backed integration rule
+
+For non-trivial work, first read the canonical parent ledger and every routed child report/progress file it names. Treat inline child output and harness artifact locations as supplementary only. Preserve a child report that is `report-invalid`: record the validation diagnostic separately and integrate any readable findings/evidence rather than treating it as an opaque child failure. The parent owner alone updates the canonical ledger after this read.

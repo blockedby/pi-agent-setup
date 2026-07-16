@@ -147,3 +147,10 @@ Use every section that applies to the report scope. Owner-level and final report
 - using `U-*` when safe continuation still exists
 - claiming final readiness without acceptance verification
 - hiding skipped checks or available remote/CI failures
+
+
+## File-backed route evidence
+
+For non-trivial routed work, identify the canonical owner ledger plus this report/progress path in `Context`. The owner writes the ledger; this agent writes only its assigned report/progress file and may append dated status/comments there. Before synthesizing results, parents read these files rather than relying only on transient inline output or inferred harness paths.
+
+When a harness rejects a report shape, retain the raw report and its useful findings at the assigned path, and surface `report-invalid` with the validation diagnostics. Do not relabel it as a product/task failure merely because report validation failed. No report-schema versioning is implied by this rule.

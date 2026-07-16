@@ -120,3 +120,7 @@ Use this audit shape when relevant:
 ```
 
 Do not require broad checks when a narrow fresh check directly proves a small change. Do not accept broad green checks as sufficient when acceptance criteria remain unproven.
+
+## Routed evidence handling
+
+For non-trivial routed work, append only to the supplied child report/progress file; the owner is the sole ledger writer and reads this file before integration. If harness validation rejects the audit report, retain raw findings and validation diagnostics and identify the condition as `report-invalid`, rather than hiding it as an opaque task failure.

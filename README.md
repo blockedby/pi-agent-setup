@@ -103,6 +103,16 @@ Before each delegation, an owner identifies tasks whose dependencies are complet
 
 One root request has one `aad-root-owner`. The root owner may dispatch independent slice owners together when safe, and slice owners apply the same rule to implementer or support tasks inside their scope. The checked-in harness configuration allows at most six tasks in a parallel call and runs at most three concurrently. This conservative per-run limit reduces nested fan-out; the harness does not currently enforce a process-wide concurrency limit across several simultaneous owners.
 
+## AAD reliability boundaries
+
+For non-trivial AAD work, the owner keeps one canonical, file-backed route ledger (normally the task package plan; an explicit sanitized external ledger when a repository package is forbidden). The owner alone updates that ledger. Each child receives its own report/progress file and may append only there; integration reads those canonical files before relying on inline harness output. If report validation is unstable, raw evidence and validation diagnostics are retained and classified as `report-invalid` rather than discarded as an opaque task failure. This is intentionally not a versioned report-schema system.
+
+Interactive `async: true` dispatch is intended to return control without an automatic blocking wait; dependent work waits for completion or `needs_attention` events. Explicit synchronous and non-interactive aggregation can wait. This is prompt-level policy: the installed Pi/pi-subagents runtime and UI ultimately determine whether input is available and whether waits are interruptible, so this repository does not claim to fix that runtime limitation.
+
+The workflow has no root-turn, child-spawn, or wall-clock budget checkpoint policy. Durable continuation/checkpoint orchestration is deliberately deferred; use the file-backed route evidence above to make ordinary continuation safer.
+
+See [pi-subagents evidence routing research](docs/pi-subagents-research.md) for the sanitized installed-source findings about async IDs, artifacts, resume, output, and session directories.
+
 ## Agent pipeline diagrams
 
 See [`docs/agent-pipelines.html`](docs/agent-pipelines.html) for Mermaid diagrams of the checked-in subagents, owner routing, optional AAD chains, and related worker loops.

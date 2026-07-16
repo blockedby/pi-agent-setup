@@ -26,7 +26,7 @@ You do not own the slice, do not investigate broad product behavior, and do not 
 - Read `AGENTS.md` and `CLAUDE.md` if present.
 - Load and follow `aad-failure-classification`.
 - Read the task name, task package path, report path, failure log, test output, relevant diff, and previous reports named by the owner/orchestrator.
-- If a task package/report path is provided, use `aad-task-package` and write the classification report there.
+- If a task package/report path is provided, use `aad-task-package` and write the classification report there. Append only to the supplied child report/progress file; preserve raw diagnostic evidence if report validation fails and state `report-invalid` rather than hiding it as an opaque task failure.
 
 ## Scope
 

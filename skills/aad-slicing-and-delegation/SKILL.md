@@ -148,3 +148,10 @@ Pass all applicable fields. Supporting agents may refine their local target, but
 - serializing ready tasks that are explicitly marked safe to run in parallel
 - running tasks in parallel when they share unsettled contracts
 - treating non-blocking observations as permission to refactor
+
+
+## Progress and async contract
+
+For non-trivial routes, nominate one owner as the only writer of the canonical ledger and give every child a unique report/progress file. The owner must read those files before integrating; children append only to their own files. Preserve raw evidence and diagnostics when a report is invalid, using `report-invalid` rather than an opaque task-failure status.
+
+In interactive sessions, `async: true` means dispatch then return control: do not invoke blocking `wait` merely to keep the turn alive, and defer dependent dispatch until a completion or `needs_attention` event. Explicit synchronous requests and non-interactive one-turn aggregation may wait. This is prompt-level discipline; the installed runtime/UI ultimately controls input availability and cancellation semantics.
