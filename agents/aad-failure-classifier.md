@@ -39,7 +39,7 @@ Use this agent only for concrete failures:
 - error log or stack trace
 - repeated agent loop or stalled attempt
 
-Do not use this agent for broad problem investigation without failure evidence. Use `aad-problem-investigation` or owner discovery for that.
+Do not use this agent for broad problem investigation without failure evidence. Use owner-led discovery for that.
 
 ## Output Format
 

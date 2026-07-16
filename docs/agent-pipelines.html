@@ -154,8 +154,7 @@
     <header>
       <h1>Pi Agent Pipelines</h1>
       <p class="lede">
-        This page documents the executable agents, owner routing model, and optional <code>pi-subagents</code> chain pipelines stored in
-        <code>agents/</code>. Diagrams are rendered with Mermaid in the browser.
+        This page documents the executable agents and owner routing model stored in <code>agents/</code>. Diagrams are rendered with Mermaid in the browser.
       </p>
     </header>
 
@@ -199,59 +198,8 @@ flowchart TD
     </section>
 
     <section>
-      <h2>AAD discovery-to-plan chain</h2>
-      <p class="note"><code>agents/aad-discovery-plan.chain.md</code> remains available for optional/manual discovery-first workflows. It is not the default routing path for owned implementation work.</p>
-      <div class="diagram">
-        <p class="caption"><code>{task}</code> is the original request. <code>{previous}</code> is the previous agent's report.</p>
-        <pre class="mermaid">
-flowchart LR
-  Task["{task}: original request"] --> Explorer["aad-explorer\nread-only discovery\nfiles, risks, verification hints"]
-  Explorer --> Previous["{previous}: discovery report"]
-  Previous --> Owner["aad-slice-owner\ndecide whole vs sliced"]
-  Owner --> PlanOnly["If implementation NOT explicit:\ncompact AAD plan + next actions"]
-  Owner --> Implement["If implementation explicit:\nproceed under AAD slice-owner rules"]
-        </pre>
-      </div>
-    </section>
-
-    <section>
-      <h2>AAD owned-change chain</h2>
-      <p class="note"><code>agents/aad-owned-change.chain.md</code> is an optional/legacy/manual end-to-end workflow. The default owned-work path is terminal routing to <code>aad-slice-owner</code> for clear single-slice work or <code>aad-root-owner</code> for multi-step/multi-slice/unclear work.</p>
-      <div class="diagram">
-        <p class="caption">Legacy/manual chain: the slice owner starts and integrates the workflow; acceptance auditor provides both an audit pass and the final done-state gate.</p>
-        <pre class="mermaid">
-flowchart TD
-  Task["{task}: requested change"] --> Owner1["aad-slice-owner\nown change end-to-end\ntask package, draft PR, implementation dispatch"]
-  Owner1 --> SliceReport["{previous}: slice report / context"]
-  SliceReport --> Audit["aad-acceptance-auditor\nacceptance audit"]
-  Audit --> Feedback["{previous}: audit feedback"]
-  Feedback --> Owner2["aad-slice-owner\nintegrate feedback\nfix current-goal issues\nrerun verification"]
-  Owner2 --> OwnerReport["final owner report\nno merge unless explicitly asked"]
-  OwnerReport --> FinalAudit["aad-acceptance-auditor\nfinal acceptance gate"]
-  FinalAudit --> Final["final acceptance verdict"]
-        </pre>
-      </div>
-    </section>
-
-    <section>
-      <h2>AAD problem-investigation chain</h2>
-      <p class="note">
-        <code>agents/aad-problem-investigation.chain.md</code> investigates a bug, failing test, suspicious behavior, or side finding before the owner decides whether it is a blocker, follow-up, false alarm, or scoped fix task.
-      </p>
-      <div class="diagram">
-        <p class="caption">Read-only support pipeline for producing a problem investigation packet. It does not implement a fix, though it may recommend a red/proving test.</p>
-        <pre class="mermaid">
-flowchart LR
-  Task["{task}: problem / failing behavior"] --> Explorer["aad-explorer\nevidence + reproduction\nrisk signals + scope"]
-  Explorer --> Auditor["aad-acceptance-auditor\nacceptance verification story\nred/proving test recommendation"]
-  Auditor --> Output["problem packet\nblocker/follow-up/false alarm\nrecommended next action"]
-        </pre>
-      </div>
-    </section>
-
-    <section>
       <h2>AAD worker loop</h2>
-      <p class="note">These are standalone agents rather than checked-in <code>.chain.md</code> pipelines, but their prompts define a common owner/orchestrator loop.</p>
+      <p class="note">The standalone agent prompts define a common owner/orchestrator loop.</p>
       <div class="diagram">
         <p class="caption">Typical implementation and failure classification flow. Acceptance remains with the root/slice owner and acceptance auditor.</p>
         <pre class="mermaid">

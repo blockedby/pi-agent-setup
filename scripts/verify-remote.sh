@@ -65,10 +65,7 @@ for required in \
   aad-acceptance-auditor.md \
   aad-implementer.md \
   aad-failure-classifier.md \
-  chrome-browser-agent.md \
-  aad-discovery-plan.chain.md \
-  aad-owned-change.chain.md \
-  aad-problem-investigation.chain.md; do
+  chrome-browser-agent.md; do
   test -f "$AGENT_DIR/agents/$required"
 done
 
@@ -78,11 +75,10 @@ for stale in \
   failure-classifier.md \
   aad-test-auditor.md \
   aad-reviewer.md \
-  quinn-validator.md \
-  aad-parallel-investigation.chain.md; do
+  quinn-validator.md; do
   for stale_dir in "$AGENT_DIR/agents" "$REMOTE_USER_HOME/.agents"; do
     if [ -e "$stale_dir/$stale" ]; then
-      echo "stale executable agent/chain still installed: $stale_dir/$stale" >&2
+      echo "stale executable agent still installed: $stale_dir/$stale" >&2
       exit 1
     fi
   done
