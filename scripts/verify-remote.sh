@@ -85,7 +85,6 @@ for stale in \
 done
 
 for required in \
-  aad-design-refinement \
   aad-failure-classification \
   aad-implementation-report \
   aad-integration \
