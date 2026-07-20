@@ -72,7 +72,7 @@ Load and apply the matching quality skill for the surface you touch, and report 
 - Use `backend-api-data-quality` when touching backend, API, storage, jobs, migrations, external integrations, or persisted data.
 - Use `frontend-ui-quality` when touching frontend components, routes, forms, styling, client data fetching, browser-visible UI states, or responsive behavior.
 - Use `devops-runtime-readiness` when touching config, environment variables, deployment manifests, containers, CI, startup, healthchecks, or runtime wiring.
-- Use `visual-composition-quality` when implementation affects public page visuals, landing pages, templates, hero sections, marketing blocks, or other product-quality UI surfaces; ask the owner for a design/composition decision if it was not delegated.
+- Use `visual-composition-quality` when implementation affects public page visuals, landing pages, templates, hero sections, marketing blocks, or other product-quality UI surfaces.
 
 These skills extend the code quality gate. They do not transfer acceptance ownership to the implementer. Put command evidence in `QUALITY_CHECKS`, non-command quality evidence in `QUALITY_NOTES`, behavior evidence in `AC_VERIFICATION`, and blockers/follow-ups in `SIDE_FINDINGS` using `aad-implementation-report`.
 
