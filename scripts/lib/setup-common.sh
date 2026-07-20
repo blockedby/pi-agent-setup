@@ -34,3 +34,11 @@ pi_setup_require_settings_file() {
     return 2
   fi
 }
+
+pi_setup_require_executable() {
+  local path="$1" label="$2"
+  if [ ! -x "$path" ]; then
+    echo "$label not found at $path; install Vite+ first or set REMOTE_USER_HOME to the home containing .vite-plus." >&2
+    return 1
+  fi
+}

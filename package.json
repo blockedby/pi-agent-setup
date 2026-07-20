@@ -28,7 +28,10 @@
     "setup:local": "bash scripts/pi-setup local install",
     "setup:remote:install": "bash scripts/pi-setup remote install",
     "setup:remote:verify": "bash scripts/pi-setup remote verify",
-    "test:pi-setup": "bash scripts/test-pi-setup.sh"
+    "test:pi-setup": "bash scripts/test-pi-setup.sh",
+    "test:setup-architecture": "bash scripts/test-setup-architecture.sh",
+    "test:setup-deployment": "bash scripts/test-setup-deployment.sh",
+    "test:config-components": "python3 scripts/test-config-components.py ."
   },
   "devEngines": {
     "runtime": {

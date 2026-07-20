@@ -37,49 +37,13 @@ home="$tmp_root/home"; mkdir -p "$home"
 if pi_setup_resolve_home "$tmp_root/missing" >"$tmp_root/out" 2>&1; then fail "missing home accepted"; fi
 HOME="$home"; export HOME
 [ "$(pi_setup_resolve_home '')" = "$home" ] || fail "HOME fallback not resolved"
-# Each remote operation transfers and sources the same helper, then invokes it.
-for remote_script in pi-setup-remote-install.sh pi-setup-remote-verify.sh pi-setup-remote-import-auth.sh; do
-  grep -Fq 'setup-common.sh' "$repo_root/scripts/lib/$remote_script" || fail "$remote_script does not transfer shared helper"
-  grep -Fq 'pi_setup_resolve_home' "$repo_root/scripts/lib/$remote_script" || fail "$remote_script does not invoke shared home resolution"
+# Each remote operation stages a payload that sources the shared home resolver.
+for payload in remote-install-payload.sh remote-verify-payload.sh remote-auth-path-payload.sh; do
+  grep -Fq 'setup-common.sh' "$repo_root/scripts/lib/$payload" || fail "$payload does not source shared helper"
+  grep -Fq 'pi_setup_resolve_home' "$repo_root/scripts/lib/$payload" || fail "$payload does not invoke shared home resolution"
 done
 
-# MCP merges preserve unrelated servers and are idempotent.
-cat > "$tmp_root/mcp-source.json" <<'JSON'
-{"mcpServers":{"example":{"command":"npx","args":["example"]}}}
-JSON
-printf '{"mcpServers":{"keep":{"command":"keep"}}}\n' > "$tmp_root/mcp.json"
-python3 "$repo_root/scripts/lib/config-json.py" merge-mcp "$tmp_root/mcp.json" "$tmp_root/mcp-source.json" test
-first="$(sha256sum "$tmp_root/mcp.json")"
-python3 "$repo_root/scripts/lib/config-json.py" merge-mcp "$tmp_root/mcp.json" "$tmp_root/mcp-source.json" test
-second="$(sha256sum "$tmp_root/mcp.json")"
-[ "$first" = "$second" ] || fail "MCP mutation is not idempotent"
-python3 - "$tmp_root/mcp.json" <<'PY'
-import json, sys
-assert set(json.load(open(sys.argv[1]))['mcpServers']) == {'keep', 'example'}
-PY
-printf '{"mcpServers":{"keep":{"command":"keep"}}}\n' > "$tmp_root/chrome-mcp.json"
-python3 "$repo_root/scripts/lib/config-json.py" browser-chrome-mcp "$tmp_root/chrome-mcp.json" /opt/chrome-mcp.sh
-first="$(sha256sum "$tmp_root/chrome-mcp.json")"
-python3 "$repo_root/scripts/lib/config-json.py" browser-chrome-mcp "$tmp_root/chrome-mcp.json" /opt/chrome-mcp.sh
-second="$(sha256sum "$tmp_root/chrome-mcp.json")"
-[ "$first" = "$second" ] || fail "Browser Chrome MCP mutation is not idempotent"
-python3 - "$tmp_root/chrome-mcp.json" <<'PY'
-import json, sys
-servers=json.load(open(sys.argv[1]))['mcpServers']
-assert set(servers) == {'keep', 'browser-chrome-headed', 'browser-chrome-headless'}
-assert servers['browser-chrome-headed']['args'] == ['headed']
-assert servers['browser-chrome-headless']['idleTimeout'] == 1
-PY
-
-# Settings mutation replaces only pi-codex and preserves unrelated data.
-printf '{"packages":["git:github.com/blockedby/pi-codex","other-package"],"keep":true}\n' > "$tmp_root/settings.json"
-printf '{"defaultProvider":"provider","defaultModel":"model","defaultThinkingLevel":"low"}\n' > "$tmp_root/desired.json"
-mkdir -p "$tmp_root/codex"
-python3 "$repo_root/scripts/lib/config-json.py" update-settings "$tmp_root/settings.json" "$tmp_root/codex" "$tmp_root/desired.json"
-python3 - "$tmp_root/settings.json" <<'PY'
-import json, sys
-value=json.load(open(sys.argv[1]))
-assert value['keep'] is True and value['packages'][1] == 'other-package'
-assert value['defaultProvider'] == 'provider'
-PY
+# Standalone Python tests cover JSON mutation and validation components.
+python3 "$repo_root/scripts/test-config-components.py" "$repo_root"
+bash "$repo_root/scripts/test-setup-architecture.sh"
 printf 'pi-setup tests passed\n'
