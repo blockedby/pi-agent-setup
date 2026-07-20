@@ -72,7 +72,9 @@ Task C: <name>
 - Executor: <aad-implementer / support-agent / sub-slice-owner if too large>
 ```
 
-`Depends on` names the earlier results this task needs. `Blocks` names the future work waiting on this task. `Can run in parallel with` names peers that planning has explicitly judged safe to overlap; list the relationship on both tasks so either packet remains understandable independently.
+`Depends on` names the earlier results this task needs.
+`Blocks` names the future work waiting on this task. 
+`Can run in parallel with` names peers that planning has explicitly judged safe to overlap; list the relationship on both tasks so either packet remains understandable independently.
 
 Before each delegation, re-evaluate these planned relationships. An item is ready when its `Depends on` items are complete. If two or more ready items explicitly list each other under `Can run in parallel with`, confirm that their shared contracts and boundaries are still settled, then dispatch them in one parallel `tasks: [...]` call. Otherwise use a single call or wait for the dependency.
 
@@ -81,7 +83,7 @@ Before each delegation, re-evaluate these planned relationships. An item is read
 - A task can run in parallel only when it does not require another task's unmerged implementation result.
 - A frontend and backend slice may run in parallel if they share a settled contract; integration must depend on both.
 - A test or CI failure fix may run in parallel with other fixes only when file ownership and root cause are independent.
-- A blocker for the current goal becomes part of the active plan, not a follow-up.
+- A blocker for the current goal becomes part of the active plan, not a follow-up; tasks sequence could be changed from re-evaluate when blocker comes-up or paused if human interaction needed.
 - Non-blocking observations become follow-up issues and should not expand the active scope.
 
 ## Routing packet
@@ -123,10 +125,10 @@ Use this packet shape and fill all applicable fields:
 ## pi-subagents options
 - mode: <use tasks: [...] when two or more ready items explicitly list each other under Can run in parallel with; otherwise use a single call>
 - concurrency: <explicit maximum for a parallel call; omit for a single call>
-- reads: <plan/report files to pass into the agent>
+- reads: <plan/report files to pass into the agent context automatically>
 - progress: <true for aad-implementer or long-running work>
 - async: <whether the whole run continues in the background; true only for long-running work with report path and completion signal>
-- worktree: <avoid for AAD implementation slices; use aad-worktree-management instead>
+- worktree: <avoid for AAD implementation slices; use aad-git-branching instead>
 ```
 
 Pass all applicable fields. Supporting agents may refine their local target, but they do not redefine routing or ownership boundaries.
@@ -162,7 +164,7 @@ Pass all applicable fields. Supporting agents may refine their local target, but
 - serializing ready tasks that are explicitly marked safe to run in parallel
 - running tasks in parallel when they share unsettled contracts
 - treating non-blocking observations as permission to refactor
-
+- using pi-subagents `worktree: true` for AAD implementation slices; use `aad-git-branching` so parent/child worktree lineage stays explicit
 
 ## Progress and async contract
 

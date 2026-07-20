@@ -41,7 +41,7 @@ You should:
 - assign one sub-slice owner per sub-slice when the child work needs its own planning, decomposition, coordination, or integration
 - call supporting agents directly when local discovery, review, or audit is useful; use `aad-slicing-and-delegation` when delegating to supporting agents
 
-If the slice is expected to continue into implementation, use `aad-worktree-management` to create or enter the worktree before design refinement or plan writing.
+If the slice is expected to continue into implementation, use `aad-git-branching` to create or enter the worktree before design refinement or plan writing.
 If the task is too unclear to define safe plan tasks, do a brief design-refinement pass first and record the settled approach, assumptions, and blocking questions in `<task-package>/plan.md` before the task breakdown.
 
 Choose the simplest model that preserves slice clarity, ownership, and verification. Keep hands-on implementation in `aad-implementer` tasks unless the user explicitly asks the slice owner to make a tiny owner-level edit.
@@ -165,7 +165,6 @@ When delegating with pi-subagents:
 - enable `progress: true` for `aad-implementer` tasks and long-running owner/delegated work
 - ask `aad-implementer` agents to mirror useful progress into `<task-package>/progress/aad-implementer-<task-id>.md`
 - keep owner progress in `<task-package>/progress/slice-owner.md` for non-trivial slices
-- avoid pi-subagents `worktree: true` for AAD implementation slices; use `aad-worktree-management` so parent/child worktree lineage stays explicit
 - decide parallelism separately from background execution: `tasks: [...]` makes selected work concurrent, while `async: true` lets the whole run continue in the background
 - use `async: true` for long-running delegated work when you can continue useful owner work; only use it when the agent has a task package, report path, and clear completion signal
 

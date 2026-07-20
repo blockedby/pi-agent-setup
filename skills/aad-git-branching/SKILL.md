@@ -11,6 +11,10 @@ Use this skill after the work is implemented and freshly verified, when the feat
 
 Determine the target branch from the PR base or explicit task context; do not assume it is `main`. Treat PR creation as the first finish milestone. After the PR exists, prepare the feature branch against `origin/<target-branch>`, decide whether regression verification must be rerun, and merge from the checkout holding the target branch only when authorized.
 
+- Default base branch for root owned work: explicit user/repository target; otherwise stop rather than guessing.
+- Default base branch for sub-slice work: the parent slice branch.
+- Default purpose: isolation for meaningful implementation work.
+
 ## Git naming and commits
 
 Follow the target repository's Git instructions when they are stricter or more specific. Otherwise, use these defaults. Do not rename existing branches or amend, squash, or otherwise rewrite existing commits merely to satisfy these conventions unless explicitly asked.
@@ -35,7 +39,7 @@ Before any fix-up `git commit`, inspect the staged state with `git status --shor
 
 If the user supplies a nonconforming branch name or commit subject, ask for confirmation or suggest a corrected conventional value before proceeding; do not silently substitute it.
 
-## Workflow
+## Feature Workflow
 
 1. Determine `<target-branch>` from the PR base or explicit task context. Use `main` only when it is actually the target.
 2. Keep the primary checkout on `<target-branch>`. In the feature worktree, confirm the current branch is not `<target-branch>`; never finish by checking `<target-branch>` out inside a feature worktree.
@@ -50,6 +54,22 @@ If the user supplies a nonconforming branch name or commit subject, ask for conf
 9. If merge is authorized, move to the checkout holding `<target-branch>` and run `gh pr merge <N> --squash`. In fork/upstream-ambiguous contexts, include `--repo owner/repo`.
 10. From that target-branch checkout, resolve [`scripts/sync-target-branch.sh`](scripts/sync-target-branch.sh) relative to this skill directory and run `bash "<resolved-skill-directory>/scripts/sync-target-branch.sh" --base "<target-branch>" --delete-worktree "<feature-worktree-path>" --delete-branch "<feature-branch>"`.
 11. Report the PR URL, target branch, rebase result, verification result, merge result, cleanup result, and any stash label used to preserve target-checkout state.
+
+## Worktree Workflow
+
+1. Use `.worktrees/` at the repository root as default. Check for project-level worktrees rules.
+2. Verify `.worktrees/` is ignored before creating a new worktree.
+3. Create the branch from the intended base branch.
+4. Create the worktree under `.worktrees/<branch-or-topic>`.
+5. Report the resulting path and branch clearly.
+
+## Worktrees for delegation
+
+For sub-slice implementation work, default to the parent slice branch/worktree as the base, not the target branch. A child sub-slice is part of the parent slice until integrated.
+
+Child sub-slice results should merge or otherwise integrate back into the parent slice worktree/branch first. The parent slice owner decides the parent done-state, resolves overlap, reruns needed verification, and prepares the parent branch/PR to the target branch.
+
+Do not send a child sub-slice directly to the target branch unless the parent explicitly promotes it to an independent root-level slice.
 
 ## Re-run regression rules
 
@@ -87,3 +107,4 @@ Resolve both paths relative to the directory containing this `SKILL.md`, not rel
 - deleting the remote branch out of habit
 - assuming the target branch is `main` without checking the PR base or task context
 - switching the feature worktree to the target branch as a finish step
+- creating a worktree without checking ignore safety
