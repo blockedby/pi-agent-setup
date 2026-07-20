@@ -23,8 +23,12 @@
   "scripts": {
     "secrets:check": "bash scripts/secrets-check.sh",
     "test:runtime-resolution": "bash scripts/test-runtime-resolution.sh",
-    "verify:remote": "bash scripts/verify-remote.sh",
-    "install:remote": "bash scripts/install-remote.sh"
+    "verify:remote": "bash scripts/pi-setup remote verify",
+    "install:remote": "bash scripts/pi-setup remote install",
+    "setup:local": "bash scripts/pi-setup local install",
+    "setup:remote:install": "bash scripts/pi-setup remote install",
+    "setup:remote:verify": "bash scripts/pi-setup remote verify",
+    "test:pi-setup": "bash scripts/test-pi-setup.sh"
   },
   "devEngines": {
     "runtime": {

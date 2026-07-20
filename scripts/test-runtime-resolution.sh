@@ -55,8 +55,8 @@ PATH="$path_bin:/usr/bin:/bin"
 rm "$npm_home/.vite-plus/bin/npm"
 [ "$(resolve_pi_setup_npm "$npm_home")" = "$path_bin/npm" ] || fail "PATH npm fallback was not used"
 
-grep -Fq 'NPM_BIN="$(resolve_pi_setup_npm "$LOCAL_USER_HOME")"' "$repo_root/scripts/update-local.sh" || fail "update-local does not use the resolver"
-grep -Fq '"$NPM_BIN" install -g --prefix "$LOCAL_USER_HOME/.local"' "$repo_root/scripts/update-local.sh" || fail "Pi local prefix changed"
+grep -Fq 'NPM_BIN="$(resolve_pi_setup_npm "$LOCAL_USER_HOME")"' "$repo_root/scripts/lib/pi-setup-local-install.sh" || fail "local implementation does not use the resolver"
+grep -Fq '"$NPM_BIN" install -g --prefix "$LOCAL_USER_HOME/.local"' "$repo_root/scripts/lib/pi-setup-local-install.sh" || fail "Pi local prefix changed"
 
 # The complete updater must create local Pi even when an executable non-local
 # PI_BIN is supplied. The npm stub handles both the global install and later ci.
@@ -90,7 +90,7 @@ chmod +x "$update_tools/npm" "$external_bin/pi"
 HOME="$update_home" LOCAL_USER_HOME="$update_home" PI_AGENT_DIR="$update_agent_dir" \
   PI_BIN="$external_bin/pi" NPM_BIN="$update_tools/npm" NPM_LOG="$npm_log" \
   PATH="$external_bin:/usr/bin:/bin" \
-  bash "$repo_root/scripts/update-local.sh" > "$tmp_root/update-local.log"
+  bash "$repo_root/scripts/pi-setup" local install > "$tmp_root/update-local.log"
 [ -x "$update_home/.local/bin/pi" ] || fail "update-local accepted non-local Pi without installing local Pi"
 grep -Fq "install -g --prefix $update_home/.local" "$npm_log" || fail "update-local did not use the local prefix"
 assert_fresh_bash interactive "$update_home"

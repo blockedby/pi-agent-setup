@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# shellcheck source=lib/setup-common.sh
+source "$repo_root/scripts/lib/setup-common.sh"
+
+usage() {
+  cat <<'USAGE'
+Usage:
+  scripts/pi-setup local install [--home <path>] [--settings <path>] [--pi-version <version>]
+  scripts/pi-setup remote install --host <host> [--home <path>] [--settings <path>] [--pi-version <version>] [--codex-version <version>]
+  scripts/pi-setup remote verify --host <host> [--home <path>]
+  scripts/pi-setup remote import-auth --host <host> --confirm [--home <path>] [--local-auth <path>] [--remote-auth <path>]
+
+Flags override the corresponding existing environment variables.
+USAGE
+}
+
+apply_options() {
+  while [ "$#" -gt 0 ]; do
+    case "$1" in
+      --host|--home|--settings|--pi-version|--codex-version|--local-auth|--remote-auth)
+        option="$1"
+        if [ "$#" -lt 2 ] || [ -z "$2" ]; then
+          echo "$option requires a value" >&2
+          usage >&2
+          exit 2
+        fi
+        case "$option" in
+          --host) TARGET_HOST="$2" ;;
+          --home) REMOTE_USER_HOME="$2"; LOCAL_USER_HOME="$2" ;;
+          --settings) PI_SETTINGS_FILE="$2" ;;
+          --pi-version) PI_VERSION="$2" ;;
+          --codex-version) CODEX_VERSION="$2" ;;
+          --local-auth) LOCAL_AUTH="$2" ;;
+          --remote-auth) REMOTE_AUTH="$2" ;;
+        esac
+        shift 2 ;;
+      --confirm) CONFIRM_COPY_PI_AUTH=1; shift ;;
+      --help|-h) usage; exit 0 ;;
+      *) echo "Unknown option: $1" >&2; usage >&2; exit 2 ;;
+    esac
+  done
+}
+
+scope="${1:-}"; action="${2:-}"
+[ -n "$scope" ] && [ -n "$action" ] || { usage >&2; exit 2; }
+shift 2
+apply_options "$@"
+case "$scope:$action" in
+  local:install)
+    pi_setup_require_settings_file "$repo_root" "${PI_SETTINGS_FILE:-settings/pi-settings.example.json}"
+    exec "$repo_root/scripts/lib/pi-setup-local-install.sh" ;;
+  remote:install)
+    pi_setup_require_value TARGET_HOST "${TARGET_HOST:-}"
+    pi_setup_require_settings_file "$repo_root" "${PI_SETTINGS_FILE:-settings/pi-settings.example.json}"
+    exec "$repo_root/scripts/lib/pi-setup-remote-install.sh" ;;
+  remote:verify)
+    pi_setup_require_value TARGET_HOST "${TARGET_HOST:-}"
+    exec "$repo_root/scripts/lib/pi-setup-remote-verify.sh" ;;
+  remote:import-auth)
+    pi_setup_require_value TARGET_HOST "${TARGET_HOST:-}"
+    [ "${CONFIRM_COPY_PI_AUTH:-}" = 1 ] || { echo 'Refusing to copy auth. Re-run with --confirm when explicitly approved.' >&2; exit 1; }
+    exec "$repo_root/scripts/lib/pi-setup-remote-import-auth.sh" ;;
+  *) usage >&2; exit 2 ;;
+esac

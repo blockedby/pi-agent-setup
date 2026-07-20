@@ -71,7 +71,7 @@ After changing this repo locally, run `scripts/update-local.sh`, then use `/relo
 /ready-notify-test
 ```
 
-For remote installs, `scripts/install-remote.sh` deploys the extension into `$REMOTE_USER_HOME/.pi/agent/extensions/`; set any `PI_READY_NOTIFY_*` variables in the remote Pi launch environment. No host-specific notification settings or secrets are stored in this repo.
+For remote installs, `scripts/pi-setup remote install --host <host>` deploys the extension into `$REMOTE_USER_HOME/.pi/agent/extensions/`; set any `PI_READY_NOTIFY_*` variables in the remote Pi launch environment. No host-specific notification settings or secrets are stored in this repo.
 
 ## AAD routing model
 
@@ -110,9 +110,33 @@ See [`docs/agent-pipelines.html`](docs/agent-pipelines.html) for Mermaid diagram
 
 For future public page visual work, landing pages, templates, hero sections, marketing blocks, or other product-quality UI surfaces, the slice owner should record a concise design/composition decision, route implementation with screenshot-first acceptance criteria, collect browser screenshots for the relevant viewports, identify the worst screenshot, and use `visual-critic` evidence before the acceptance auditor decides final status. DOM metrics, bounding boxes, and intersection checks remain supporting evidence only.
 
+## Unified setup CLI
+
+Use `scripts/pi-setup` as the canonical public entrypoint. Existing setup script names remain compatibility wrappers for environment-variable-based automation.
+
+```bash
+# local install
+scripts/pi-setup local install
+
+# remote install and verification (an explicit target is required)
+scripts/pi-setup remote install --host <host>
+scripts/pi-setup remote verify --host <host>
+
+# optional auth import requires an explicit confirmation
+scripts/pi-setup remote import-auth --host <host> --confirm
+```
+
+Flags override the matching existing environment variables: `--host` (`TARGET_HOST`), `--home` (`REMOTE_USER_HOME`; also `LOCAL_USER_HOME` for local install), `--settings` (`PI_SETTINGS_FILE`), `--pi-version` (`PI_VERSION`), `--codex-version` (`CODEX_VERSION`), `--local-auth` (`LOCAL_AUTH`), and `--remote-auth` (`REMOTE_AUTH`). The CLI never prints auth contents. `scripts/update-local.sh`, `scripts/install-remote.sh`, `scripts/verify-remote.sh`, and `scripts/import-auth-remote.sh` forward to these commands for compatibility.
+
 ## Update local Pi setup
 
-Use the local update script after changing checked-in agents or the vendored `pi-codex` submodule:
+Use the canonical local command after changing checked-in agents or the vendored `pi-codex` submodule:
+
+```bash
+scripts/pi-setup local install
+```
+
+The legacy equivalent remains available:
 
 ```bash
 scripts/update-local.sh
@@ -133,10 +157,9 @@ It installs `APPEND_SYSTEM.md` into `$HOME/.pi/agent/APPEND_SYSTEM.md`, installs
 Prerequisite: Vite+ already installed for the remote install user. The installer uses its Node/npm runtime, installs Pi with ordinary npm under `$REMOTE_USER_HOME/.local`, and continues to install Codex through Vite+. Keeping Pi outside Vite+'s hashed package directories avoids extension-loader resolution failures when an installation path contains `#`. The same managed Bash setup makes `.local/bin` precede `.vite-plus/bin` in fresh Bash login and interactive shells without replacing existing startup files. Set the target and optional paths explicitly for your environment:
 
 ```bash
-TARGET_HOST=<host> \
-REMOTE_USER_HOME=/home/<user> \
-PI_SETTINGS_FILE=settings/pi-settings.example.json \
-scripts/install-remote.sh
+scripts/pi-setup remote install --host <host> \
+  --home /home/<user> \
+  --settings settings/pi-settings.example.json
 ```
 
 The installer uses each package's npm `latest` tag by default. Check the numeric versions currently behind those tags with:
@@ -149,13 +172,11 @@ npm view @openai/codex version
 For a reproducible install, resolve those versions first and pass explicit `PI_VERSION` and `CODEX_VERSION` values. The environment variables accept either a numeric version or another npm dist-tag:
 
 ```bash
-PI_VERSION=<version> \
-CODEX_VERSION=<version> \
-TARGET_HOST=<host> \
-scripts/install-remote.sh
+scripts/pi-setup remote install --host <host> \
+  --pi-version <version> --codex-version <version>
 ```
 
-`REMOTE_USER_HOME` is optional. If it is omitted, the scripts use the remote shell's `$HOME`; they only fall back to `/root` when no usable home is available. `PI_SETTINGS_FILE` may point to an ignored local settings file such as `settings/pi-settings.local.json`.
+`REMOTE_USER_HOME` is optional. If it is omitted, the scripts use the remote shell's `$HOME`; they only fall back to `/root` when no usable home is available. `PI_SETTINGS_FILE` may point to an ignored local settings file such as `settings/pi-settings.local.json`. Legacy environment-variable invocations through `scripts/install-remote.sh` remain supported for compatibility.
 
 ## Codex login
 
@@ -173,17 +194,14 @@ Do not commit Codex auth/session files to this repo.
 Only after explicit approval. Uses the same remote home resolution as install/verify unless `REMOTE_AUTH` is set explicitly:
 
 ```bash
-CONFIRM_COPY_PI_AUTH=1 \
-TARGET_HOST=<host> \
-REMOTE_USER_HOME=/home/<user> \
-LOCAL_AUTH=$HOME/.pi/agent/auth.json \
-scripts/import-auth-remote.sh
+scripts/pi-setup remote import-auth --host <host> --confirm \
+  --home /home/<user> --local-auth "$HOME/.pi/agent/auth.json"
 ```
 
 ## Verify a remote install
 
 ```bash
-TARGET_HOST=<host> REMOTE_USER_HOME=/home/<user> scripts/verify-remote.sh
+scripts/pi-setup remote verify --host <host> --home /home/<user>
 ```
 
 The verifier checks the installed `APPEND_SYSTEM.md`, the `aad-root-owner` and `aad-slice-owner` agents, required skills, stale-agent cleanup, Pi packages, and a smoke prompt.
