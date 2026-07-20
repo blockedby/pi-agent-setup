@@ -148,11 +148,11 @@ If a report path is provided, write or update that file before returning. If no 
 
 ## Agent report defaults
 
-- `aad-explorer` → `reports/explorer-<task-id>.md`
+- `aad-explorer` → `reports/explorer/<explorer-task-slug>.md`
 - `aad-slice-owner` progress → `progress/slice-owner.md`
-- `aad-implementer` → `reports/aad-implementer-<task-id>.md`
-- `aad-implementer` progress → `progress/aad-implementer-<task-id>.md`
-- `aad-auditor` → `reports/acceptance-auditor.md` and `verification/acceptance-plan.md` when it creates or updates the acceptance plan
+- `aad-implementer` → `reports/implementer/<task-id>.md`
+- `aad-implementer` progress → `progress/implementer/<task-id>.md`
+- `aad-auditor` → `reports/auditor/<auditor-task-slug>`
 - `aad-failure-classifier` → `reports/aad-failure-classifier-<failure-id>.md`
 - `chrome-browser-agent` → `reports/browser-<scope>.md` or `verification/browser.md`; visual screenshots under `artifacts/screenshots/<scope>/<run-id>/<viewport>-<section-or-scroll>.png`
 - `visual-critic` → `reports/visual-critic-<scope>.md` when delegated separately
