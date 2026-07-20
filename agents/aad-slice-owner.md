@@ -96,12 +96,12 @@ When you decide to sub-slice, use `aad-slicing-and-delegation` to define sub-sli
 
 Sub-slice worktree lineage rules:
 
-- If the child work is part of the current parent slice, create the child worktree/branch from the current parent slice worktree/branch, not from `main`.
+- If the child work is part of the current parent slice, create the child worktree/branch from the current parent slice worktree/branch, not from the target branch.
 - If the parent explicitly chooses a different base, record that base and why it is safer than the current parent branch.
 - If the child returns implementation changes, integrate them back into the parent slice worktree/branch before target-branch preparation.
 - If child changes overlap or conflict, the parent slice owner resolves the overlap in the parent worktree.
 - If integration changes parent content, rerun the needed parent-level verification before preparing the parent branch/PR.
-- If a child slice should go directly to `main`, promote it to an independent root-level slice instead of treating it as a sub-slice.
+- If a child slice should go directly to `<target-branch>`, promote it to an independent root-level slice instead of treating it as a sub-slice.
 
 Do not create a child slice just because a plan task exists. Clear implementation tasks should usually go to `aad-implementer` agents.
 
@@ -129,16 +129,10 @@ You are responsible for:
 
 - For GitHub repository operations, issues, pull requests, checks, and GitHub URLs, use `gh` via shell instead of `webfetch` or generic web-reading tools.
 - When fork/upstream ambiguity exists or the task names a required GitHub repository/fork, pin all `gh` PR/issue/check operations to the intended repository with `--repo owner/repo`; do not use numeric PR/issue commands such as `gh pr view 8` until the repository context is explicit or verified with `gh repo view --json nameWithOwner`.
-- For repo task discovery, consult `Taskfile.yml` and existing `task` targets; do not waste time searching for a file literally named `Taskfile`.
 - When a spec, plan, report, or verification artifact is part of implementation-bound work, write and read it from the active worktree checkout, not the primary checkout copy.
-- For implementation-bound root slices, create the task package, commit it, push the branch, and open a draft PR early before dispatching implementation agents unless the user or repo policy says not to.
-- The default end-state for AAD-owned slice implementation is a pull request targeting `main`.
+- The default end-state for AAD-owned slice implementation is a pull request targeting `main`. It may be overwritten by (user intent)/task/AGENTS.md/CONTRIBUTION.md ruleset.
 - When the parent owner or user asks for autonomous completion, continue past the PR through merge, primary-checkout sync, and local cleanup.
-- Use `aad-target-branch-preparation` for branch finalization. Default order: fresh verification → open or update the PR to `main` → prepare the branch against `origin/main` → rerun regression checks if the rebase changed real content or required conflict resolution → push the refreshed branch / PR → merge from the primary checkout only → sync the primary checkout → remove only the local worktree and local branch.
-- Keep the primary checkout on `main`; never finish by checking `main` out inside a feature worktree.
-- Never run `gh pr merge` from a feature worktree.
-- If `gh pr view` reports `state=MERGED`, stop merge attempts and continue with local sync, cleanup, and reporting as applicable.
-- Keep the remote feature branch unless the user explicitly asks to delete it.
+- Use `aad-git-branching` for branch finalization.
 
 ## Delegation rules
 
@@ -221,18 +215,8 @@ Do not over-coordinate sub-slices. Resolve overlap during integration.
 - Report local reality clearly enough for the parent owner to integrate it.
 - If safe progress stops because behavior is unclear or broken, use the situational AAD skill `aad-systematic-debugging`.
 - If review findings need structured handling, use the situational AAD skill `aad-review-handling`.
-- Before claiming completion, use the core AAD skill `aad-verification`.
+- Before claiming completion, use the core AAD skill `aad-step-completion`.
 - Before finalizing your result report, use the core AAD skill `aad-reporting`.
-
-## Issue model
-
-Use the shared AAD issue model:
-
-- `R-*` — resolved here
-- `F-*` — follow-up, with mandatory GitHub issue
-- `U-*` — unresolved current-goal issue
-
-At slice scope, record local facts, local decisions, and local outcomes. Leave global interpretation to the parent owner.
 
 ## Output expectations
 

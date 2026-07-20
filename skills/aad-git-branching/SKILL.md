@@ -1,9 +1,9 @@
 ---
-name: aad-target-branch-preparation
+name: aad-git-branching
 description: Use when an AAD owner is finalizing a branch and needs a PR-first workflow for preparing, merging, and synchronizing against an explicit target branch.
 ---
 
-# AAD Target Branch Preparation
+# AAD Git Branching
 
 ## Overview
 
@@ -11,16 +11,40 @@ Use this skill after the work is implemented and freshly verified, when the feat
 
 Determine the target branch from the PR base or explicit task context; do not assume it is `main`. Treat PR creation as the first finish milestone. After the PR exists, prepare the feature branch against `origin/<target-branch>`, decide whether regression verification must be rerun, and merge from the checkout holding the target branch only when authorized.
 
+## Git naming and commits
+
+Follow the target repository's Git instructions when they are stricter or more specific. Otherwise, use these defaults. Do not rename existing branches or amend, squash, or otherwise rewrite existing commits merely to satisfy these conventions unless explicitly asked.
+
+When finalization requires creating or naming a feature, PR, or worktree branch, choose and validate this form:
+
+```text
+<type>/<short-lowercase-kebab-slug>
+```
+
+Allowed default types are `feat`, `fix`, `docs`, `chore`, `refactor`, `test`, `ci`, `build`, `perf`, `hotfix`, and `release`. Use a concise lowercase slug containing only letters, numbers, dots, and hyphens. Do not create vague or non-conventional names such as `update`, `updates`, `changes`, `work`, `wip`, `temp`, `fixes`, `agent`, or an unprefixed task name. If the correct type is unclear, stop and ask rather than inventing one.
+
+Before making any fix-up commit during rebase or conflict resolution, choose and validate a Conventional Commit subject:
+
+```text
+<type>[optional scope]: <imperative summary>
+```
+
+Allowed default types are `feat`, `fix`, `docs`, `chore`, `refactor`, `test`, `ci`, `build`, `perf`, and `revert`. Keep the summary specific, imperative, and lowercase unless a proper noun or code token requires otherwise. Reject vague subjects such as `update`, `updates`, `changes`, `fix`, `fixes`, `fix stuff`, `wip`, `misc`, or `checkpoint`.
+
+Before any fix-up `git commit`, inspect the staged state with `git status --short` and a staged diff or stat such as `git diff --cached --stat`; confirm the staged change is coherent and the subject accurately describes it. Put the validated subject in the command. Use an editor-based commit only when the user explicitly requests it.
+
+If the user supplies a nonconforming branch name or commit subject, ask for confirmation or suggest a corrected conventional value before proceeding; do not silently substitute it.
+
 ## Workflow
 
 1. Determine `<target-branch>` from the PR base or explicit task context. Use `main` only when it is actually the target.
-2. In the feature worktree, confirm the current branch is not `<target-branch>`.
+2. Keep the primary checkout on `<target-branch>`. In the feature worktree, confirm the current branch is not `<target-branch>`; never finish by checking `<target-branch>` out inside a feature worktree.
 3. Run fresh proving verification for the current branch state.
 4. Open or update the PR to `<target-branch>`. Record the PR URL, number, target branch, and intended `owner/repo`. If fork/upstream ambiguity exists, use `gh ... --repo owner/repo` for every PR/check operation rather than relying on the worktree remote or a numeric PR alone.
 5. Resolve [`scripts/prepare-target-branch.sh`](scripts/prepare-target-branch.sh) relative to the directory containing this `SKILL.md`. Keep the feature worktree as the current working directory and run `bash "<resolved-skill-directory>/scripts/prepare-target-branch.sh" --base "<target-branch>"`.
 6. Read the script output and decide the verification next step:
    - if `rerun_required=true`, run fresh regression verification now
-   - if you add new fix-up commits after rebase fallout, rerun fresh verification again after those commits
+   - if you add new fix-up commits after rebase fallout, apply the naming and commit guardrails above before committing, then rerun fresh verification again after those commits
 7. Push the refreshed branch.
 8. If `gh pr view <N> --json state` reports `state=MERGED`, skip merge and continue with local sync / cleanup reporting. In fork/upstream-ambiguous contexts, run this as `gh pr view <N> --repo owner/repo --json state`.
 9. If merge is authorized, move to the checkout holding `<target-branch>` and run `gh pr merge <N> --squash`. In fork/upstream-ambiguous contexts, include `--repo owner/repo`.

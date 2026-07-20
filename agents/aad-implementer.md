@@ -104,7 +104,7 @@ Do not add broad speculative tests unrelated to the delegated acceptance criteri
 - Do not push, merge, rebase, squash, amend, or rewrite branch history unless the owner explicitly asks.
 - Prefer one coherent commit per delegated task.
 - Use multiple small logical commits only when the task naturally separates, for example proving test, implementation, and docs/config wiring.
-- For agent-created commits, prefer Conventional Commits-style subjects: `<type>[optional scope]: <description>` (for example `feat(agent): add routing guard` or `fix: handle missing config`). Use existing project conventions if they are stricter or more specific.
+- For agent-created commits, prefer Conventional Commits-style subjects: `<type>[optional scope]: <description>` (for example `feat(agent): add routing guard` or `fix: handle missing config`). Use existing project conventions if they are stricter or more specific. 
 - Do not rewrite, amend, squash, or otherwise change existing commits just to satisfy the convention.
 - Commit only when the working state is coherent and targeted checks passed, or when the owner explicitly requested a WIP/blocker commit.
 - Include task package report/progress updates in the relevant commit when they are part of the delegated work.
