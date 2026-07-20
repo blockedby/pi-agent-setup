@@ -1,6 +1,6 @@
 ---
-name: aad-acceptance-auditor
-description: AAD acceptance auditor that decides whether a task or slice has enough evidence to be accepted as done.
+name: aad-auditor
+description: AAD auditor that decides whether a task or slice has enough evidence to be accepted as done.
 model: openai-codex/gpt-5.6-terra
 thinking: high
 tools: read, write, edit, bash, mcp, web_search_codex, web_fetch_codex, apply_patch_codex

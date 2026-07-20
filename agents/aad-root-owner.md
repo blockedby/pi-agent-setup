@@ -2,7 +2,7 @@
 name: aad-root-owner
 description: AAD root owner for non-trivial multi-step, multi-slice, unclear, or integration-heavy work.
 model: openai-codex/gpt-5.6-sol
-thinking: high
+thinking: medium
 tools: read, write, edit, bash, web_search_codex, web_fetch_codex, apply_patch_codex, subagent
 maxSubagentDepth: 4
 systemPromptMode: replace
