@@ -1,7 +1,7 @@
 {
   "parallel": {
-    "maxTasks": 6,
-    "concurrency": 3
+    "maxTasks": 10,
+    "concurrency": 5
   },
   "scheduledRuns": {
     "enabled": true
