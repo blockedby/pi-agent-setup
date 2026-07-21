@@ -7,11 +7,9 @@ description: Use when an AAD owner or supporting agent is finishing delegated wo
 
 ## Overview
 
-Use this skill when you are finishing work in Advanced Agent Development and need to leave a report that makes continuation cheap.
+Use this skill when you are finishing work and need to leave a report that makes continuation cheap and clear.
 
 The report is a continuation packet, not a diary.
-
-When a task package path is available, use `aad-task-package` and write the report to the provided report path before returning. The chat response may summarize the same report briefly.
 
 ## Use this report structure
 
@@ -27,7 +25,7 @@ When a task package path is available, use `aad-task-package` and write the repo
 - Thread: <...>
 - Slice: <...>
 - Task name: <...>
-- Task package: <docs/plans/YYYY-MM-DD-slug or not provided>
+- Task package: <task-package or not used for trivial work>
 - Report path: <path written or not provided>
 - Worktree: <...>
 - Branch: <...>

@@ -19,13 +19,7 @@ npm run secrets:check
 rg -n "<add-old-hostname>|<add-old-local-path>|BEGIN (RSA|OPENSSH)|api[_-]?key|token|cookie|chat_id|webhook" -S --glob '!node_modules/**' --glob '!packages/pi-codex/node_modules/**' .
 ```
 
-For local Pi setup checks, use the debugging loop below. Remote install/verify scripts require explicit `TARGET_HOST=<host>` and accept `REMOTE_USER_HOME=/home/<user>` and `PI_SETTINGS_FILE=settings/pi-settings.local.json`.
-
-## Visual/UI acceptance rubric
-
-For tasks that touch public page visuals, landing pages, templates, hero sections, marketing blocks, or product-quality UI surfaces, acceptance is screenshot-first. Require current screenshots for the relevant viewport set, identify the worst screenshot, and make a human-obvious-fail check before relying on technical metrics.
-
-Reject visual/UI work when screenshots show concise anti-patterns such as clipped or overlapping content, broken responsive layout, collage/debug-looking composition, generic low-premium template output, weak hierarchy/typography/spacing, or unreadable contrast. DOM metrics, bounding boxes, and intersection checks are supporting evidence only; they do not override an obvious visual failure in the screenshot.
+This repository supports local installation only. Use `PI_SETTINGS_FILE=settings/pi-settings.local.json` for ignored machine-specific settings, then follow the debugging loop below.
 
 ## Local Pi setup debugging
 
@@ -68,7 +62,8 @@ Useful loop:
 5. Smoke-test Pi startup/resource loading with a tiny prompt:
 
    ```bash
-   timeout 120 "$HOME/.vite-plus/bin/pi" --no-session --mode text -p 'Say OK and exit.' 2>&1 | tail -n 80
+   PI_BIN="$(command -v pi)"
+   timeout 120 "$PI_BIN" --no-session --mode text -p 'Say OK and exit.' 2>&1 | tail -n 80
    ```
 
    A clean run should end with `OK` and no skill/extension load errors. This is the quick check that caught the `aad-implementation-report` frontmatter issue and the missing `@mozilla/readability` dependency in the local `pi-codex` submodule.

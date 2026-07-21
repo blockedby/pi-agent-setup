@@ -1,41 +1,61 @@
 ---
 name: aad-plan-writing
-description: Use when an AAD owner needs a repo-local, acceptance-driven implementation plan that follows the ownership model directly without external workflow choreography.
+description: Use for every AAD-owned job to locate or create one entrypoint-independent plan, define task dependencies and agent order, route plan context, maintain execution state, and audit done-state.
 ---
 
 # AAD Plan Writing
 
 ## Overview
 
-Use this skill when the design is settled enough to define execution.
+Use this skill for every AAD-owned job. If the design is not settled enough to define execution, record the blocking questions and use narrow discovery or design refinement to settle them before implementation delegation.
 
-The plan should help an owner or slice owner execute directly. Supporting agents remain optional and should appear only where they make continuation cheaper.
-
-A good AAD plan is operational: it states what will change, what will prove each change, and how the work should be ordered.
 
 ## Workflow
 
-1. Read the approved requirements, design notes, and local repo guidance.
-2. Normalize the task:
+1. Locate the supplied or repo-local task package and `<task-package>/plan.md`.
+   - If a plan exists, read it and preserve its settled scope, task IDs, evidence, agent order, and history.
+   - If no plan exists, use `aad-task-package` to create the task package and become the initial plan coordinator.
+2. Read the approved requirements, design notes, and local repo guidance.
+3. Normalize the task:
    - goal
    - in-scope behavior
    - out-of-scope boundaries
    - done-state
    - known constraints and blocking unknowns
-3. Identify the files, components, services, data models, APIs, tests, or docs likely to change.
-4. Identify existing patterns or reusable implementations the plan should follow.
-5. Define the ownership model:
-   - stays whole under one owner
+4. Identify the files, components, services, data models, APIs, tests, or docs likely to change.
+5. Identify existing patterns or reusable implementations the plan should follow.
+6. Define the ownership model:
+   - stays whole under the current owner
    - or splits into named slices with clear boundaries
-6. Use `aad-task-package` to create or update the task package under `docs/plans/YYYY-MM-DD-<task-slug>/`.
-7. Write the execution plan to `<task-package>/plan.md` with:
+7. Write or update `<task-package>/plan.md` with:
+   - active plan coordinator
    - goal
    - scope and do-not-touch boundaries
    - task boundaries based on independently verifiable behavior
    - acceptance criteria and test plan per task
-   - dependencies and optional delegation points only where they are genuinely cheaper
+   - task dependencies
+   - agent order, their delegation role
    - report paths for delegated agents
-8. Keep the plan compact, directly executable, and current as the task execution ledger.
+8. Check plan readiness before delegation: every task has a goal, acceptance criteria, evidence route, test plan, dependencies, executor, agent-order entry, plan context to pass, report path, and do-not-touch boundaries where relevant.
+9. Execute only ready work in the recorded agent order and update task status, evidence, blockers, follow-ups, deviations, and future order after every routed result.
+10. Before done-state, audit every task and acceptance criterion against fresh evidence and write the plan scorecard.
+
+## Mandatory planning lifecycle
+
+Every root or slice owner must:
+
+1. **Locate** — check for the task package and existing plan before writing a new one.
+2. **Plan** — create `<task-package>/plan.md` only when it is absent; otherwise continue the existing plan.
+3. **Gate** — stop implementation dispatch until the plan is complete enough to execute and verify.
+4. **Order** — record which agent acts first, which agents depend on earlier results, which may overlap, and what plan context each receives.
+5. **Route** — pass the whole plan or the exact assigned section plus every referenced dependency and contract field.
+6. **Update** — the active plan coordinator records child results, task status, evidence, blockers, deviations, and any changed order before subsequent routing.
+7. **Audit** — compare the integrated result with every task and acceptance criterion.
+8. **Score** — write the plan scorecard before any unqualified completion claim.
+
+The first owner called is the initial plan coordinator when no plan exists. An owner receiving an existing plan does not replace it. Delegated children write their assigned report/progress files; they edit the plan only after an explicit coordination transfer recorded in the plan.
+
+A small job may use one compact plan task. It may not omit the plan, acceptance criteria, evidence route, agent order when delegation occurs, or final scorecard once an AAD owner is executing the job.
 
 ## Task sizing
 
@@ -81,6 +101,33 @@ A slice is the ownership boundary. A plan task is the execution unit inside that
 The parent slice owner remains responsible for the slice result even when tasks are delegated. Plan tasks do not create new ownership by default.
 
 Use an aad-implementer agent for a delegated plan task when the task is already clear enough to execute. Escalate a task to a child slice owner only when it needs its own planning, decomposition, coordination, or integration.
+
+## Agent order
+
+Every plan that delegates work must contain an `Agent order` section. This is a task-specific dispatch graph, not a fixed reusable sequence. Derive it from task dependencies and update it when evidence changes the route.
+
+Use one entry per owner, implementer, or supporting-agent call:
+
+```md
+## Agent order
+
+### O1: <purpose>
+- Agent: <aad-root-owner / aad-slice-owner / aad-implementer / supporting agent / owner action>
+- Plan scope: <whole plan / slice name / task IDs / named sections>
+- Starts after: <none / order IDs / external decision>
+- Enables: <order IDs / done-state decision>
+- Can run with: <none / order IDs>
+- Receives: <whole plan or exact sections plus referenced dependencies>
+- Returns to: <active plan coordinator / report path / next agent>
+- Status: <pending / ready / running / done / blocked / skipped>
+```
+
+Order entries state consequence: an agent is ready only when every `Starts after` condition is satisfied. `Can run with` records safe concurrency but does not override dependencies. Before dispatch, the coordinator checks the current order, then passes:
+
+- the whole plan when the child owns a broad slice, must integrate multiple tasks, or needs the complete decision history;
+- the exact task/slice sections when the child has a narrow assignment, together with all referenced dependencies, acceptance criteria, evidence routes, constraints, and output paths.
+
+If execution reveals a new prerequisite, different executor, or changed sequence, update the plan before dispatching under the new order. Do not rely on caller memory or chat-only ordering.
 
 ## Task format
 
@@ -136,13 +183,48 @@ Dependencies:
 
 Executor:
 - <aad-implementer / browser-agent / aad-failure-classifier / child slice owner if too large>
+- Agent order entry: <O1 / O2 / ...>
+- Plan context to pass: <whole plan / exact task and named supporting sections>
+
+Routed files:
+- Report path: <task-package>/reports/<agent-or-task>.md
+- Progress path: <task-package>/progress/<agent-or-task>.md or not needed
+
+Execution status:
+- Status: <pending / ready / running / done / blocked / follow-up>
+- Evidence: <not run / exact test, check, artifact, or report reference>
+- Deviation: <none / recorded scope, acceptance, dependency, executor, or verification change>
 ```
 
 No meaningful plan task should omit acceptance criteria or a verification plan. If a criterion cannot be automated, state the manual evidence expected.
 
+## Plan audit and scorecard
+
+Before an owner claims done-state, append or update:
+
+```md
+## Plan scorecard
+- Plan tasks completed: <completed>/<total>
+- Acceptance criteria satisfied: <satisfied>/<total>
+- Evidence routes passed: <passed>/<total>
+- Deviations resolved or explicitly accepted: <resolved>/<total>
+- Open blockers: <count>
+- Final plan result: <pass / partial / fail / blocked>
+```
+
+Each total must link to the corresponding plan task, criterion, evidence, or deviation entry. A `partial`, `fail`, or `blocked` result, uncovered criterion, missing evidence route, or unresolved blocker prevents an unqualified completion claim.
+
 ## Plan rules
 
 - Use `aad-task-package` for all durable plan/report/verification artifacts.
+- Check for and read `<task-package>/plan.md` before implementation delegation for every AAD-owned job; create it only when absent.
+- Keep one active plan coordinator and record any coordination transfer before a different owner edits the plan.
+- Do not dispatch implementation while required plan fields are missing, contradictory, or unverifiable.
+- Record every delegated call in `Agent order`, including prerequisites, safe concurrency, plan context, and return path.
+- Follow ready plan tasks and order entries instead of inventing unrecorded work during execution.
+- Pass the whole plan or a self-contained assigned section to every child; never pass an isolated task that omits referenced dependencies or constraints.
+- Update the plan after every routed result and before acting on a changed scope, acceptance criterion, dependency, executor, agent order, or verification route.
+- Audit and score the completed work against the plan before done-state.
 - Prefer one owner carrying the work when one owner can do it cheaply.
 - Do not inject mandatory review loops or external workflow skills.
 - Make verification explicit for each meaningful checkpoint.
@@ -157,6 +239,13 @@ No meaningful plan task should omit acceptance criteria or a verification plan. 
 
 ## Common mistakes
 
+- treating planning as optional because the requested change looks small
+- creating a second plan because a different owner was called later
+- leaving agent order implicit in chat or caller memory
+- passing a child an isolated plan fragment without its referenced dependencies and constraints
+- delegating implementation before the plan-readiness gate passes
+- following child output instead of updating and following the plan
+- claiming done without auditing and scoring the plan
 - turning the plan into generic advice
 - forcing delegation where direct execution is cheaper
 - leaving verification implicit

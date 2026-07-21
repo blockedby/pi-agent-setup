@@ -1,7 +1,7 @@
 ---
 name: chrome-browser-agent
 description: Browser automation agent using browser-chrome skill and Chrome DevTools MCP; chooses disposable headless for simple/parallel checks and headed persistent Chrome only for authenticated/profile tasks.
-model: openai-codex/gpt-5.5
+model: openai-codex/gpt-5.6-terra
 thinking: medium
 tools: read, write, bash, mcp
 skills: browser-chrome,aad-task-package,browser-visual-report

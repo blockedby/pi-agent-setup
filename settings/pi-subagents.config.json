@@ -1,4 +1,11 @@
 {
+  "parallel": {
+    "maxTasks": 10,
+    "concurrency": 5
+  },
+  "scheduledRuns": {
+    "enabled": true
+  },
   "control": {
     "enabled": true,
     "needsAttentionAfterMs": 180000,

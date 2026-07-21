@@ -2,18 +2,37 @@
   "name": "pi-agent-setup",
   "private": true,
   "version": "0.1.0",
-  "description": "Public non-secret bootstrap for a Pi/Codex AAD agent stack.",
-  "keywords": ["pi-package", "agentic-workflow", "codex", "aad"],
+  "description": "Public, non-secret local setup for a personal Pi/Codex AAD workflow.",
+  "keywords": [
+    "pi-package",
+    "agentic-workflow",
+    "codex",
+    "aad"
+  ],
   "pi": {
-    "extensions": ["./extensions/ready-notify.ts"],
-    "skills": ["./skills"]
+    "extensions": [
+      "./extensions/ready-notify.ts"
+    ],
+    "skills": [
+      "./skills"
+    ]
   },
   "dependencies": {
-    "pi-subagents": "github:blockedby/pi-subagents"
+    "pi-subagents": "^0.34.0"
   },
   "scripts": {
-    "secrets:check": "bash scripts/secrets-check.sh",
-    "verify:remote": "bash scripts/verify-remote.sh",
-    "install:remote": "bash scripts/install-remote.sh"
+    "setup:local": "bash scripts/update-local.sh",
+    "test": "npm run test:config && npm run test:local-assets && npm run test:runtime-resolution",
+    "test:config": "python3 scripts/test-config-components.py .",
+    "test:local-assets": "bash scripts/test-local-assets.sh",
+    "test:runtime-resolution": "bash scripts/test-runtime-resolution.sh",
+    "secrets:check": "bash scripts/secrets-check.sh"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "24.18.0",
+      "onFail": "download"
+    }
   }
 }
