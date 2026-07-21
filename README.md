@@ -1,8 +1,8 @@
 # Pi Agent Setup
 
-This repository contains the local, public-safe setup I use for a Pi/Codex coding workflow. It keeps agent prompts, reusable skills, browser tooling, configuration, and verification in one inspectable place.
+This repository contains the local setup I use for a Pi/Codex coding workflow. It keeps agent prompts, reusable skills, browser tooling, configuration, and verification in one inspectable place.
 
-It is personal workflow infrastructure—not a universal installer, hosted service, or fully autonomous development system. The setup is intentionally **local-only**. It does not deploy to or copy authentication into remote machines.
+It is personal workflow infrastructure—not a universal installer, hosted service, or fully autonomous development system. 
 
 ## What is included
 
@@ -144,14 +144,9 @@ Never commit credentials, tokens, cookies, auth files, browser profiles, private
 
 Keep machine-specific values in ignored files such as:
 
-- `.env` or `.env.local`;
 - `settings/*.local.json`;
 - shell profile exports.
-
-See [docs/secrets.md](docs/secrets.md) and [docs/public-readiness.md](docs/public-readiness.md) for the repository checks.
 
 ## Additional documentation
 
 - [Agent pipeline overview](docs/agent-pipelines.html)
-- [Public-readiness checklist](docs/public-readiness.md)
-- [Secret boundary](docs/secrets.md)
