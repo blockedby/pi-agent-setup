@@ -1,5 +1,5 @@
 ---
-name: agent-pipeline-feedback
+name: aad-workflow-feedback
 description: Use when an agent has concrete, reusable feedback about agent-pipeline friction after completing a task and needs to leave a concise, non-blocking note for setup/prompt/skill/tool improvement.
 ---
 
