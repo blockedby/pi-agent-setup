@@ -1,8 +1,8 @@
-# Pi Agent Setup Guidance
+# Pi/OpenCode Agent Setup Guidance
 
 ## Public-safety rules
 
-This repository is intended to be public, non-secret evidence of a disciplined Pi/Codex/AAD agent stack. Keep public-facing material English, professional, and honest: describe it as personal workflow infrastructure, not a universal product or fully autonomous system.
+This repository is intended to be public, non-secret evidence of a disciplined Pi/Codex/OpenCode/AAD agent stack. Keep public-facing material English, professional, and honest: describe it as personal workflow infrastructure, not a universal product or fully autonomous system.
 
 Never commit secrets, raw logs, credentials, tokens, cookies, chat IDs, private URLs, browser profiles, sessions, or machine inventory. Use placeholders such as `$HOME`, `<repo>`, `<host>`, `<remote>`, `/home/<user>`, environment variables, or ignored local config files. Machine-specific settings belong in `.env*` or `settings/*.local.json`, not public docs.
 
@@ -15,11 +15,12 @@ Public-readiness changes should run, when feasible:
 ```bash
 git status --short
 git diff --check
+npm test
 npm run secrets:check
 rg -n "<add-old-hostname>|<add-old-local-path>|BEGIN (RSA|OPENSSH)|api[_-]?key|token|cookie|chat_id|webhook" -S --glob '!node_modules/**' --glob '!packages/pi-codex/node_modules/**' .
 ```
 
-This repository supports local installation only. Use `PI_SETTINGS_FILE=settings/pi-settings.local.json` for ignored machine-specific settings, then follow the debugging loop below.
+This repository supports local Pi installation and a git-backed OpenCode compatibility plugin. Use `PI_SETTINGS_FILE=settings/pi-settings.local.json` for ignored machine-specific Pi settings, then follow the debugging loop below.
 
 ## Local Pi setup debugging
 
@@ -67,6 +68,14 @@ Useful loop:
    ```
 
    A clean run should end with `OK` and no skill/extension load errors. This check catches malformed skill frontmatter and missing runtime dependencies in the local `pi-codex` submodule.
+
+## OpenCode adapter policy
+
+Keep `agents/` and `skills/` as the canonical sources. OpenCode compatibility belongs in `.opencode/plugins/pi-agent-setup.js` and deterministic tests, not in hand-maintained duplicate agent or skill trees.
+
+The adapter may translate runtime-specific frontmatter, permissions, discovery paths, and tool names. It must preserve explicit user OpenCode overrides, must not silently install browser profiles or MCP servers, and must keep read-only agent restrictions enforceable through OpenCode permissions.
+
+Run `npm run test:opencode` after changing agent frontmatter, skill naming, delegation relationships, or the OpenCode plugin.
 
 ## Local pi-codex dependency policy
 

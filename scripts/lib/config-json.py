@@ -88,9 +88,16 @@ def install_browser_mcp(target: Path, browser_command: str, control_command: str
 
 
 def verify_package(package_json: Path) -> None:
-    extensions = load(package_json).get("pi", {}).get("extensions", [])
+    package = load(package_json)
+    extensions = package.get("pi", {}).get("extensions", [])
     if "./extensions/ready-notify.ts" not in extensions:
         raise SystemExit("package.json does not declare ready-notify.ts")
+    if package.get("type") != "module":
+        raise SystemExit("package.json must use ESM for the OpenCode plugin")
+    if package.get("main") != "./.opencode/plugins/pi-agent-setup.js":
+        raise SystemExit("package.json does not declare the OpenCode plugin entrypoint")
+    if package.get("scripts", {}).get("test:opencode") != "node scripts/test-opencode-adapter.mjs":
+        raise SystemExit("package.json does not declare the OpenCode adapter test")
 
 
 def verify_subagents(config_path: Path) -> None:

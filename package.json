@@ -2,11 +2,14 @@
   "name": "pi-agent-setup",
   "private": true,
   "version": "0.1.0",
-  "description": "Public, non-secret local setup for a personal Pi/Codex AAD workflow.",
+  "description": "Public, non-secret local setup for a personal Pi/Codex/OpenCode AAD workflow.",
+  "type": "module",
+  "main": "./.opencode/plugins/pi-agent-setup.js",
   "keywords": [
     "pi-package",
     "agentic-workflow",
     "codex",
+    "opencode",
     "aad"
   ],
   "pi": {
@@ -22,10 +25,11 @@
   },
   "scripts": {
     "setup:local": "bash scripts/update-local.sh",
-    "test": "npm run test:config && npm run test:local-assets && npm run test:runtime-resolution",
+    "test": "npm run test:config && npm run test:local-assets && npm run test:runtime-resolution && npm run test:opencode",
     "test:config": "python3 scripts/test-config-components.py .",
     "test:local-assets": "bash scripts/test-local-assets.sh",
     "test:runtime-resolution": "bash scripts/test-runtime-resolution.sh",
+    "test:opencode": "node scripts/test-opencode-adapter.mjs",
     "secrets:check": "bash scripts/secrets-check.sh"
   },
   "devEngines": {
