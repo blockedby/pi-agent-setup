@@ -1,5 +1,5 @@
 ---
-name: aad-slicing-and-delegation
+name: aad-delegation
 description: Use when an AAD delegate to supporting agents while preserving ownership, dependencies, and routing context.
 ---
 

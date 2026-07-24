@@ -66,7 +66,7 @@ Useful loop:
    timeout 120 "$PI_BIN" --no-session --mode text -p 'Say OK and exit.' 2>&1 | tail -n 80
    ```
 
-   A clean run should end with `OK` and no skill/extension load errors. This is the quick check that caught the `aad-implementation-report` frontmatter issue and the missing `@mozilla/readability` dependency in the local `pi-codex` submodule.
+   A clean run should end with `OK` and no skill/extension load errors. This check catches malformed skill frontmatter and missing runtime dependencies in the local `pi-codex` submodule.
 
 ## Local pi-codex dependency policy
 

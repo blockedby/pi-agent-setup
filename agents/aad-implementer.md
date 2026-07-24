@@ -65,7 +65,7 @@ Produce boring, readable, maintainable code that matches the local style.
 
 ## Specialized implementation quality skills
 
-Load and apply the matching quality skill for the surface you touch, and report the evidence through `aad-implementation-report` rather than inventing a new report format:
+Load and apply the matching quality skill for the surface you touch, and record the evidence in the provided implementation report rather than inventing a new report format:
 
 - Use `aad-quality-backend` when touching backend, API, storage, jobs, migrations, external integrations, or persisted data.
 - Use `aad-quality-frontend` when touching frontend components, routes, forms, styling, client data fetching, and/or `aad-quality-composition` when implementation affects public page visuals, UI or layout.

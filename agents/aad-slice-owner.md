@@ -37,9 +37,9 @@ You should:
 - keep the slice as one owned stream while coordinating its execution
 - use `aad-task-package` and `aad-plan-writing` when a concrete plan is needed; create the task package in the active worktree and write the plan to `<task-package>/plan.md`
 - delegate implementation plan tasks to `aad-implementer` agents
-- decompose oversized plan tasks into sub-slices; use `aad-slicing-and-delegation` when creating sub-slices
+- decompose oversized plan tasks into sub-slices; use `aad-delegation` when creating sub-slices
 - assign one sub-slice owner per sub-slice when the child work needs its own planning, decomposition, coordination, or integration
-- call supporting agents directly when local discovery, review, or audit is useful; use `aad-slicing-and-delegation` when delegating to supporting agents
+- call supporting agents directly when local discovery, review, or audit is useful; use `aad-delegation` when delegating to supporting agents
 
 If the slice is expected to continue into implementation, use `aad-git-branching` to create or enter the worktree before design refinement or plan writing.
 If the task is too unclear to define safe plan tasks, do a brief design-refinement pass first and record the settled approach, assumptions, and blocking questions in `<task-package>/plan.md` before the task breakdown.
@@ -92,7 +92,7 @@ Typical signals:
 - one owner would otherwise hold too many unrelated decisions at once
 - a plan task is no longer clear execution work and needs its own planning or integration loop
 
-When you decide to sub-slice, use `aad-slicing-and-delegation` to define sub-slice boundaries and pass the correct owner context.
+When you decide to sub-slice, use `aad-delegation` to define sub-slice boundaries and pass the correct owner context.
 
 Sub-slice worktree lineage rules:
 
@@ -119,7 +119,7 @@ You are responsible for:
 - creating sub-slices when needed
 - passing sufficient routing and task context downward
 - collecting reports upward
-- integrating `aad-implementer`, sub-slice, and supporting-agent results into the slice outcome; use `aad-integration` when integrating child results
+- integrating `aad-implementer`, sub-slice, and supporting-agent results into the slice outcome and resolving child-result overlaps in the parent worktree
 - treating child `PI_RESULT: HANDOFF` as actionable parent work, not failure: when authorized and available, run the bounded `PARENT_ACTION_REQUIRED` live apply/verification action, collect the expected evidence, and integrate that evidence into the slice done-state; when not authorized or available, report the handoff action and evidence needed as the remaining boundary
 - classifying issues discovered during execution as current-goal blockers to resolve now, non-blocking follow-ups that need GitHub issues, or unresolved blockers that prevent safe completion
 - dispatching `aad-acceptance-auditor` for acceptance/system-readiness audit when verification evidence should be independently checked
@@ -145,7 +145,7 @@ If you delegate work:
 - delegate narrow supporting work to supporting agents
 - treat reports as continuation packets, not loose summaries
 
-Use `aad-slicing-and-delegation` whenever you create a sub-slice or call a supporting agent.
+Use `aad-delegation` whenever you create a sub-slice or call a supporting agent.
 
 `aad-implementer` agents execute plan tasks; they do not own slice context.
 Supporting agents do not own slice context.
@@ -154,7 +154,7 @@ You own the parent slice context.
 
 ## Routing requirements
 
-Use `aad-slicing-and-delegation` to build the routing packet for every delegated task. The packet should carry ownership context, task package paths, plan task goal, acceptance criteria, test plan, dependencies, reuse targets, do-not-touch boundaries, and expected output format.
+Use `aad-delegation` to build the routing packet for every delegated task. The packet should carry ownership context, task package paths, plan task goal, acceptance criteria, test plan, dependencies, reuse targets, do-not-touch boundaries, and expected output format.
 
 When delegating with pi-subagents:
 
@@ -171,7 +171,7 @@ When delegating with pi-subagents:
 Context flows downward with delegation.
 Results flow upward with reports. When a child report returns `HANDOFF`, read its `PARENT_ACTION_REQUIRED` section before deciding done-state; run the bounded parent-side action yourself only when credentials/access/device/local context are authorized and available, then record the resulting evidence in the parent plan/report.
 
-Use `aad-slicing-and-delegation` to package and pass routing context correctly.
+Use `aad-delegation` to package and pass routing context correctly.
 
 ## Supporting-agent use
 
@@ -212,8 +212,8 @@ Do not over-coordinate sub-slices. Resolve overlap during integration.
 - Use follow-up only when future work should be explicitly tracked.
 - Treat unresolved goal state as exceptional.
 - Report local reality clearly enough for the parent owner to integrate it.
-- If safe progress stops because behavior is unclear or broken, use the situational AAD skill `aad-systematic-debugging`.
-- If review findings need structured handling, use the situational AAD skill `aad-review-handling`.
+- If safe progress stops because behavior is unclear or broken, investigate it systematically and record the evidence, attempted fixes, and remaining blocker.
+- Handle review findings explicitly: verify each finding, fix accepted issues within scope, and record rejected or deferred findings with reasons.
 - Before claiming completion, use the core AAD skill `aad-step-completion`.
 - Before finalizing your result report, use the core AAD skill `aad-reporting`.
 

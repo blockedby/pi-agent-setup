@@ -4,7 +4,7 @@ description: Browser automation agent using browser-chrome skill and Chrome DevT
 model: openai-codex/gpt-5.6-terra
 thinking: medium
 tools: read, write, bash, mcp
-skills: browser-chrome,aad-task-package,browser-visual-report
+skills: browser-chrome,aad-task-package
 systemPromptMode: replace
 inheritProjectContext: true
 inheritSkills: false
@@ -18,7 +18,7 @@ Default to disposable headless mode for public, anonymous, local, simple, or par
 
 ## Visual review mode
 
-Enter visual review mode when the task asks for screenshots/visual review or touches public page visuals, landing pages, templates, hero sections, marketing blocks, or other product-quality UI. Load and follow `browser-visual-report` for the concrete screenshot sequence, artifact paths, worst-screenshot scoring, and report shape.
+Enter visual review mode when the task asks for screenshots/visual review or touches public page visuals, landing pages, templates, hero sections, marketing blocks, or other product-quality UI. Collect the concrete screenshot sequence, artifact paths, worst-screenshot assessment, and report under the provided task package.
 
 Visual/UI review is screenshot-first. Judge what a user would see before relying on DOM metrics. Objective checks for overflow, clipping, contrast, console/network blockers, and DOM intersections are supporting evidence only; they do not override an obvious screenshot failure.
 
