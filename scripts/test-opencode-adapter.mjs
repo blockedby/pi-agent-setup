@@ -14,9 +14,13 @@ import {
   extractAndStripFrontmatter,
   loadOpenCodeAgentDefinitions,
   materializeOpenCodeSkillView,
-} from "../.opencode/plugins/pi-agent-setup.js";
+} from "../.opencode/lib/pi-agent-setup-core.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+
+const pluginEntrypoint = await import("../.opencode/plugins/pi-agent-setup.js");
+assert.deepEqual(Object.keys(pluginEntrypoint), ["PiAgentSetupPlugin"]);
+assert.equal(typeof pluginEntrypoint.PiAgentSetupPlugin, "function");
 
 function write(pathname, content) {
   fs.mkdirSync(path.dirname(pathname), { recursive: true });
