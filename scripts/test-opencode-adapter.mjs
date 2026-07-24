@@ -47,7 +47,7 @@ function makeFixture() {
   );
   write(
     path.join(root, "agents/aad-explorer.md"),
-    agentSource("aad-explorer", "read, write, edit, bash, web_fetch_codex"),
+    agentSource("aad-explorer", "read, write, edit, bash, ls, web_fetch_codex"),
   );
   write(
     path.join(root, "agents/aad-auditor.md"),
@@ -101,6 +101,7 @@ try {
   assert.equal(definitions["aad-implementer"].permission.task, "deny");
   assert.equal(definitions["aad-explorer"].permission.edit, "deny");
   assert.equal(definitions["aad-explorer"].permission.bash, "ask");
+  assert.equal(definitions["aad-explorer"].permission.glob, "allow");
   assert.equal(definitions["aad-auditor"].permission.edit, "deny");
   assert.equal(definitions["chrome-browser-agent"].permission["browser-chrome-*"], "allow");
   assert.match(definitions["chrome-browser-agent"].prompt, /Declared skills/);

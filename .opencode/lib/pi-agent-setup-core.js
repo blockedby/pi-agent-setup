@@ -26,7 +26,7 @@ const PI_TOOL_TO_PERMISSION = {
   bash: "bash",
   grep: "grep",
   find: "glob",
-  ls: "list",
+  ls: "glob",
   web_search_codex: "websearch",
   web_fetch_codex: "webfetch",
   subagent: "task",
@@ -100,7 +100,7 @@ This agent prompt is shared with Pi. Resolve runtime actions through OpenCode as
 - Pi-only \`subagent\` fields such as \`tasks\`, \`concurrency\`, \`async\`, \`reads\`, and \`progress\` express intent, not an OpenCode tool schema. Use separate \`task\` calls for independent work, and pass durable context through repository files or task-package artifacts.
 - Load reusable instructions with OpenCode's native \`skill\` tool.
 - Track todos with \`todowrite\` when useful.
-- Map Pi tools to OpenCode tools: \`web_search_codex\` → \`websearch\`, \`web_fetch_codex\` → \`webfetch\`, \`apply_patch_codex\`/\`write\`/\`edit\` → OpenCode file editing, \`find\` → \`glob\`, and \`ls\` → \`list\`.
+- Map Pi tools to OpenCode tools: \`web_search_codex\` → \`websearch\`, \`web_fetch_codex\` → \`webfetch\`, \`apply_patch_codex\`/\`write\`/\`edit\` → OpenCode file editing, \`find\`/\`ls\` → \`glob\`.
 - Preserve existing \`PI_RESULT\` status labels as a compatibility protocol; they are report text, not tool calls.
 - Never invent Pi-only arguments when calling an OpenCode tool. Follow the live OpenCode tool schema.
 `;

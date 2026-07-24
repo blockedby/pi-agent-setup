@@ -99,7 +99,7 @@ PI_SETTINGS_FILE=settings/pi-settings.local.json scripts/update-local.sh
 
 ## OpenCode compatibility
 
-Add the git-backed plugin to a global or project-level `opencode.json`:
+The compatibility adapter targets OpenCode 1.18.2 or newer. Add the git-backed plugin to a global or project-level `opencode.json`:
 
 ```json
 {

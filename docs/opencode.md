@@ -6,6 +6,8 @@ The adapter follows the same general pattern as `obra/superpowers`: keep one sou
 
 ## Install
 
+The adapter targets OpenCode 1.18.2 or newer because the nested AAD hierarchy relies on configurable `subagent_depth`.
+
 Add the git-backed package to a global or project-level `opencode.json`:
 
 ```json
@@ -86,7 +88,7 @@ The shared prompts still describe parts of the Pi execution protocol. The OpenCo
 | skill invocation | native `skill` tool |
 | `web_search_codex` / `web_fetch_codex` | `websearch` / `webfetch` |
 | `apply_patch_codex`, `write`, `edit` | OpenCode file-editing tools governed by `permission.edit` |
-| `find`, `ls` | `glob`, `list` |
+| `find`, `ls` | `glob` |
 
 `PI_RESULT` remains a text protocol in reports. It is not treated as a runtime-specific tool call.
 
