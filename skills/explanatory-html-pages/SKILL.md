@@ -1,163 +1,62 @@
 ---
 name: explanatory-html-pages
-description: Create polished, self-contained HTML explanation pages that teach technical concepts with plain-language definitions, architecture graphs, process diagrams, comparisons, responsive editorial layouts, print styles, and code-and-logic validation. Use when the user asks for an explanatory or “explanationary” HTML page, visual guide, concept map, architecture explainer, system walkthrough, or printable technical teaching page.
+description: Create self-contained HTML pages that explain technical concepts with plain language, evidence-backed diagrams, responsive editorial layouts, and code-and-logic validation. Use for explanatory or “explanationary” pages, visual guides, architecture explainers, concept maps, system walkthroughs, or printable teaching pages.
 ---
 
 # Explanatory HTML Pages
 
-Create an HTML page that helps a reader understand a concept, not merely admire a layout. Turn source evidence into a clear teaching sequence, then render and refine the actual page.
+Create a page that helps a reader understand a concept. Favor clarity and source accuracy over decoration. Use the user's request and the surrounding project as the main specification; the defaults below are guidance, not a fixed page recipe.
 
-Use `assets/explanatory-page-template.html` as a structural reference or starting point. Resolve this path relative to this skill directory. Adapt it to the subject; do not ship its placeholders or force every topic into the same layout.
+## 1. Start from evidence
 
-## Default outcome
+Inspect the relevant source, documentation, or user-provided material before drawing the system. Determine:
 
-Unless the project or user asks for something else, produce:
+- what the reader is trying to understand;
+- the actors, actions, sequence, and boundaries that matter;
+- which claims are supported and which remain uncertain;
+- the target file, language level, and existing visual system.
 
-- one self-contained `.html` file;
-- semantic HTML with inline CSS;
-- no build step, external font, remote image, tracking, or JavaScript;
-- a strong black-and-white editorial visual system;
-- plain language at approximately CEFR B2 level;
-- diagrams made from accessible HTML and CSS rather than flattened images;
-- responsive desktop and mobile compositions;
-- useful print styling;
-- source links or local source references for factual claims.
+Ask a focused question only when missing information would materially change the explanation. Otherwise proceed and label uncertainty honestly.
 
-An existing product design system or an explicit user style request takes priority over the black-and-white default.
+## 2. Choose the teaching structure
 
-## 1. Establish the teaching brief
+Use only the sections that help this topic. Useful patterns include:
 
-Write the smallest useful brief before creating the page:
+- a direct definition for an unfamiliar term;
+- a graph for relationships between actors;
+- a before/after or filter view for a transformation;
+- numbered steps for a process;
+- an aligned table for capability differences;
+- a short rationale for why the design works this way;
+- source links for deeper reading.
 
-```md
-Audience and reading situation:
-Concept the reader must understand:
-Reader's likely question or confusion:
-Required facts and source evidence:
-Requested language level and locale:
-Required diagrams, comparisons, or examples:
-Target file and existing visual system:
-Supported viewport range and print need:
-```
+Order the page around the reader's next question. Do not add empty sections or force unrelated topics into the same structure.
 
-If the user requests B2 English:
+## 3. Build the page
 
-- use common words before specialist words;
-- define necessary technical terms at first use;
-- keep most sentences between roughly 10 and 22 words;
-- use active voice and concrete subjects;
-- keep one main idea per paragraph;
-- explain cause and effect directly;
-- use examples or analogies after the exact definition, not instead of it.
+Follow an existing product design system when one is present. For a standalone page with no brand rules:
 
-Do not reduce technical accuracy to make the writing simpler.
+- prefer one self-contained HTML file with semantic markup and inline CSS;
+- use a strong black-and-white editorial system as the starting direction;
+- keep diagrams as readable HTML/CSS when practical;
+- add JavaScript or external assets only when they materially improve the explanation;
+- include print treatment when the page is intended to be saved or shared as a document.
 
-## 2. Verify the concept before drawing it
+For a from-scratch page, `assets/explanatory-page-template.html` is an optional high-fidelity code reference. Load it only when useful. Adapt its visual language and remove irrelevant sections; it is not a required page schema, and no placeholders may remain in the final file.
 
-Inspect the relevant source, documentation, or user-provided evidence. Identify:
+When the user requests B2 English, use common words, define necessary technical terms, keep one main idea per paragraph, and explain cause and effect directly without reducing technical accuracy.
 
-- actors or components;
-- allowed and blocked actions;
-- direction of data, tasks, or control;
-- sequence and concurrency;
-- limits, permissions, and failure boundaries;
-- facts that are certain versus assumptions.
+## 4. Make relationships unambiguous
 
-Do not invent architecture from names alone. If evidence is incomplete, label the uncertainty or ask a focused question.
+- Give diagram nodes concrete names and short role labels.
+- Make arrow meaning clear through nearby text or an accessible label.
+- Keep meaningful diagram text in the document rather than flattening it into an image.
+- Do not rely on color alone to distinguish roles or states.
+- Make diagrams, tables, and prose describe the same system.
+- On narrow screens, recompose horizontal relationships vertically instead of hiding overflow.
+- Preserve logical reading order when columns stack.
 
-## 3. Build a teaching sequence
-
-Prefer this progression when it fits the topic:
-
-1. **Orientation** — state what the reader will understand.
-2. **Direct definition** — answer the main vocabulary question in one bold sentence.
-3. **System graph** — show who or what connects to whom.
-4. **Transformation or filter** — show what changes between input and output.
-5. **Step-by-step flow** — show the normal sequence.
-6. **Capability comparison** — align what each actor can and cannot do.
-7. **Reasoning** — explain why the design works this way.
-8. **Sources** — provide evidence and paths for deeper reading.
-
-Change the sequence when the information relationship requires it. Do not add empty sections only to match this list.
-
-## 4. Draw diagrams that teach
-
-A useful diagram must remain understandable without color.
-
-- Give every node a short role label and a concrete name.
-- Label arrows by meaning: task, result, data, control, or response.
-- Keep the main reading direction consistent.
-- Distinguish coordinator, worker, input, output, and blocked action with border, fill, pattern, shape, or text—not color alone.
-- Place a one-sentence caption below each figure.
-- Keep meaningful diagram text in the DOM.
-- Use lists or tables as a text equivalent when a graph carries important facts.
-- On narrow screens, recompose horizontal graphs into vertical flows. Do not rely on hidden overflow.
-- Use SVG only when HTML/CSS cannot express the relationship clearly; include an accessible name and text alternative.
-
-For excluded or unavailable capabilities, show the difference clearly:
-
-```text
-AVAILABLE TO PARENT     FILTER       AVAILABLE TO CHILD
-read                             →    read
-write                            →    write
-spawn another worker   removed  ✕    —
-```
-
-Explain that “removed” can mean “not present in this actor's tool list”; it does not automatically mean a file was deleted.
-
-## 5. Use an editorial visual system
-
-When there is no existing visual system, start with:
-
-- white paper and near-black ink;
-- one sans-serif family plus monospace labels;
-- strong rules, borders, and numbered sections;
-- one large opening headline;
-- a readable body measure;
-- large spacing between concepts and tighter spacing within a concept;
-- flat surfaces with at most one deliberate hard-edged shadow;
-- patterns, line styles, and typography for state differences.
-
-Every large visual element must orient the reader or clarify meaning. Avoid gradients, glow, decorative dashboards, generic card grids, ornamental icons, and motion that does not teach.
-
-## 6. Implement resilient HTML
-
-Use semantic elements:
-
-- one `h1` and ordered heading levels;
-- `header`, `main`, `section`, and `footer` for page structure;
-- `figure` and `figcaption` for diagrams;
-- `ol` for sequences and `ul` for sets;
-- real `table` markup for aligned comparisons;
-- links for navigation and buttons only for actions.
-
-Also include:
-
-- `lang`, UTF-8 charset, viewport metadata, title, and description;
-- visible `:focus-visible` styles;
-- readable contrast without relying on color;
-- wrapping for long URLs, code, and labels;
-- `min-width: 0` for flexible children where needed;
-- a reduced-motion rule if any motion exists;
-- print rules that remove decorative shadows and expose useful link targets;
-- no final placeholder text, fake metrics, or broken links.
-
-Prefer CSS Grid and Flexbox. Avoid JavaScript layout measurement and page-level `overflow-x: hidden`.
-
-## 7. Recompose for mobile
-
-Do not shrink the desktop page unchanged.
-
-- Stack definition layouts.
-- Turn left-to-right graphs into top-to-bottom graphs.
-- Turn multi-column steps into a vertical sequence.
-- Convert wide comparison tables into labeled row blocks, or use a deliberate scroll region when alignment is essential.
-- Preserve the same reading and task order in the DOM.
-- Keep the full page at the viewport width with no unintended horizontal overflow.
-
-A useful baseline is desktop around `1440 × 900` and mobile around `390 × 844`, adjusted to the project's supported range.
-
-## 8. Check code and explanation logic
+## 5. Check code and explanation logic
 
 Before handoff:
 
@@ -170,30 +69,6 @@ Before handoff:
 - confirm diagrams, tables, and written explanations agree;
 - mark uncertain claims clearly and remove unsupported statements.
 
-## 9. Handoff
+## 6. Handoff
 
-Report:
-
-- the created file path;
-- the main teaching structure;
-- the language level used;
-- desktop and mobile verification performed;
-- any intentional external dependencies or unresolved factual gaps.
-
-Keep the response short. The page itself should carry the explanation.
-
-## Anti-patterns
-
-Do not:
-
-- create a decorative landing page instead of an explanation;
-- use jargon without a direct definition;
-- show a graph whose arrows have no meaning;
-- use an analogy as the only explanation;
-- claim “removed” means “deleted” without source evidence;
-- flatten essential text into a screenshot;
-- make every section an equal card;
-- use tiny desktop diagrams on mobile;
-- hide overflow instead of fixing the element;
-- introduce JavaScript for a static teaching page;
-- skip code and explanation-logic checks before handoff.
+Report the created file path, the teaching structure, the language level, and any intentional dependencies or unresolved factual gaps. Keep the response short; the page should carry the explanation.
