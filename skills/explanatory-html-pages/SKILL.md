@@ -1,18 +1,11 @@
 ---
 name: explanatory-html-pages
-description: Create polished, self-contained HTML explanation pages that teach technical concepts with plain-language definitions, architecture graphs, process diagrams, comparisons, responsive editorial layouts, print styles, and browser verification. Use when the user asks for an explanatory or “explanationary” HTML page, visual guide, concept map, architecture explainer, system walkthrough, or printable technical teaching page.
+description: Create polished, self-contained HTML explanation pages that teach technical concepts with plain-language definitions, architecture graphs, process diagrams, comparisons, responsive editorial layouts, print styles, and code-and-logic validation. Use when the user asks for an explanatory or “explanationary” HTML page, visual guide, concept map, architecture explainer, system walkthrough, or printable technical teaching page.
 ---
 
 # Explanatory HTML Pages
 
 Create an HTML page that helps a reader understand a concept, not merely admire a layout. Turn source evidence into a clear teaching sequence, then render and refine the actual page.
-
-## Related skills
-
-When available, read these sibling skills before implementation:
-
-- `../aad-quality-composition/SKILL.md` for the design brief, hierarchy, and responsive composition;
-- `../browser-chrome/SKILL.md` before using Chrome or DevTools for rendered verification.
 
 Use `assets/explanatory-page-template.html` as a structural reference or starting point. Resolve this path relative to this skill directory. Adapt it to the subject; do not ship its placeholders or force every topic into the same layout.
 
@@ -164,24 +157,18 @@ Do not shrink the desktop page unchanged.
 
 A useful baseline is desktop around `1440 × 900` and mobile around `390 × 844`, adjusted to the project's supported range.
 
-## 8. Render, inspect, and refine
+## 8. Check code and explanation logic
 
-Static checks are not enough. Follow the Browser Chrome skill and use a disposable headless session for local or anonymous pages.
+Before handoff:
 
-At minimum:
-
-1. Open the final page in Chrome.
-2. Inspect a desktop viewport.
-3. Inspect a narrow mobile viewport.
-4. Confirm that the first section establishes a clear reading start.
-5. Confirm diagram labels and arrows are legible.
-6. Confirm tables, URLs, and long labels do not overflow.
-7. Confirm mobile diagrams recompose rather than disappear offscreen.
-8. Confirm there are no console errors.
-9. Check `document.documentElement.scrollWidth <= innerWidth` at the narrow viewport.
-10. Refine the largest visible problem, then re-check.
-
-Use screenshots as implementation feedback, not as proof by themselves. Close browser pages opened for the task.
+- parse the HTML without errors;
+- confirm one `h1`, ordered headings, and unique IDs;
+- remove unresolved placeholders and broken references;
+- verify links and local paths;
+- confirm scripts and external assets are intentional;
+- check that actors, actions, arrows, and steps match the source evidence;
+- confirm diagrams, tables, and written explanations agree;
+- mark uncertain claims clearly and remove unsupported statements.
 
 ## 9. Handoff
 
@@ -209,4 +196,4 @@ Do not:
 - use tiny desktop diagrams on mobile;
 - hide overflow instead of fixing the element;
 - introduce JavaScript for a static teaching page;
-- skip rendered inspection after creating the HTML.
+- skip code and explanation-logic checks before handoff.
