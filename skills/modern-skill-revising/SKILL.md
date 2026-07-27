@@ -1,9 +1,9 @@
 ---
-name: modern-context-revising
+name: modern-skill-revising
 description: Review and rightsize agent context for capable modern models. Use when simplifying or modernizing SKILL.md, AGENTS.md, CLAUDE.md, system prompts, tool instructions, memory guidance, or agent runbooks by removing conflicts, repetition, obsolete constraints, and eager context while preserving safety, project-specific gotchas, and verifiable behavior.
 ---
 
-# Modern Context Revising
+# Modern Skill Revising
 
 Revise agent context so the model receives less noise and more useful signal. Prefer a small, clear entrypoint, expressive interfaces, and details loaded only when needed. Do not pursue shorter files as an end in itself.
 
