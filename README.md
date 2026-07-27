@@ -31,16 +31,33 @@ Independent slices may run in parallel only after their dependencies and write b
 
 | Agent | Role |
 | --- | --- |
-| `aad-root-owner` | Slices non-trivial root work, integrates results, and decides root completion. |
-| `aad-slice-owner` | Owns a scoped slice from plan through verification. |
-| `aad-implementer` | Implements a bounded task in its delegated worktree and reports evidence. |
-| `aad-explorer` | Performs read-only codebase discovery and evidence gathering. |
-| `aad-auditor` | Reviews acceptance evidence and decides whether work is supportably done. |
-| `chrome-browser-agent` | Runs browser checks using the Browser Chrome safety policy. |
+| `aad-root-owner` | Orchestrates and completes root work. |
+| `aad-slice-owner` | Owns one scoped slice end to end. |
+| `aad-implementer` | Implements bounded delegated changes. |
+| `aad-explorer` | Performs read-only discovery. |
+| `aad-auditor` | Audits evidence and acceptance. |
+| `chrome-browser-agent` | Runs safe Chrome automation. |
 
 ### Skills
 
-The checked-in skills cover planning, slicing and delegation, reporting, evidence-based completion, target-branch handling, workflow feedback, task packages, and focused frontend/backend/DevOps/visual quality checks. Skills are support material; they do not replace owner responsibility.
+| Skill | Purpose |
+| --- | --- |
+| `aad-delegation` | Routes delegated agents safely. |
+| `aad-git-branching` | Prepares, merges, and syncs branches. |
+| `aad-plan-writing` | Builds and tracks AAD plans. |
+| `aad-quality-backend` | Checks backend, API, and data quality. |
+| `aad-quality-composition` | Shapes polished visual composition. |
+| `aad-quality-devops` | Checks deployment and runtime readiness. |
+| `aad-quality-frontend` | Checks frontend implementation quality. |
+| `aad-reporting` | Produces reusable task reports. |
+| `aad-step-completion` | Verifies evidence before completion. |
+| `aad-task-package` | Manages task-package artifacts. |
+| `aad-workflow-feedback` | Records reusable workflow feedback. |
+| `browser-chrome` | Routes safe Chrome automation. |
+| `explanatory-html-pages` | Builds clear visual explainers. |
+| `modern-skill-revising` | Rightsizes SOTA-model context. |
+
+Skills are support material; they do not replace owner responsibility.
 
 Folder names are deployment identities. A skill's runtime name comes from its `SKILL.md` frontmatter, so those names may intentionally differ. The OpenCode adapter materializes a normalized cache view where folder names match runtime names.
 
