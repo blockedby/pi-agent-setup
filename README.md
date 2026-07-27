@@ -40,7 +40,7 @@ Independent slices may run in parallel only after their dependencies and write b
 
 ### Skills
 
-The checked-in skills cover planning, slicing and delegation, reporting, evidence-based completion, target-branch handling, workflow feedback, task packages, and focused frontend/backend/DevOps/visual quality checks. Skills are support material; they do not replace owner responsibility.
+The checked-in skills cover planning, slicing and delegation, reporting, evidence-based completion, target-branch handling, workflow feedback, task packages, explanatory HTML pages, and focused frontend/backend/DevOps/visual quality checks. Skills are support material; they do not replace owner responsibility.
 
 Folder names are deployment identities. A skill's runtime name comes from its `SKILL.md` frontmatter, so those names may intentionally differ. The OpenCode adapter materializes a normalized cache view where folder names match runtime names.
 
