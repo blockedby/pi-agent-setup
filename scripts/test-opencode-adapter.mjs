@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import assert from "node:assert/strict";
+import { fork } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -78,6 +79,56 @@ function makeFixture() {
   return root;
 }
 
+function evaluatePermission(permission, name, pattern = "*") {
+  const rules = [];
+  for (const [permissionPattern, value] of Object.entries(permission)) {
+    if (typeof value === "string") {
+      rules.push({ permissionPattern, pattern: "*", action: value });
+    } else {
+      for (const [inputPattern, action] of Object.entries(value)) {
+        rules.push({ permissionPattern, pattern: inputPattern, action });
+      }
+    }
+  }
+  const matches = (value, glob) => {
+    const escaped = glob
+      .replace(/[.+^${}()|[\]\\]/g, "\\$&")
+      .replaceAll("*", ".*")
+      .replaceAll("?", ".");
+    return new RegExp(`^${escaped}$`).test(value);
+  };
+  return rules.findLast(
+    (rule) => matches(name, rule.permissionPattern) && matches(pattern, rule.pattern),
+  )?.action;
+}
+
+function materializeInChild(fixture, cacheBase) {
+  return new Promise((resolve, reject) => {
+    const child = fork(new URL("./test-opencode-cache-worker.mjs", import.meta.url), [], {
+      env: { ...process.env, OPENCODE_FIXTURE: fixture, OPENCODE_CACHE_BASE: cacheBase },
+      stdio: ["ignore", "pipe", "pipe", "ipc"],
+    });
+    let stderr = "";
+    let result;
+    child.stderr.on("data", (chunk) => {
+      stderr += chunk;
+    });
+    child.on("message", (message) => {
+      result = message;
+    });
+    child.on("error", reject);
+    child.on("exit", (code) => {
+      if (code !== 0) {
+        reject(new Error(stderr || `cache worker exited ${code}`));
+      } else if (typeof result !== "string") {
+        reject(new Error("cache worker did not return a target"));
+      } else {
+        resolve(result);
+      }
+    });
+  });
+}
+
 {
   const parsed = extractAndStripFrontmatter(
     "---\r\nname: test-agent\r\ndescription: quoted: value\r\nenabled: true\r\n---\r\nBody\r\n",
@@ -95,6 +146,7 @@ try {
   const definitions = loadOpenCodeAgentDefinitions(fixture);
   assert.deepEqual(Object.keys(definitions), OPENCODE_AGENT_NAMES);
   assert.equal(definitions["aad-root-owner"].mode, "subagent");
+  assert.equal(definitions["aad-root-owner"].permission["*"], "deny");
   assert.equal(definitions["aad-root-owner"].permission.task["*"], "deny");
   assert.equal(definitions["aad-root-owner"].permission.task["aad-slice-owner"], "allow");
   assert.equal(definitions["aad-slice-owner"].permission.task["aad-implementer"], "allow");
@@ -102,11 +154,27 @@ try {
   assert.equal(definitions["aad-explorer"].permission.edit, "deny");
   assert.equal(definitions["aad-explorer"].permission.bash, "ask");
   assert.equal(definitions["aad-explorer"].permission.glob, "allow");
+  assert.equal(definitions["aad-root-owner"].permission.read["*.env"], "ask");
+  assert.equal(definitions["aad-root-owner"].permission.read["*.env.*"], "ask");
+  assert.equal(definitions["aad-root-owner"].permission.read["*.env.example"], "allow");
   assert.equal(definitions["aad-auditor"].permission.edit, "deny");
   assert.equal(definitions["chrome-browser-agent"].permission["browser-chrome-*"], "allow");
   assert.match(definitions["chrome-browser-agent"].prompt, /Declared skills/);
   assert.match(definitions["aad-root-owner"].prompt, /OpenCode runtime mapping/);
   assert.doesNotMatch(definitions["aad-root-owner"].prompt, /aad-acceptance-auditor/);
+  for (const executablePiSyntax of [
+    /`subagent`/,
+    /`tasks: \[\.\.\.\]`/,
+    /`concurrency`/,
+    /`reads`/,
+    /`progress: true`/,
+    /`async: true`/,
+    /`subagent_type`/,
+  ]) {
+    for (const definition of Object.values(definitions)) {
+      assert.doesNotMatch(definition.prompt, executablePiSyntax);
+    }
+  }
   assert.equal("model" in definitions["aad-root-owner"], false);
 
   const skillView = materializeOpenCodeSkillView(fixture, cacheBase);
@@ -116,10 +184,53 @@ try {
   assert.ok(fs.existsSync(path.join(skillView, "browser-chrome/SKILL.md")));
   assert.equal(materializeOpenCodeSkillView(fixture, cacheBase), skillView);
 
+  const helper = path.join(fixture, "skills/aad-delegation/scripts/helper.sh");
+  fs.chmodSync(helper, 0o755);
+  const executableSkillView = materializeOpenCodeSkillView(fixture, cacheBase);
+  assert.notEqual(executableSkillView, skillView);
+  assert.equal(
+    fs.statSync(path.join(executableSkillView, "aad-slicing-and-delegation/scripts/helper.sh")).mode &
+      0o777,
+    0o755,
+  );
+
+  const concurrentCacheBase = fs.mkdtempSync(
+    path.join(os.tmpdir(), "pi-agent-setup-concurrent-cache-"),
+  );
+  try {
+    const concurrentViews = await Promise.all(
+      Array.from({ length: 8 }, () => materializeInChild(fixture, concurrentCacheBase)),
+    );
+    assert.equal(new Set(concurrentViews).size, 1);
+    const concurrentView = concurrentViews[0];
+    assert.ok(fs.existsSync(path.join(concurrentView, ".pi-agent-setup-skill-view.json")));
+    assert.ok(
+      fs.existsSync(path.join(concurrentView, "aad-slicing-and-delegation/scripts/helper.sh")),
+    );
+    assert.equal(
+      fs.readdirSync(path.dirname(concurrentView)).filter((name) => name.includes(".tmp-")).length,
+      0,
+    );
+  } finally {
+    fs.rmSync(concurrentCacheBase, { recursive: true, force: true });
+  }
+
   const plugin = createPiAgentSetupPlugin({ packageRoot: fixture, cacheBase });
   const hooks = await plugin({});
   const config = {
+    permission: {
+      bash: "deny",
+      read: { "*": "allow", "secrets/**": "deny" },
+      "browser-chrome-screenshot": "deny",
+      "custom_*": "ask",
+    },
     agent: {
+      "aad-root-owner": {
+        permission: {
+          read: { "secrets/**": "ask", "secrets/*": "ask" },
+          task: { "aad-explorer": "deny" },
+        },
+      },
       "aad-explorer": {
         hidden: true,
         permission: { bash: "deny" },
@@ -128,10 +239,39 @@ try {
   };
   await hooks.config(config);
   assert.equal(config.subagent_depth, DEFAULT_OPENCODE_SUBAGENT_DEPTH);
+  assert.equal(config.agent["aad-root-owner"].permission["*"], "deny");
+  assert.equal(config.agent["aad-root-owner"].permission.bash, "deny");
+  assert.equal(config.agent["aad-root-owner"].permission.task["*"], "deny");
+  assert.equal(config.agent["aad-root-owner"].permission.task["aad-slice-owner"], "allow");
+  assert.equal(config.agent["aad-root-owner"].permission.task["aad-explorer"], "deny");
+  assert.equal(
+    evaluatePermission(config.agent["aad-root-owner"].permission, "read", ".env"),
+    "ask",
+  );
+  assert.equal(
+    evaluatePermission(config.agent["aad-root-owner"].permission, "read", "secrets/key.txt"),
+    "deny",
+  );
+  assert.equal(config.agent["aad-root-owner"].permission.read["secrets/**"], "deny");
+  assert.equal(
+    evaluatePermission(config.agent["aad-root-owner"].permission, "custom_destructive"),
+    "deny",
+  );
+  assert.equal(
+    evaluatePermission(
+      config.agent["chrome-browser-agent"].permission,
+      "browser-chrome-screenshot",
+    ),
+    "deny",
+  );
+  assert.equal(
+    evaluatePermission(config.agent["chrome-browser-agent"].permission, "browser-chrome-open"),
+    "allow",
+  );
   assert.equal(config.agent["aad-explorer"].hidden, true);
   assert.equal(config.agent["aad-explorer"].permission.edit, "deny");
   assert.equal(config.agent["aad-explorer"].permission.bash, "deny");
-  assert.deepEqual(config.skills.paths, [skillView]);
+  assert.deepEqual(config.skills.paths, [executableSkillView]);
 
   const shorthandPermission = {
     agent: {
@@ -139,7 +279,18 @@ try {
     },
   };
   await hooks.config(shorthandPermission);
-  assert.equal(shorthandPermission.agent["aad-auditor"].permission, "deny");
+  const compiledShorthand = shorthandPermission.agent["aad-auditor"].permission;
+  assert.equal(compiledShorthand["*"], "deny");
+  assert.ok(Object.values(compiledShorthand).every((action) => action === "deny"));
+
+  const inheritedShorthand = { permission: "deny" };
+  await hooks.config(inheritedShorthand);
+  assert.equal(inheritedShorthand.agent["aad-root-owner"].permission.read, "deny");
+  assert.equal(inheritedShorthand.agent["aad-root-owner"].permission.bash, "deny");
+  assert.equal(
+    inheritedShorthand.agent["aad-root-owner"].permission.task["aad-slice-owner"],
+    "deny",
+  );
 
   const explicitDepth = { subagent_depth: 2 };
   await hooks.config(explicitDepth);

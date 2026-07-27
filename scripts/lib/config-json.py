@@ -98,6 +98,8 @@ def verify_package(package_json: Path) -> None:
         raise SystemExit("package.json does not declare the OpenCode plugin entrypoint")
     if package.get("scripts", {}).get("test:opencode") != "node scripts/test-opencode-adapter.mjs":
         raise SystemExit("package.json does not declare the OpenCode adapter test")
+    if package.get("engines", {}).get("opencode") != ">=1.18.2":
+        raise SystemExit("package.json must require OpenCode >=1.18.2")
 
 
 def verify_subagents(config_path: Path) -> None:

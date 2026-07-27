@@ -30,8 +30,8 @@ At startup, `.opencode/plugins/pi-agent-setup.js`:
 
 1. reads the existing Markdown definitions from `agents/`;
 2. strips Pi frontmatter and registers equivalent OpenCode subagents through the `config` hook;
-3. translates Pi tool declarations to OpenCode permissions;
-4. applies stricter OpenCode permissions to read-only agents;
+3. translates Pi tool declarations into deny-by-default OpenCode permissions without weakening stricter global or built-in rules;
+4. applies role-specific OpenCode permissions to delegation and read-only agents;
 5. creates a normalized skill view in the OpenCode cache, using each skill's frontmatter `name` as its directory name;
 6. registers that normalized directory through `config.skills.paths`;
 7. injects a small routing and tool-mapping bootstrap into the conversation.
@@ -72,11 +72,11 @@ Example override:
 }
 ```
 
-User-defined OpenCode agent settings win over generated defaults. Permission objects are merged so a user can tighten an individual permission without replacing the whole generated agent.
+User-defined OpenCode agent settings may tighten generated defaults. The adapter compiles global and per-agent permission restrictions together, retains protected `.env` reads, and keeps the generated wildcard deny. An `allow` override cannot grant a capability that the shared agent did not declare or that a stricter inherited rule denies.
 
 ## Runtime tool mapping
 
-The shared prompts still describe parts of the Pi execution protocol. The OpenCode adapter prepends these rules to each generated agent:
+The shared prompts still describe the Pi execution protocol. The OpenCode adapter prepends runtime rules and rewrites executable-looking Pi-only call syntax in generated prompts; the checked-in Pi prompts stay unchanged.
 
 | Shared/Pi wording | OpenCode behavior |
 | --- | --- |
@@ -111,11 +111,12 @@ git diff --check
 The OpenCode adapter test verifies:
 
 - Pi frontmatter parsing;
-- agent permission translation and delegation boundaries;
-- user override precedence;
+- effective deny-by-default permissions, inherited restrictions, protected reads, and delegation boundaries;
+- deep handling of partial task overrides;
 - default versus explicit `subagent_depth`;
 - idempotent bootstrap injection;
 - normalized skill directories, including a folder/frontmatter-name mismatch;
+- concurrent cache publication and mode-sensitive fingerprints;
 - preservation of skill support files.
 
 ## Limitations

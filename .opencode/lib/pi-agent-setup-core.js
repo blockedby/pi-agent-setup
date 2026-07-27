@@ -94,15 +94,16 @@ const AGENT_POLICIES = {
 
 export const OPENCODE_RUNTIME_MAPPING = `## OpenCode runtime mapping
 
-This agent prompt is shared with Pi. Resolve runtime actions through OpenCode as follows:
+This agent prompt is shared with Pi. Resolve every runtime action through the live OpenCode tool schema:
 
-- Invoke a named child agent with OpenCode's \`task\` tool and the matching \`subagent_type\`.
-- Pi-only \`subagent\` fields such as \`tasks\`, \`concurrency\`, \`async\`, \`reads\`, and \`progress\` express intent, not an OpenCode tool schema. Use separate \`task\` calls for independent work, and pass durable context through repository files or task-package artifacts.
+- Invoke named child agents with OpenCode's \`task\` tool and the matching child-agent type.
+- Translate independent or parallel delegation into separate \`task\` calls. Put required file paths and durable context in each child prompt.
+- Use OpenCode child sessions for background work only when the parent can continue useful independent work.
 - Load reusable instructions with OpenCode's native \`skill\` tool.
 - Track todos with \`todowrite\` when useful.
-- Map Pi tools to OpenCode tools: \`web_search_codex\` → \`websearch\`, \`web_fetch_codex\` → \`webfetch\`, \`apply_patch_codex\`/\`write\`/\`edit\` → OpenCode file editing, \`find\`/\`ls\` → \`glob\`.
+- Map shared tools to OpenCode tools: web search → \`websearch\`, web fetch → \`webfetch\`, file changes → OpenCode editing tools, directory discovery → \`glob\`.
 - Preserve existing \`PI_RESULT\` status labels as a compatibility protocol; they are report text, not tool calls.
-- Never invent Pi-only arguments when calling an OpenCode tool. Follow the live OpenCode tool schema.
+- Ignore any Pi-specific call shape remaining in prose. Never send Pi-only arguments to an OpenCode tool; follow the live schema.
 `;
 
 function parseScalar(value) {
@@ -146,11 +147,21 @@ function splitCsv(value) {
     .filter(Boolean);
 }
 
+const PROTECTED_READ_PERMISSION = {
+  "*": "allow",
+  "*.env": "ask",
+  "*.env.*": "ask",
+  "*.env.example": "allow",
+};
+
 function permissionsFromPiAgent(frontmatter) {
-  const permission = {};
+  const permission = { "*": "deny" };
   for (const piTool of splitCsv(frontmatter.tools)) {
     const openCodePermission = PI_TOOL_TO_PERMISSION[piTool];
-    if (openCodePermission) permission[openCodePermission] = "allow";
+    if (openCodePermission) {
+      permission[openCodePermission] =
+        openCodePermission === "read" ? { ...PROTECTED_READ_PERMISSION } : "allow";
+    }
   }
   if (frontmatter.inheritSkills === true || splitCsv(frontmatter.skills).length > 0) {
     permission.skill = "allow";
@@ -158,34 +169,205 @@ function permissionsFromPiAgent(frontmatter) {
   return permission;
 }
 
-function mergeAgentConfig(generated, existing) {
-  const override =
-    existing && typeof existing === "object" && !Array.isArray(existing) ? existing : {};
+function wildcardMatch(value, pattern) {
+  const escaped = pattern
+    .replaceAll("\\", "/")
+    .replace(/[.+^${}()|[\]\\]/g, "\\$&")
+    .replaceAll("*", ".*")
+    .replaceAll("?", ".");
+  const optionalArgument = escaped.endsWith(" .*")
+    ? `${escaped.slice(0, -3)}(?: .*)?`
+    : escaped;
+  return new RegExp(`^${optionalArgument}$`).test(value.replaceAll("\\", "/"));
+}
+
+function isPlainObject(value) {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function permissionRules(config) {
+  const normalized = typeof config === "string" ? { "*": config } : config;
+  if (!isPlainObject(normalized)) return [];
+
+  const rules = [];
+  for (const [permission, value] of Object.entries(normalized)) {
+    if (typeof value === "string") {
+      rules.push({ permission, pattern: "*", action: value });
+    } else if (isPlainObject(value)) {
+      for (const [pattern, action] of Object.entries(value)) {
+        if (typeof action === "string") rules.push({ permission, pattern, action });
+      }
+    }
+  }
+  return rules;
+}
+
+const ACTION_RANK = { allow: 0, ask: 1, deny: 2 };
+
+function stricterAction(left, right) {
+  return ACTION_RANK[right] > ACTION_RANK[left] ? right : left;
+}
+
+function evaluatePermission(rules, permission, pattern) {
+  return (
+    rules.findLast(
+      (rule) =>
+        wildcardMatch(permission, rule.permission) && wildcardMatch(pattern, rule.pattern),
+    )?.action || "allow"
+  );
+}
+
+function compilePatternPermission(permission, canonical, layers) {
+  const canonicalIsObject = isPlainObject(canonical);
+  let baseAction = canonicalIsObject ? canonical["*"] : canonical;
+  const ruleLayers = layers.map(permissionRules);
+  for (const rules of ruleLayers) {
+    baseAction = stricterAction(baseAction, evaluatePermission(rules, permission, "*"));
+  }
+  if (baseAction === "deny") return "deny";
+
+  const patterns = { "*": baseAction };
+  if (canonicalIsObject) {
+    for (const [pattern, action] of Object.entries(canonical)) {
+      if (pattern === "*" || typeof action !== "string") continue;
+      patterns[pattern] = stricterAction(baseAction, action);
+    }
+  }
+
+  const restrictions = new Map();
+  for (const rules of ruleLayers) {
+    for (const rule of rules) {
+      if (
+        rule.pattern === "*" ||
+        !wildcardMatch(permission, rule.permission) ||
+        rule.action === "allow"
+      ) {
+        continue;
+      }
+      const action = stricterAction(baseAction, rule.action);
+      const previous = restrictions.get(rule.pattern);
+      restrictions.set(rule.pattern, previous ? stricterAction(previous, action) : action);
+    }
+  }
+
+  for (const [pattern, action] of [...restrictions].sort(
+    (left, right) => ACTION_RANK[left[1]] - ACTION_RANK[right[1]],
+  )) {
+    delete patterns[pattern];
+    patterns[pattern] = action;
+  }
+
+  return Object.keys(patterns).length === 1 ? baseAction : patterns;
+}
+
+function compileTaskPermission(canonical, layers) {
+  const compiled = { "*": "deny" };
+  const ruleLayers = layers.map(permissionRules);
+
+  for (const [target, canonicalAction] of Object.entries(canonical)) {
+    if (target === "*") continue;
+    let action = canonicalAction;
+    for (const rules of ruleLayers) {
+      action = stricterAction(action, evaluatePermission(rules, "task", target));
+    }
+    compiled[target] = action;
+  }
+  return compiled;
+}
+
+function compileNamedPermissionRestrictions(canonical, layers) {
+  const canonicalPatterns = Object.keys(canonical).filter((permission) => permission !== "*");
+  const restrictions = new Map();
+
+  for (const rules of layers.map(permissionRules)) {
+    for (const rule of rules) {
+      if (rule.pattern !== "*" || rule.permission === "*" || rule.action === "allow") continue;
+      if (
+        !canonicalPatterns.some(
+          (canonicalPattern) =>
+            canonicalPattern !== rule.permission &&
+            wildcardMatch(rule.permission, canonicalPattern),
+        )
+      ) {
+        continue;
+      }
+      const previous = restrictions.get(rule.permission);
+      restrictions.set(
+        rule.permission,
+        previous ? stricterAction(previous, rule.action) : rule.action,
+      );
+    }
+  }
+
+  return [...restrictions].sort(
+    (left, right) => ACTION_RANK[left[1]] - ACTION_RANK[right[1]],
+  );
+}
+
+function compileAgentPermission(canonical, inherited, override) {
+  if (typeof inherited === "string") {
+    inherited = { "*": inherited };
+  }
+  if (typeof override === "string") {
+    override = { "*": override };
+  }
+  const layers = [inherited, override].filter((layer) => isPlainObject(layer));
+  const compiled = { "*": "deny" };
+
+  for (const [permission, canonicalValue] of Object.entries(canonical)) {
+    if (permission === "*") continue;
+    if (permission === "task" && isPlainObject(canonicalValue)) {
+      compiled.task = compileTaskPermission(canonicalValue, layers);
+      continue;
+    }
+    const canonicalAction = isPlainObject(canonicalValue)
+      ? canonicalValue["*"]
+      : canonicalValue;
+    if (typeof canonicalAction !== "string") continue;
+    compiled[permission] =
+      canonicalAction === "deny"
+        ? "deny"
+        : compilePatternPermission(permission, canonicalValue, layers);
+  }
+
+  for (const [permission, action] of compileNamedPermissionRestrictions(canonical, layers)) {
+    delete compiled[permission];
+    compiled[permission] = action;
+  }
+
+  return compiled;
+}
+
+function mergeAgentConfig(generated, existing, inheritedPermission = {}) {
+  const override = isPlainObject(existing) ? existing : {};
   const merged = {
     ...generated,
     ...override,
   };
-
-  if (override.permission === undefined) {
-    merged.permission = generated.permission;
-  } else if (
-    override.permission &&
-    typeof override.permission === "object" &&
-    !Array.isArray(override.permission)
-  ) {
-    merged.permission = {
-      ...generated.permission,
-      ...override.permission,
-    };
-  } else {
-    merged.permission = override.permission;
-  }
-
+  merged.permission = compileAgentPermission(
+    generated.permission,
+    inheritedPermission,
+    override.permission,
+  );
   return merged;
 }
 
 function adaptSharedPromptForOpenCode(body) {
-  return body.replaceAll("aad-acceptance-auditor", "aad-auditor");
+  const replacements = new Map([
+    ["aad-acceptance-auditor", "aad-auditor"],
+    ["`subagent`", "OpenCode's `task` tool"],
+    ["`tasks: [...]`", "parallel `task` calls"],
+    ["`concurrency`", "a safe parallelism limit"],
+    ["`reads`", "repository context named in the child prompt"],
+    ["`progress: true`", "durable progress updates"],
+    ["`async: true`", "a background child session"],
+  ]);
+
+  let adapted = body;
+  for (const [source, replacement] of replacements) {
+    adapted = adapted.replaceAll(source, replacement);
+  }
+  return adapted;
 }
 
 function runtimePrompt(body, frontmatter) {
@@ -277,7 +459,9 @@ function hashDirectory(hash, directory, relativePrefix = "") {
     if (entry.name === ".git") continue;
     const absolutePath = path.join(directory, entry.name);
     const relativePath = path.posix.join(relativePrefix, entry.name);
+    const stats = fs.lstatSync(absolutePath);
     hash.update(relativePath);
+    hash.update(String(stats.mode & 0o777));
     if (entry.isDirectory()) {
       hash.update("directory");
       hashDirectory(hash, absolutePath, relativePath);
@@ -325,11 +509,7 @@ export function materializeOpenCodeSkillView(
   if (fs.existsSync(marker)) return target;
 
   fs.mkdirSync(parent, { recursive: true });
-  if (fs.existsSync(target)) {
-    fs.rmSync(target, { recursive: true, force: true });
-  }
-  const temporary = `${target}.tmp-${process.pid}-${Date.now()}`;
-  fs.mkdirSync(temporary, { recursive: true });
+  const temporary = fs.mkdtempSync(path.join(parent, `.${fingerprint}.tmp-`));
 
   try {
     for (const skill of skills) {
@@ -352,11 +532,9 @@ export function materializeOpenCodeSkillView(
       fs.renameSync(temporary, target);
     } catch (error) {
       if (!fs.existsSync(marker)) throw error;
-      fs.rmSync(temporary, { recursive: true, force: true });
     }
-  } catch (error) {
+  } finally {
     fs.rmSync(temporary, { recursive: true, force: true });
-    throw error;
   }
 
   return target;
@@ -420,7 +598,11 @@ export function createPiAgentSetupPlugin({
 
         config.agent ||= {};
         for (const [agentName, generated] of Object.entries(generatedAgents)) {
-          config.agent[agentName] = mergeAgentConfig(generated, config.agent[agentName]);
+          config.agent[agentName] = mergeAgentConfig(
+            generated,
+            config.agent[agentName],
+            config.permission,
+          );
         }
 
         if (config.subagent_depth === undefined || config.subagent_depth === null) {

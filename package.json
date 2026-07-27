@@ -32,6 +32,9 @@
     "test:opencode": "node scripts/test-opencode-adapter.mjs",
     "secrets:check": "bash scripts/secrets-check.sh"
   },
+  "engines": {
+    "opencode": ">=1.18.2"
+  },
   "devEngines": {
     "runtime": {
       "name": "node",
