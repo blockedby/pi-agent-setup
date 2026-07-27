@@ -44,7 +44,7 @@ Follow an existing product design system when one is present. For a standalone p
 
 For a from-scratch page, `assets/explanatory-page-template.html` is an optional high-fidelity code reference. Load it only when useful. Adapt its visual language and remove irrelevant sections; it is not a required page schema, and no placeholders may remain in the final file.
 
-When the user requests B2 English, use common words, define necessary technical terms, keep one main idea per paragraph, and explain cause and effect directly without reducing technical accuracy.
+Write in clear, simple language throughout. Prefer common words, define necessary technical terms, keep one main idea per paragraph, and explain cause and effect directly. Preserve technical accuracy and any explicitly requested domain vocabulary.
 
 ## 4. Make relationships unambiguous
 

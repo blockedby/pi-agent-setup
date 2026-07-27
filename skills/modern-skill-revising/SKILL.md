@@ -1,6 +1,6 @@
 ---
 name: modern-skill-revising
-description: Review and rightsize agent context for capable modern models. Use when simplifying or modernizing SKILL.md, AGENTS.md, CLAUDE.md, system prompts, tool instructions, memory guidance, or agent runbooks by removing conflicts, repetition, obsolete constraints, and eager context while preserving safety, project-specific gotchas, and verifiable behavior.
+description: Review and rightsize agent context for state-of-the-art modern models. Use when simplifying or modernizing SKILL.md, AGENTS.md, CLAUDE.md, system prompts, tool instructions, memory guidance, or agent runbooks. Use only for SOTA-only targets; clarify an unknown model scope before revising, and skip this skill for older, mixed, or non-SOTA targets.
 ---
 
 # Modern Skill Revising
@@ -11,9 +11,15 @@ Revise agent context so the model receives less noise and more useful signal. Pr
 
 Identify the context surfaces that can affect the target behavior, including prompt files, skills, tool descriptions, referenced documents, memory, and user or project overrides.
 
+Determine the target model from repository configuration or explicit user instructions. If neither provides a clear answer, ask whether the context is SOTA-only before making changes.
+
+- If the target is SOTA-only, continue with this skill.
+- If it targets older, mixed, or non-SOTA models, skip this skill.
+
+Do not infer the target from the model running the current session.
+
 Before editing, determine:
 
-- the intended model and harness;
 - instruction precedence and ownership;
 - the behavior or failure that motivated the revision;
 - safety, permission, compliance, and irreversible-action boundaries;
