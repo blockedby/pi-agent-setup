@@ -1,18 +1,19 @@
 # Pi Agent Setup
 
-This repository contains the local setup I use for a Pi/Codex coding workflow. It keeps agent prompts, reusable skills, browser tooling, configuration, and verification in one inspectable place.
+This repository contains the local setup I use for a Pi/Codex coding workflow, plus an experimental OpenCode compatibility adapter. It keeps agent prompts, reusable skills, browser tooling, configuration, and verification in one inspectable place.
 
-It is personal workflow infrastructure—not a universal installer, hosted service, or fully autonomous development system. 
+It is personal workflow infrastructure—not a universal installer, hosted service, or fully autonomous development system.
 
 ## What is included
 
 - `APPEND_SYSTEM.md` — terminal routing rules loaded by Pi.
-- `agents/` — executable AAD and browser agents.
+- `agents/` — executable AAD and browser agent sources.
 - `skills/` — checked-in runbooks and the Browser Chrome submodule.
+- `.opencode/plugins/pi-agent-setup.js` — OpenCode adapter for the shared agents and skills.
 - `extensions/ready-notify.ts` — optional completion notifications.
 - `settings/` — public example Pi and `pi-subagents` configuration.
 - `packages/pi-codex` — local Pi package submodule.
-- `scripts/update-local.sh` — the only setup entrypoint.
+- `scripts/update-local.sh` — the Pi setup entrypoint.
 - `docs/agent-pipelines.html` — a visual overview of the routing model.
 
 ## Routing model
@@ -41,7 +42,7 @@ Independent slices may run in parallel only after their dependencies and write b
 
 The checked-in skills cover planning, slicing and delegation, reporting, evidence-based completion, target-branch handling, workflow feedback, task packages, and focused frontend/backend/DevOps/visual quality checks. Skills are support material; they do not replace owner responsibility.
 
-Folder names are deployment identities. A skill's runtime name comes from its `SKILL.md` frontmatter, so those names may intentionally differ.
+Folder names are deployment identities. A skill's runtime name comes from its `SKILL.md` frontmatter, so those names may intentionally differ. The OpenCode adapter materializes a normalized cache view where folder names match runtime names.
 
 ## Requirements
 
@@ -54,7 +55,7 @@ Folder names are deployment identities. A skill's runtime name comes from its `S
 
 Vite+ may provide npm, but Pi itself is installed under `$HOME/.local`. This avoids extension-loading problems caused by Vite+'s hashed package paths.
 
-## Local setup
+## Local Pi setup
 
 Clone with submodules, then run:
 
@@ -96,9 +97,31 @@ cp settings/pi-settings.example.json settings/pi-settings.local.json
 PI_SETTINGS_FILE=settings/pi-settings.local.json scripts/update-local.sh
 ```
 
+## OpenCode compatibility
+
+The compatibility adapter targets OpenCode 1.18.2 or newer. Add the git-backed plugin to a global or project-level `opencode.json`:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": [
+    "pi-agent-setup@git+https://github.com/blockedby/pi-agent-setup.git"
+  ],
+  "subagent_depth": 4
+}
+```
+
+Restart OpenCode after changing the config.
+
+The plugin reads the same files under `agents/` and `skills/`, registers OpenCode subagents with explicit delegation permissions, normalizes skill directory names in a content-addressed cache, and injects an OpenCode tool-mapping bootstrap. It does not copy Pi-specific model IDs; generated subagents inherit the invoking OpenCode model unless the user overrides an agent in `opencode.json`.
+
+Browser Chrome remains an explicit boundary: the browser agent is registered only when the Browser Chrome skill submodule is present, and OpenCode MCP configuration is still required separately.
+
+See [`docs/opencode.md`](docs/opencode.md) for the mapping, permission model, limitations, and troubleshooting notes.
+
 ## Browser tooling
 
-`skills/browser-chrome` is a submodule. The installer copies it into Pi's skill directory and configures three lazy MCP servers:
+`skills/browser-chrome` is a submodule. The Pi installer copies it into Pi's skill directory and configures three lazy MCP servers:
 
 - `browser-chrome-control` — selects and coordinates the browser mode;
 - `browser-chrome-headless` — disposable browser state for public and parallel checks;
@@ -128,7 +151,7 @@ npm run secrets:check
 git diff --check
 ```
 
-After changing setup behavior, run the actual installer and a Pi smoke test:
+After changing Pi setup behavior, run the actual installer and a Pi smoke test:
 
 ```bash
 scripts/update-local.sh
@@ -137,6 +160,8 @@ timeout 120 "$PI_BIN" --no-session --mode text -p 'Say OK and exit.'
 ```
 
 A clean smoke test ends with `OK` and no skill or extension loading errors.
+
+For the OpenCode adapter, `npm run test:opencode` verifies agent translation, permission boundaries, bootstrap idempotence, and normalized skill discovery without requiring an OpenCode installation.
 
 ## Public-safety boundary
 
@@ -150,3 +175,4 @@ Keep machine-specific values in ignored files such as:
 ## Additional documentation
 
 - [Agent pipeline overview](docs/agent-pipelines.html)
+- [OpenCode compatibility](docs/opencode.md)
