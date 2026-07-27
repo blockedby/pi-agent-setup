@@ -14,7 +14,8 @@
   ],
   "pi": {
     "extensions": [
-      "./extensions/ready-notify.ts"
+      "./extensions/ready-notify.ts",
+      "./extensions/main-thread-wait-guard.ts"
     ],
     "skills": [
       "./skills"
@@ -25,11 +26,12 @@
   },
   "scripts": {
     "setup:local": "bash scripts/update-local.sh",
-    "test": "npm run test:config && npm run test:local-assets && npm run test:runtime-resolution && npm run test:opencode",
+    "test": "npm run test:config && npm run test:local-assets && npm run test:runtime-resolution && npm run test:opencode && npm run test:main-thread-wait-guard",
     "test:config": "python3 scripts/test-config-components.py .",
     "test:local-assets": "bash scripts/test-local-assets.sh",
     "test:runtime-resolution": "bash scripts/test-runtime-resolution.sh",
     "test:opencode": "node scripts/test-opencode-adapter.mjs",
+    "test:main-thread-wait-guard": "node scripts/test-main-thread-wait-guard.mjs",
     "secrets:check": "bash scripts/secrets-check.sh"
   },
   "engines": {
