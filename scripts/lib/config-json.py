@@ -90,8 +90,16 @@ def install_browser_mcp(target: Path, browser_command: str, control_command: str
 def verify_package(package_json: Path) -> None:
     package = load(package_json)
     extensions = package.get("pi", {}).get("extensions", [])
-    if "./extensions/ready-notify.ts" not in extensions:
-        raise SystemExit("package.json does not declare ready-notify.ts")
+    required_extensions = {
+        "./extensions/ready-notify.ts",
+        "./extensions/main-thread-wait-guard.ts",
+    }
+    missing_extensions = required_extensions.difference(extensions)
+    if missing_extensions:
+        raise SystemExit(
+            "package.json is missing required Pi extensions: "
+            + ", ".join(sorted(missing_extensions))
+        )
     if package.get("type") != "module":
         raise SystemExit("package.json must use ESM for the OpenCode plugin")
     if package.get("main") != "./.opencode/plugins/pi-agent-setup.js":
