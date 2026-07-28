@@ -27,11 +27,11 @@
   },
   "scripts": {
     "setup:local": "bash scripts/update-local.sh",
-    "test": "npm run test:config && npm run test:local-assets && npm run test:runtime-resolution && npm run test:aad-audit-convergence && npm run test:opencode && npm run test:main-thread-wait-guard",
+    "test": "npm run test:config && npm run test:local-assets && npm run test:runtime-resolution && npm run test:aad-task-package && npm run test:opencode && npm run test:main-thread-wait-guard",
     "test:config": "python3 scripts/test-config-components.py .",
     "test:local-assets": "bash scripts/test-local-assets.sh",
     "test:runtime-resolution": "bash scripts/test-runtime-resolution.sh",
-    "test:aad-audit-convergence": "node scripts/test-aad-audit-convergence.mjs",
+    "test:aad-task-package": "node scripts/test-aad-task-package.mjs",
     "test:opencode": "node scripts/test-opencode-adapter.mjs",
     "test:main-thread-wait-guard": "node scripts/test-main-thread-wait-guard.mjs",
     "secrets:check": "bash scripts/secrets-check.sh"
