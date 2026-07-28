@@ -39,7 +39,7 @@ Use this skill for every AAD-owned job. If the design is not settled enough to d
    - agent order, their delegation role
    - report paths for delegated agents
 9. Check plan readiness before delegation: every task has a goal, acceptance criteria, evidence route, test plan, dependencies, executor, agent-order entry, plan context to pass, report path, and do-not-touch boundaries where relevant.
-10. Execute only ready work in the recorded agent order. Keep ignored task state as the per-result ledger; batch tracked task-package updates at phase boundaries instead of committing per routed result.
+10. Execute only ready work in the recorded agent order. Keep the ignored canonical task package as the sole per-result routing ledger; batch any tracked phase-publication updates at phase boundaries instead of committing per routed result.
 11. Before done-state, audit every task and acceptance criterion against fresh evidence and write the plan scorecard and readiness ladder.
 
 ## Mandatory planning lifecycle
@@ -51,7 +51,7 @@ Every root or slice owner must:
 3. **Gate** — stop implementation dispatch until the plan is complete enough to execute and verify.
 4. **Order** — record which agent acts first, which agents depend on earlier results, which may overlap, and what plan context each receives.
 5. **Route** — pass the whole plan or the exact assigned section plus every referenced dependency and contract field.
-6. **Update** — the active plan coordinator records child results, task status, evidence, blockers, deviations, and any changed order in ignored task state before subsequent routing. In a tracked task package, batch the consolidated updates at phase boundaries (charter/planning, integrated implementation, baseline disposition, closure or escalation, final result).
+6. **Update** — the active plan coordinator records child results, task status, evidence, blockers, deviations, and any changed order in the ignored canonical ledger before subsequent routing. When repository policy requires tracked task documents, publish only consolidated phase snapshots (charter/planning, integrated implementation, baseline disposition, closure or escalation, final result); the tracked publication is not a second routing ledger.
 7. **Audit** — compare the integrated result with every task and acceptance criterion under the frozen charter. Use at most one baseline audit and one bounded closure audit; closure checks stable baseline finding IDs and remediation-caused regressions only.
 8. **Score** — write the plan scorecard and readiness ladder before any unqualified completion claim.
 
@@ -263,7 +263,7 @@ Each total must link to the corresponding plan task, criterion, evidence, or dev
 - Record every delegated call in `Agent order`, including prerequisites, safe concurrency, plan context, and return path.
 - Follow ready plan tasks and order entries instead of inventing unrecorded work during execution.
 - Pass the whole plan or a self-contained assigned section to every child; never pass an isolated task that omits referenced dependencies or constraints.
-- Keep ignored task state current after each routed result. For a tracked task package, batch consolidated task-package updates at phase boundaries rather than creating a tracked write or commit for each result; record a changed scope, acceptance criterion, dependency, executor, agent order, or verification route in ignored state before acting on it.
+- Keep the ignored canonical ledger current after each routed result. When tracked task documents are required, batch consolidated phase-publication updates rather than creating a tracked write, commit, or exact-head audit target for each result; record a changed scope, acceptance criterion, dependency, executor, agent order, or verification route in the ignored ledger before acting on it.
 - Audit and score the completed work against the plan and frozen charter before done-state; do not exceed the baseline plus bounded-closure audit maximum without human/architect or successor-task escalation.
 - Prefer one owner carrying the work when one owner can do it cheaply.
 - Do not inject mandatory review loops or external workflow skills.

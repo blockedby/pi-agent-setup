@@ -22,3 +22,4 @@ id_ed25519
 *.pem
 *.key
 .pi-subagents/artifacts/
+.pi/aad/

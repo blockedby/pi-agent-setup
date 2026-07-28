@@ -23,6 +23,15 @@ Example:
 .pi/aad/tasks/2026-05-22-add-invoices-page/
 ```
 
+## Ledger and publication roles
+
+Keep these roles distinct when repository policy requires public/tracked task documents:
+
+- **Ignored canonical ledger:** `.pi/aad/tasks/<task>/` (or another path proven ignored) is the sole per-result routing ledger. Raw child reports, progress, repeated verification logs, finding dispositions, and current execution state live here.
+- **Tracked phase publication:** a repository plan/report path is a sanitized phase-boundary snapshot for collaborators and history. It is not a second routing ledger, does not receive raw child progress by default, and must not create a new exact-head audit target after every child result.
+
+Record the tracked publication path, when any, in the ignored canonical plan. Before routing raw output, prove the ledger path is ignored with `git check-ignore`; directory naming alone is not proof. If the default path is not ignored, add the repository ignore rule or choose another ignored canonical location. An explicit unignored `--location` creates a tracked publication artifact, not the canonical per-result ledger.
+
 ## Directory structure
 
 Use this structure unless the repo has a stricter convention:
@@ -61,7 +70,7 @@ The first root or slice owner receiving an owned job checks for a supplied or re
 
 ### Creation helper
 
-Resolve [`scripts/create-task-package.sh`](scripts/create-task-package.sh) relative to the directory containing this `SKILL.md`. The helper creates the standard directories plus draft `README.md` and `plan.md` files. It refuses to overwrite an existing package.
+Resolve [`scripts/create-task-package.sh`](scripts/create-task-package.sh) relative to the directory containing this `SKILL.md`. The helper creates the standard directories plus draft `README.md` and `plan.md` files. It refuses to overwrite an existing package. Inside a Git worktree, the default location also refuses creation unless `git check-ignore` proves it is ignored. Its output reports `ledger_mode=ignored-canonical`, `tracked-publication`, or `outside-git`.
 
 Use the default `.pi/aad/tasks` location:
 
@@ -85,7 +94,7 @@ The resulting path is `<location>/YYYY-MM-DD-<task-slug>/`. `--name` is optional
 Creation checklist:
 
 1. Search the delegated context and active worktree for the supplied or current task package.
-2. If no plan exists, choose a short, stable lowercase kebab-case task slug and run the bundled creation helper, using `.pi/aad/tasks` unless the owner provides a repo-specific parent path.
+2. If no plan exists, choose a short, stable lowercase kebab-case task slug and run the bundled creation helper. Use `.pi/aad/tasks` for the ignored canonical ledger after proving it is ignored. Treat an explicit unignored repository path as tracked phase publication and keep routing/raw execution state in the ignored canonical ledger.
 3. Review and complete the generated `README.md`, which includes:
    - task name
    - status
@@ -105,7 +114,7 @@ Only the active plan coordinator updates the canonical ledger. A coordination tr
 
 Each child receives a distinct, file-backed report path and, for non-trivial work, a distinct progress path under the task package. A child may append dated status/comments only to its own supplied report/progress file; it must not edit the plan or another child file unless coordination was explicitly transferred. The active coordinator reads those canonical child files. The default `.pi/` task package is ignored canonical AAD state: keep it as the per-result ledger. Pi-subagents 0.34 still creates `.pi-subagents/` debug artifacts upstream; that compatibility path is also ignored and is not the canonical ledger. For trivial one-step work, omit the task package and return a concise inline result.
 
-When repository policy additionally requires tracked task documents, keep raw child reports, progress, and repeated verification logs in the ignored canonical package unless a specific tracked artifact is required. Consolidate the ignored ledger into the tracked plan/report only at phase boundaries—charter/planning, integrated implementation, baseline finding disposition, closure or escalation, and final result—and commit at most that phase batch. A tracked document may be edited earlier when explicitly routed, but it must not create a new exact-head audit target per child result.
+When repository policy additionally requires tracked task documents, record that publication path in the ignored canonical plan. Keep raw child reports, progress, and repeated verification logs in the ignored canonical package unless a specific tracked artifact is required. Consolidate the ignored ledger into the tracked phase publication only at phase boundaries—charter/planning, integrated implementation, baseline finding disposition, closure or escalation, and final result—and commit at most that phase batch. The tracked publication is never the per-result routing ledger and must not create a new exact-head audit target per child result.
 
 Before relying on harness inline output, a parent reads the child's routed report and progress files when provided. Inline output, transient run IDs, and temporary harness artifact paths are convenience signals, not the acceptance record.
 
