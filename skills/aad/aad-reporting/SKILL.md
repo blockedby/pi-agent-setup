@@ -68,6 +68,13 @@ The report is a continuation packet, not a diary.
   - Status: <not available before push / passed / failed / not checked>
   - Evidence: <PR/check URL, job name, or reason>
 
+## Acceptance state
+- Frozen charter: <path/section / existing low-risk criteria / not applicable>
+- Audit stage: <not required / baseline pending / baseline rejected / closure pending / independently accepted / escalated>
+- Executable/product identity: <accepted commit/ref plus path-set digest / not applicable>
+- Readiness rung: <implemented / owner-verified / independently accepted / runtime/full-suite accepted / merge-ready>
+- Head reconciliation: <not needed / bounded docs-only passed / executable-product change requires reassessment>
+
 ## Issues
 ### Issue R-01: <short title>
 - Description: <what exactly was found>
@@ -109,7 +116,7 @@ The report is a continuation packet, not a diary.
 - Expected output: <what the next actor should return>
 ```
 
-Use every section that applies to the report scope. Owner-level and final reports must fill `Spec compliance`, `Acceptance verification`, `System readiness`, `Verification run`, `Issues`, and `Side findings`. Supporting-agent reports may mark owner-only sections as `not applicable` when the delegated scope does not include them. Remote checks / CI should be reported only when a branch or PR has been pushed and such checks exist; before push, record it as `not available before push` rather than treating it as skipped verification.
+Use every section that applies to the report scope. Owner-level and final reports must fill `Spec compliance`, `Acceptance verification`, `System readiness`, `Verification run`, `Acceptance state`, `Issues`, and `Side findings`. Supporting-agent reports may mark owner-only sections as `not applicable` when the delegated scope does not include them. Remote checks / CI should be reported only when a branch or PR has been pushed and such checks exist; before push, record it as `not available before push` rather than treating it as skipped verification.
 
 ## Fill rules
 
@@ -128,7 +135,8 @@ Use every section that applies to the report scope. Owner-level and final report
 
 - [ ] If a task package/report path was provided, I wrote or updated that file.
 - [ ] My report is understandable without opening GitHub first.
-- [ ] Each completed outcome is represented in spec compliance, acceptance verification, system readiness, or resolved issues with short exact evidence.
+- [ ] Each completed outcome is represented in spec compliance, acceptance verification, system readiness, acceptance state, or resolved issues with short exact evidence.
+- [ ] The readiness rung is not higher than its evidence, and any required audit stage or head reconciliation is explicit.
 - [ ] Each acceptance criterion has a test, check, manual evidence, or explicit waiver.
 - [ ] System readiness gaps are listed when the task touches integration, config, runtime, or deployment wiring.
 - [ ] Each issue is self-contained.

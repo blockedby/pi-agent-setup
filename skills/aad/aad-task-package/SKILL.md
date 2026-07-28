@@ -95,7 +95,7 @@ Creation checklist:
    - report index
 4. Review and complete the generated `plan.md` with the active plan coordinator, current task intake, repo orientation, reuse discovery, missing pieces, plan tasks, dependency graph, agent order, and execution ledger.
 5. Add task-specific files under the generated `reports/`, `verification/`, `artifacts/`, and `progress/` directories as needed.
-6. Commit and push the initial task package when it uses an owner-provided tracked repository path and an early draft PR is being opened.
+6. When it uses an owner-provided tracked repository path and an early draft PR is being opened, include the initial task package in the charter/planning phase batch. Do not create a commit for each later result.
 
 ## Canonical plan coordination
 
@@ -103,7 +103,9 @@ For non-trivial delegated work, use `<task-package>/plan.md` as the one file-bac
 
 Only the active plan coordinator updates the canonical ledger. A coordination transfer must be recorded in the plan before a different owner edits it. Receiving the whole plan or one plan section for execution does not by itself transfer coordination.
 
-Each child receives a distinct, file-backed report path and, for non-trivial work, a distinct progress path under the task package. A child may append dated status/comments only to its own supplied report/progress file; it must not edit the plan or another child file unless coordination was explicitly transferred. The active coordinator updates the ledger after reading those canonical child files. The default `.pi/` task package is ignored canonical AAD state and is not committed. Pi-subagents 0.34 still creates `.pi-subagents/` debug artifacts upstream; that compatibility path is also ignored and is not the canonical ledger. For trivial one-step work, omit the task package and return a concise inline result.
+Each child receives a distinct, file-backed report path and, for non-trivial work, a distinct progress path under the task package. A child may append dated status/comments only to its own supplied report/progress file; it must not edit the plan or another child file unless coordination was explicitly transferred. The active coordinator reads those canonical child files. The default `.pi/` task package is ignored canonical AAD state: keep it as the per-result ledger. Pi-subagents 0.34 still creates `.pi-subagents/` debug artifacts upstream; that compatibility path is also ignored and is not the canonical ledger. For trivial one-step work, omit the task package and return a concise inline result.
+
+When repository policy additionally requires tracked task documents, keep raw child reports, progress, and repeated verification logs in the ignored canonical package unless a specific tracked artifact is required. Consolidate the ignored ledger into the tracked plan/report only at phase boundaries—charter/planning, integrated implementation, baseline finding disposition, closure or escalation, and final result—and commit at most that phase batch. A tracked document may be edited earlier when explicitly routed, but it must not create a new exact-head audit target per child result.
 
 Before relying on harness inline output, a parent reads the child's routed report and progress files when provided. Inline output, transient run IDs, and temporary harness artifact paths are convenience signals, not the acceptance record.
 
@@ -127,6 +129,10 @@ Track:
 - acceptance verification evidence
 - blockers and side findings
 - plan scorecard: completed tasks, satisfied acceptance criteria, passed evidence routes, resolved deviations, open blockers, and final plan result
+- frozen acceptance charter for risky, concurrent, or destructive work: stable criterion/invariant IDs, threat boundaries, evidence routes, executable/product tree identity, scope boundary, and audit limit
+- audit finding IDs and owner classifications: current-goal remediation, noncritical follow-up, or escalation
+- readiness ladder: implemented, owner-verified, independently accepted, runtime/full-suite accepted, merge-ready
+- executable/product tree identity and any bounded docs-only head reconciliation
 - final done-state
 
 Do not rewrite history-heavy details into prose. Prefer short, current status entries with links to the detailed report files.
@@ -144,7 +150,7 @@ Report path: <task-package>/reports/<agent-or-task>.md
 Verification path: <task-package>/verification/<file>.md, when relevant
 ```
 
-If a report path is provided, write or update that file before returning. If no task package is provided for non-trivial routed work, create or infer the task package through this skill before delegation. For trivial work, return the report inline and say no task package was used.
+If a report path is provided, write or update that file before returning. If repository policy requires a tracked task document, prefer routing raw child/progress output to the ignored canonical package and let the coordinator publish a consolidated tracked phase report; use an explicitly supplied tracked report path when that artifact itself is required. If no task package is provided for non-trivial routed work, create or infer the task package through this skill before delegation. For trivial work, return the report inline and say no task package was used.
 
 ## Agent report defaults
 
@@ -168,6 +174,7 @@ If a report path is provided, write or update that file before returning. If no 
 - Prefer appending/updating the relevant report over scattering new files.
 - Use `progress/` for internal agent progress notes; progress files are allowed to be rougher than final reports but must not contain secrets.
 - If a file already contains another agent's report, append a timestamped section instead of overwriting it.
+- Default ignored task state may be updated per result. When tracked task documents are also required, keep raw progress/repeated evidence in the ignored canonical package and batch consolidated durable plan/report updates at phase boundaries; do not create a new tracked commit or exact-head audit target for each result.
 
 ## Early draft PR convention
 
@@ -175,7 +182,7 @@ For implementation-bound root slice work:
 
 1. Create/enter the worktree.
 2. Create the task package and initial plan.
-3. Commit and push the task package only when it uses an owner-provided tracked repository path.
+3. When it uses an owner-provided tracked repository path, batch the task package with the charter/planning phase; do not commit it separately for each routed result.
 4. Open a draft PR early, unless the user or repo policy says not to.
 5. Continue dispatching agents and updating task package artifacts through the PR branch.
 

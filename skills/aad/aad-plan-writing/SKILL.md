@@ -22,12 +22,14 @@ Use this skill for every AAD-owned job. If the design is not settled enough to d
    - out-of-scope boundaries
    - done-state
    - known constraints and blocking unknowns
-4. Identify the files, components, services, data models, APIs, tests, or docs likely to change.
-5. Identify existing patterns or reusable implementations the plan should follow.
-6. Define the ownership model:
+   - risk level: low-risk or risky/concurrent/destructive
+4. For risky, concurrent, or destructive work, freeze an acceptance charter before implementation or concurrent dispatch. Record stable criterion/invariant IDs, threat boundaries, evidence routes, executable/product tree identity, scope limits, planned audit depth, and required readiness rung. Do not alter the charter to absorb later findings; classify them instead.
+5. Identify the files, components, services, data models, APIs, tests, or docs likely to change.
+6. Identify existing patterns or reusable implementations the plan should follow.
+7. Define the ownership model:
    - stays whole under the current owner
    - or splits into named slices with clear boundaries
-7. Write or update `<task-package>/plan.md` with:
+8. Write or update `<task-package>/plan.md` with:
    - active plan coordinator
    - goal
    - scope and do-not-touch boundaries
@@ -36,9 +38,9 @@ Use this skill for every AAD-owned job. If the design is not settled enough to d
    - task dependencies
    - agent order, their delegation role
    - report paths for delegated agents
-8. Check plan readiness before delegation: every task has a goal, acceptance criteria, evidence route, test plan, dependencies, executor, agent-order entry, plan context to pass, report path, and do-not-touch boundaries where relevant.
-9. Execute only ready work in the recorded agent order and update task status, evidence, blockers, follow-ups, deviations, and future order after every routed result.
-10. Before done-state, audit every task and acceptance criterion against fresh evidence and write the plan scorecard.
+9. Check plan readiness before delegation: every task has a goal, acceptance criteria, evidence route, test plan, dependencies, executor, agent-order entry, plan context to pass, report path, and do-not-touch boundaries where relevant.
+10. Execute only ready work in the recorded agent order. Keep ignored task state as the per-result ledger; batch tracked task-package updates at phase boundaries instead of committing per routed result.
+11. Before done-state, audit every task and acceptance criterion against fresh evidence and write the plan scorecard and readiness ladder.
 
 ## Mandatory planning lifecycle
 
@@ -49,13 +51,33 @@ Every root or slice owner must:
 3. **Gate** — stop implementation dispatch until the plan is complete enough to execute and verify.
 4. **Order** — record which agent acts first, which agents depend on earlier results, which may overlap, and what plan context each receives.
 5. **Route** — pass the whole plan or the exact assigned section plus every referenced dependency and contract field.
-6. **Update** — the active plan coordinator records child results, task status, evidence, blockers, deviations, and any changed order before subsequent routing.
-7. **Audit** — compare the integrated result with every task and acceptance criterion.
-8. **Score** — write the plan scorecard before any unqualified completion claim.
+6. **Update** — the active plan coordinator records child results, task status, evidence, blockers, deviations, and any changed order in ignored task state before subsequent routing. In a tracked task package, batch the consolidated updates at phase boundaries (charter/planning, integrated implementation, baseline disposition, closure or escalation, final result).
+7. **Audit** — compare the integrated result with every task and acceptance criterion under the frozen charter. Use at most one baseline audit and one bounded closure audit; closure checks stable baseline finding IDs and remediation-caused regressions only.
+8. **Score** — write the plan scorecard and readiness ladder before any unqualified completion claim.
 
 The first owner called is the initial plan coordinator when no plan exists. An owner receiving an existing plan does not replace it. Delegated children write their assigned report/progress files; they edit the plan only after an explicit coordination transfer recorded in the plan.
 
 A small job may use one compact plan task. It may not omit the plan, acceptance criteria, evidence route, agent order when delegation occurs, or final scorecard once an AAD owner is executing the job.
+
+## Frozen acceptance charter and audit control
+
+For risky, concurrent, or destructive work, place this concise section before dispatch:
+
+```md
+## Frozen acceptance charter
+- Risk trigger: <risky / concurrent / destructive>
+- Stable criterion/invariant IDs: <AC-1 / INV-1 / ...>
+- Threat boundaries: <security, privacy, data-loss, concurrency, destructive-operation limits>
+- Evidence routes: <criterion ID → targeted evidence>
+- Executable/product tree identity: <accepted commit/ref plus explicit executable/product path set and digest; do not let excluded evidence-only docs redefine this identity>
+- Scope boundary: <what is not reopened by audit>
+- Planned audit: <one baseline; one bounded closure only when baseline remediation is needed>
+- Required readiness rung: <implemented / owner-verified / independently accepted / runtime/full-suite accepted / merge-ready>
+```
+
+An owner classifies each finding against this charter; an auditor supplies evidence and a recommendation but does not expand the target. Noncritical new scope is a follow-up. A critical security, privacy, or data-loss issue, or any remediation regression, escalates to a human/architect decision or successor-task charter. Never create an implicit audit 3.
+
+Use one baseline audit and one bounded closure audit as the normal maximum. The closure may check only stable prior finding IDs and remediation-caused regressions. For low-risk, non-concurrent, non-destructive work, use a compact plan and proportionate evidence; do not add ceremony or independent audits without a concrete reason.
 
 ## Task sizing
 
@@ -198,6 +220,21 @@ Execution status:
 
 No meaningful plan task should omit acceptance criteria or a verification plan. If a criterion cannot be automated, state the manual evidence expected.
 
+## Tree identity, reconciliation, and readiness
+
+When code acceptance matters, record the executable/product identity before the accepted evidence run as an accepted commit/ref plus an explicit path set and digest for executable/product inputs. A whole-repository Git tree may be recorded as supporting provenance, but it is not the product identity when approved evidence-only documentation is excluded. If `HEAD` advances afterwards, compare the changed paths and the defined product path-set digest with that accepted identity. When changes are only approved documentation or task-package documents, perform a bounded docs-only head reconciliation: identify the accepted and current heads, list the changed paths, and confirm the executable/product path set and digest did not change. This reconciliation does not require a full code re-audit. Any executable/product change invalidates the prior product identity and must be assessed under the charter.
+
+Record readiness without skipping or overstating rungs:
+
+```md
+## Readiness ladder
+- implemented: <implementation complete for the chartered target>
+- owner-verified: <owner has fresh direct evidence>
+- independently accepted: <baseline/closure audit accepted when required>
+- runtime/full-suite accepted: <relevant runtime and full-suite evidence accepted>
+- merge-ready: <all required preceding rungs, finding dispositions, and branch requirements met>
+```
+
 ## Plan audit and scorecard
 
 Before an owner claims done-state, append or update:
@@ -209,6 +246,9 @@ Before an owner claims done-state, append or update:
 - Evidence routes passed: <passed>/<total>
 - Deviations resolved or explicitly accepted: <resolved>/<total>
 - Open blockers: <count>
+- Readiness rung reached: <implemented / owner-verified / independently accepted / runtime/full-suite accepted / merge-ready>
+- Executable/product tree identity: <accepted identity / not applicable>
+- Head reconciliation: <not needed / bounded docs-only passed / executable-product change requires reassessment>
 - Final plan result: <pass / partial / fail / blocked>
 ```
 
@@ -223,8 +263,8 @@ Each total must link to the corresponding plan task, criterion, evidence, or dev
 - Record every delegated call in `Agent order`, including prerequisites, safe concurrency, plan context, and return path.
 - Follow ready plan tasks and order entries instead of inventing unrecorded work during execution.
 - Pass the whole plan or a self-contained assigned section to every child; never pass an isolated task that omits referenced dependencies or constraints.
-- Update the plan after every routed result and before acting on a changed scope, acceptance criterion, dependency, executor, agent order, or verification route.
-- Audit and score the completed work against the plan before done-state.
+- Keep ignored task state current after each routed result. For a tracked task package, batch consolidated task-package updates at phase boundaries rather than creating a tracked write or commit for each result; record a changed scope, acceptance criterion, dependency, executor, agent order, or verification route in ignored state before acting on it.
+- Audit and score the completed work against the plan and frozen charter before done-state; do not exceed the baseline plus bounded-closure audit maximum without human/architect or successor-task escalation.
 - Prefer one owner carrying the work when one owner can do it cheaply.
 - Do not inject mandatory review loops or external workflow skills.
 - Make verification explicit for each meaningful checkpoint.

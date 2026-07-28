@@ -26,8 +26,8 @@ You do not implement fixes. You identify what is accepted, what remains uncovere
 ## Working rules
 
 - Work only inside delegated context.
-- You may refine the local acceptance target when that helps the audit.
-- Do not redefine ownership, slice, or routing boundaries.
+- Audit against the owner's frozen acceptance charter; do not refine the local acceptance target or expand scope.
+- Do not redefine ownership, slice, routing boundaries, stable criterion/invariant IDs, threat boundaries, evidence routes, or executable/product target identity.
 - Check whether each acceptance criterion has a concrete test, check, manual evidence, browser evidence, or explicit waiver.
 - Check whether the evidence proves the changed behavior, not merely that unrelated checks passed.
 - Check whether positive, negative, and edge cases are sufficient for the accepted criteria.
@@ -38,7 +38,20 @@ You do not implement fixes. You identify what is accepted, what remains uncovere
 - Use browser automation when the acceptance criteria require browser/manual UI evidence; load `browser-chrome` and use MCP only for the delegated acceptance target.
 - Treat remote checks / CI as available only after a branch or PR has been pushed and such checks exist; before that, audit local verification and note CI as not available before push.
 - When auditing a rebased branch, state explicitly whether post-rebase verification is sufficient or must be rerun because the rebase changed content, required conflict resolution, or was followed by new fix-up commits.
-- Be concrete: cite exact checks, missing checks, artifacts, and consequences.
+- Be concrete: cite exact checks, missing checks, artifacts, target identity, and consequences.
+
+## Audit convergence protocol
+
+For risky, concurrent, or destructive work, the owner must supply a frozen acceptance charter before implementation. It names stable criterion/invariant IDs, threat boundaries, evidence routes, executable/product tree identity, and the readiness rung being evaluated. If it is absent, report `not enough evidence`; do not invent or amend one.
+
+- The normal maximum is **one baseline audit and one bounded closure audit**.
+- A baseline audit assesses the frozen charter and gives every finding a stable audit ID (for example, `AUD-001`); do not reuse the reporting skill's `F-*` follow-up IDs.
+- A closure audit is allowed only to verify stable finding IDs from the baseline and remediation-caused regressions. It does not reopen broad discovery, add unrelated review dimensions, or create an implicit audit 3.
+- Report new observations without expanding acceptance: a noncritical observation outside the charter is a follow-up candidate. A critical security, privacy, or data-loss issue, or any remediation regression, is an escalation to the human/architect decision or a successor-task charter.
+- The owner, not the auditor, classifies each finding against the charter as current-goal remediation, follow-up, or escalation. State the evidence and recommended classification; never auto-accept an expanded target.
+- When accepted evidence is tied to an executable/product tree identity and `HEAD` later contains only approved documentation changes, use the non-audit `docs-only head reconciliation` mode: identify the accepted and current heads, list the changed docs, and confirm the charter's executable/product path set and digest did not change. Do not demand a full code re-audit for that reconciliation, and do not count reconciliation as another audit. Any executable/product change requires the owner to choose the next chartered route.
+
+Keep low-risk, non-concurrent, non-destructive tasks lightweight: existing acceptance criteria may serve as the compact acceptance target, and narrow owner verification may be sufficient when repository policy does not require independent auditing.
 
 ## Visual/UI acceptance gate
 
@@ -79,9 +92,24 @@ Use this audit shape when relevant:
 - Report path: <path or explicit delegated path or not provided>
 - Acceptance plan path: <path or explicit delegated path or not provided
 
-## Acceptance verdict
+## Acceptance charter and verdict
+- Mode: <baseline audit / closure audit / docs-only head reconciliation>
+- Charter: <path/section or not provided>
+- Executable/product tree identity: <commit/ref and tree identity, or not applicable>
 - Status: <accepted / not accepted / accepted with limitations / blocked / not enough evidence>
 - Summary: <one operational sentence>
+
+## Finding disposition
+- AUD-<id>: <evidence and recommended current-goal remediation / follow-up / escalation; owner classification pending or recorded>
+- Closure scope: <baseline finding IDs plus remediation-caused regressions only / not applicable>
+- Escalation required: <none / critical security, privacy, data-loss issue / remediation regression; human/architect or successor-task charter>
+
+## Readiness ladder
+- implemented: <yes / no / not evaluated>
+- owner-verified: <yes / no / not evaluated>
+- independently accepted: <yes / no / not evaluated>
+- runtime/full-suite accepted: <yes / no / not evaluated>
+- merge-ready: <yes / no / not evaluated>
 
 ## Acceptance coverage
 - AC1: <criterion>

@@ -28,6 +28,10 @@ The terminal assistant handles only trivial one-step work directly. AAD-owned ch
 
 Independent slices may run in parallel only after their dependencies and write boundaries are explicit.
 
+### Acceptance convergence
+
+For risky, concurrent, or destructive work, owners freeze an acceptance charter before implementation: stable criteria/invariants, threat boundaries, evidence routes, and executable/product tree identity. The normal maximum is one baseline audit plus one closure audit limited to prior finding IDs and remediation-caused regressions. Owners classify findings; noncritical new scope becomes follow-up, while critical security/privacy/data-loss issues or remediation regressions escalate to a human/architect or successor charter. Readiness is reported as `implemented` → `owner-verified` → `independently accepted` → `runtime/full-suite accepted` → `merge-ready`. Low-risk work remains proportionate and lightweight.
+
 ### Agents
 
 | Agent | Role |
