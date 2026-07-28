@@ -23,7 +23,7 @@ Use this skill for every AAD-owned job. If the design is not settled enough to d
    - done-state
    - known constraints and blocking unknowns
    - risk level: low-risk or risky/concurrent/destructive
-4. For risky, concurrent, or destructive work, freeze an acceptance charter before implementation or concurrent dispatch. Record stable criterion/invariant IDs, threat boundaries, evidence routes, executable/product tree identity, scope limits, planned audit depth, and required readiness rung. Do not alter the charter to absorb later findings; classify them instead.
+4. When the risk gate in `aad-audit-convergence` applies, load it and record its frozen charter before implementation or concurrent dispatch.
 5. Identify the files, components, services, data models, APIs, tests, or docs likely to change.
 6. Identify existing patterns or reusable implementations the plan should follow.
 7. Define the ownership model:
@@ -52,32 +52,12 @@ Every root or slice owner must:
 4. **Order** — record which agent acts first, which agents depend on earlier results, which may overlap, and what plan context each receives.
 5. **Route** — pass the whole plan or the exact assigned section plus every referenced dependency and contract field.
 6. **Update** — the active plan coordinator records child results, task status, evidence, blockers, deviations, and any changed order in the ignored canonical ledger before subsequent routing. When repository policy requires tracked task documents, publish only consolidated phase snapshots (charter/planning, integrated implementation, baseline disposition, closure or escalation, final result); the tracked publication is not a second routing ledger.
-7. **Audit** — compare the integrated result with every task and acceptance criterion under the frozen charter. Use at most one baseline audit and one bounded closure audit; closure checks stable baseline finding IDs and remediation-caused regressions only.
+7. **Audit** — compare the integrated result with every task and criterion. When `aad-audit-convergence` applies, follow its audit state machine and budget.
 8. **Score** — write the plan scorecard and readiness ladder before any unqualified completion claim.
 
 The first owner called is the initial plan coordinator when no plan exists. An owner receiving an existing plan does not replace it. Delegated children write their assigned report/progress files; they edit the plan only after an explicit coordination transfer recorded in the plan.
 
 A small job may use one compact plan task. It may not omit the plan, acceptance criteria, evidence route, agent order when delegation occurs, or final scorecard once an AAD owner is executing the job.
-
-## Frozen acceptance charter and audit control
-
-For risky, concurrent, or destructive work, place this concise section before dispatch:
-
-```md
-## Frozen acceptance charter
-- Risk trigger: <risky / concurrent / destructive>
-- Stable criterion/invariant IDs: <AC-1 / INV-1 / ...>
-- Threat boundaries: <security, privacy, data-loss, concurrency, destructive-operation limits>
-- Evidence routes: <criterion ID → targeted evidence>
-- Executable/product tree identity: <accepted commit/ref plus explicit executable/product path set and digest; do not let excluded evidence-only docs redefine this identity>
-- Scope boundary: <what is not reopened by audit>
-- Planned audit: <one baseline; one bounded closure only when baseline remediation is needed>
-- Required readiness rung: <implemented / owner-verified / independently accepted / runtime/full-suite accepted / merge-ready>
-```
-
-An owner classifies each finding against this charter; an auditor supplies evidence and a recommendation but does not expand the target. Noncritical new scope is a follow-up. A critical security, privacy, or data-loss issue, or any remediation regression, escalates to a human/architect decision or successor-task charter. Never create an implicit audit 3.
-
-Use one baseline audit and one bounded closure audit as the normal maximum. The closure may check only stable prior finding IDs and remediation-caused regressions. For low-risk, non-concurrent, non-destructive work, use a compact plan and proportionate evidence; do not add ceremony or independent audits without a concrete reason.
 
 ## Task sizing
 
@@ -220,21 +200,6 @@ Execution status:
 
 No meaningful plan task should omit acceptance criteria or a verification plan. If a criterion cannot be automated, state the manual evidence expected.
 
-## Tree identity, reconciliation, and readiness
-
-When code acceptance matters, record the executable/product identity before the accepted evidence run as an accepted commit/ref plus an explicit path set and digest for executable/product inputs. A whole-repository Git tree may be recorded as supporting provenance, but it is not the product identity when approved evidence-only documentation is excluded. If `HEAD` advances afterwards, compare the changed paths and the defined product path-set digest with that accepted identity. When changes are only approved documentation or task-package documents, perform a bounded docs-only head reconciliation: identify the accepted and current heads, list the changed paths, and confirm the executable/product path set and digest did not change. This reconciliation does not require a full code re-audit. Any executable/product change invalidates the prior product identity and must be assessed under the charter.
-
-Record readiness without skipping or overstating rungs:
-
-```md
-## Readiness ladder
-- implemented: <implementation complete for the chartered target>
-- owner-verified: <owner has fresh direct evidence>
-- independently accepted: <baseline/closure audit accepted when required>
-- runtime/full-suite accepted: <relevant runtime and full-suite evidence accepted>
-- merge-ready: <all required preceding rungs, finding dispositions, and branch requirements met>
-```
-
 ## Plan audit and scorecard
 
 Before an owner claims done-state, append or update:
@@ -264,7 +229,7 @@ Each total must link to the corresponding plan task, criterion, evidence, or dev
 - Follow ready plan tasks and order entries instead of inventing unrecorded work during execution.
 - Pass the whole plan or a self-contained assigned section to every child; never pass an isolated task that omits referenced dependencies or constraints.
 - Keep the ignored canonical ledger current after each routed result. When tracked task documents are required, batch consolidated phase-publication updates rather than creating a tracked write, commit, or exact-head audit target for each result; record a changed scope, acceptance criterion, dependency, executor, agent order, or verification route in the ignored ledger before acting on it.
-- Audit and score the completed work against the plan and frozen charter before done-state; do not exceed the baseline plus bounded-closure audit maximum without human/architect or successor-task escalation.
+- Audit and score completed work before done-state. When `aad-audit-convergence` applies, preserve its charter, budget, finding dispositions, product identity, and readiness state.
 - Prefer one owner carrying the work when one owner can do it cheaply.
 - Do not inject mandatory review loops or external workflow skills.
 - Make verification explicit for each meaningful checkpoint.

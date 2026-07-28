@@ -59,61 +59,53 @@ for (const historicalMutation of [
   );
 }
 
+const convergence = read("skills/aad-audit-convergence/SKILL.md");
+requireText(convergence, "skills/aad-audit-convergence/SKILL.md", [
+  "## Risk gate",
+  "## Freeze the charter",
+  "Criteria/invariants",
+  "Threat boundaries",
+  "Evidence map",
+  "Product identity",
+  "## Audit modes and budget",
+  "one baseline audit and, only when baseline remediation is required, one closure audit",
+  "Baseline finding IDs plus remediation-caused regressions",
+  "A closure audit must not reopen broad discovery or create audit 3",
+  "stable `AUD-*` findings",
+  "critical security, privacy, or data-loss issue",
+  "After closure, stop",
+  "## Product identity and documentation reconciliation",
+  "explicit executable/product path set and digest",
+  "`docs-reconcile` is not another audit",
+  "## Readiness states",
+  "`runtime/full-suite accepted`",
+  "`merge-ready`",
+]);
+
 const auditor = read("agents/aad-auditor.md");
 requireText(auditor, "agents/aad-auditor.md", [
-  "frozen acceptance charter",
-  "one baseline audit and one bounded closure audit",
-  "stable finding IDs from the baseline and remediation-caused regressions",
-  "implicit audit 3",
-  "critical security, privacy, or data-loss issue, or any remediation regression",
-  "noncritical observation outside the charter is a follow-up candidate",
-  "The owner, not the auditor, classifies each finding",
-  "stable audit ID (for example, `AUD-001`)",
-  "do not reuse the reporting skill's `F-*` follow-up IDs",
-  "non-audit `docs-only head reconciliation` mode",
-  "do not count reconciliation as another audit",
+  "do not expand scope",
+  "load `aad-audit-convergence`",
+  "follow its supplied charter, audit mode, finding schema, and finite budget",
+  "Highest readiness state",
 ]);
 
 for (const relativePath of ["agents/aad-root-owner.md", "agents/aad-slice-owner.md"]) {
-  const owner = read(relativePath);
-  requireText(owner, relativePath, [
-    "acceptance charter",
-    "stable criterion/invariant IDs",
-    "threat boundaries",
-    "evidence routes",
-    "executable/product tree identity",
-    "one baseline audit and one bounded closure audit",
-    "remediation-caused regressions",
-    "implicit audit 3",
-    "noncritical",
-    "follow-up",
-    "human/architect",
-    "bounded docs-only head reconciliation",
-    "implemented` → `owner-verified` → `independently accepted` → `runtime/full-suite accepted` → `merge-ready",
-    "low-risk, non-concurrent, non-destructive",
+  requireText(read(relativePath), relativePath, [
+    "load `aad-audit-convergence`",
+    "charter, finite state machine, product-identity, and readiness contracts",
+    "For low-risk work",
   ]);
 }
 
 const planWriting = read("skills/aad-plan-writing/SKILL.md");
 requireText(planWriting, "skills/aad-plan-writing/SKILL.md", [
-  "## Frozen acceptance charter and audit control",
-  "Stable criterion/invariant IDs",
-  "Threat boundaries",
-  "Evidence routes",
-  "Executable/product tree identity",
-  "one baseline audit and one bounded closure audit as the normal maximum",
-  "stable prior finding IDs and remediation-caused regressions",
-  "Noncritical new scope is a follow-up",
-  "successor-task charter",
-  "implicit audit 3",
+  "risk gate in `aad-audit-convergence`",
+  "follow its audit state machine and budget",
   "ignored canonical task package as the sole per-result routing ledger",
   "tracked phase-publication updates at phase boundaries",
-  "## Tree identity, reconciliation, and readiness",
-  "explicit path set and digest for executable/product inputs",
-  "it is not the product identity when approved evidence-only documentation is excluded",
-  "bounded docs-only head reconciliation",
-  "runtime/full-suite accepted",
-  "merge-ready",
+  "Readiness rung reached",
+  "Executable/product tree identity",
 ]);
 
 const taskPackage = read("skills/aad-task-package/SKILL.md");
@@ -125,31 +117,33 @@ requireText(taskPackage, "skills/aad-task-package/SKILL.md", [
   "Keep raw child reports, progress, and repeated verification logs in the ignored canonical package",
   "Consolidate the ignored ledger into the tracked phase publication only at phase boundaries",
   "must not create a new exact-head audit target per child result",
-  "frozen acceptance charter for risky, concurrent, or destructive work",
-  "audit finding IDs and owner classifications",
-  "readiness ladder: implemented, owner-verified, independently accepted, runtime/full-suite accepted, merge-ready",
+  "for tasks using `aad-audit-convergence`",
 ]);
 
 const completion = read("skills/aad-step-completion/SKILL.md");
 requireText(completion, "skills/aad-step-completion/SKILL.md", [
-  "## Acceptance convergence",
-  "frozen acceptance charter",
-  "one baseline audit and one bounded closure audit",
-  "noncritical new scope is a follow-up",
-  "remediation regression",
-  "bounded docs-only head reconciliation",
-  "## Readiness ladder",
-  "runtime/full-suite accepted",
-  "merge-ready",
+  "When the task uses `aad-audit-convergence`, load it",
+  "highest evidence-backed readiness state",
+  "keep completion proportionate",
 ]);
 
 const delegation = read("skills/aad-delegation/SKILL.md");
 requireText(delegation, "skills/aad-delegation/SKILL.md", [
-  "Frozen acceptance charter",
-  "bounded closure for stable finding IDs and remediation-caused regressions",
-  "do not refine the acceptance target",
-  "implicit audit 3",
+  "mode defined by `aad-audit-convergence`",
+  "Acceptance charter",
+  "Audit mode",
+  "load `aad-audit-convergence`",
+  "owners retain finding disposition",
 ]);
+
+for (const [fragment, maximum] of [
+  ["remediation-caused regressions", 1],
+  ["critical security, privacy, or data-loss issue", 1],
+  ["After closure, stop", 1],
+]) {
+  const count = canonicalPolicy.split(fragment).length - 1;
+  assert.ok(count <= maximum, `${JSON.stringify(fragment)} is duplicated across always-loaded context (${count})`);
+}
 
 const reporting = read("skills/aad-reporting/SKILL.md");
 requireText(reporting, "skills/aad-reporting/SKILL.md", [

@@ -32,20 +32,14 @@ You coordinate discovery, planning, delegation, escalation, integration, verific
 
 ## Acceptance convergence
 
-For risky, concurrent, or destructive work, freeze the acceptance charter in `<task-package>/plan.md` before implementation or concurrent dispatch. It includes stable criterion/invariant IDs, threat boundaries, evidence routes, executable/product tree identity, scope boundaries, and the required readiness rung. Preserve it after implementation starts unless a human/architect explicitly replaces it with a successor charter.
-
-Use one baseline audit and one bounded closure audit as the normal maximum. The closure can check only stable baseline finding IDs and remediation-caused regressions, not reopen broad discovery. You classify each auditor finding against the charter: remediate a current-goal blocker, track a noncritical out-of-charter finding as a follow-up, or escalate. A critical security, privacy, or data-loss issue, or any remediation regression, requires a human/architect decision or successor-task charter—never an implicit audit 3.
-
-Record readiness only in this order: `implemented` → `owner-verified` → `independently accepted` → `runtime/full-suite accepted` → `merge-ready`. Tie accepted code to an executable/product tree identity. If only approved documentation changes occur after that identity, do a bounded docs-only head reconciliation that identifies both trees and confirms no executable/product path changed; do not trigger a full code re-audit. Any executable/product change needs a chartered reassessment.
-
-For low-risk, non-concurrent, non-destructive tasks, keep the plan compact and use only proportionate evidence and audit depth.
+For risky, concurrent, destructive, security/privacy-sensitive, or data-loss-sensitive work, load `aad-audit-convergence` before implementation or audit routing and follow its charter, finite state machine, product-identity, and readiness contracts. For low-risk work, existing criteria and proportionate evidence are sufficient unless repository policy requires more.
 
 Do not personally absorb every task. Route work deliberately and early enough to keep execution cheap. You do not hand off accountability: the slice remains yours until it is verified, reported, or explicitly blocked.
 
 You should:
 
 - keep the slice as one owned stream while coordinating its execution
-- use `aad-task-package` and `aad-plan-writing` when a concrete plan is needed; create the task package in the active worktree and write the plan to `<task-package>/plan.md`, including the frozen acceptance charter when the risk gate requires it
+- use `aad-task-package` and `aad-plan-writing` when a concrete plan is needed; include the `aad-audit-convergence` charter when its risk gate applies
 - delegate implementation plan tasks to `aad-implementer` agents
 - decompose oversized plan tasks into sub-slices; use `aad-delegation` when creating sub-slices
 - assign one sub-slice owner per sub-slice when the child work needs its own planning, decomposition, coordination, or integration
@@ -131,9 +125,9 @@ You are responsible for:
 - collecting reports upward
 - integrating `aad-implementer`, sub-slice, and supporting-agent results into the slice outcome and resolving child-result overlaps in the parent worktree
 - treating child `PI_RESULT: HANDOFF` as actionable parent work, not failure: when authorized and available, run the bounded `PARENT_ACTION_REQUIRED` live apply/verification action, collect the expected evidence, and integrate that evidence into the slice done-state; when not authorized or available, report the handoff action and evidence needed as the remaining boundary
-- classifying auditor and execution findings against the frozen charter as current-goal blockers to resolve now, noncritical out-of-charter follow-ups, or escalations that require a human/architect or successor-task charter; never auto-accept scope expansion
+- applying `aad-audit-convergence` finding dispositions and terminal routes when that contract is active
 - dispatching `aad-acceptance-auditor` for acceptance/system-readiness audit when verification evidence should be independently checked
-- deciding and recording the final slice done-state from the plan evidence and auditor output: spec compliance, acceptance verification, system readiness, chartered finding dispositions, readiness ladder, open blockers, and follow-up issues
+- deciding and recording the final slice done-state from plan evidence, system readiness, blockers, follow-ups, and any convergence/readiness state
 
 ## Repo-specific execution defaults
 

@@ -23,13 +23,7 @@ Evidence comes before claims. Acceptance criteria should map to tests, checks, o
 
 ## Acceptance convergence
 
-For risky, concurrent, or destructive work, verify against the frozen acceptance charter: stable criterion/invariant IDs, threat boundaries, evidence routes, executable/product tree identity, and required readiness rung. Do not widen the charter while completing work.
-
-The normal maximum is one baseline audit and one bounded closure audit. A closure verifies only stable prior finding IDs and remediation-caused regressions. The owner classifies findings rather than automatically accepting expanded scope: noncritical new scope is a follow-up; a critical security, privacy, or data-loss finding, or any remediation regression, escalates to a human/architect decision or successor-task charter. Do not use an implicit audit 3.
-
-When code acceptance is bound to an executable/product tree identity, state that identity with the evidence. If later `HEAD` contains only approved documentation changes, perform a bounded docs-only head reconciliation: compare the accepted and current trees, list changed docs, and confirm no executable/product path changed. This does not require a full code re-audit. An executable/product change needs chartered reassessment.
-
-Keep low-risk, non-concurrent, non-destructive work lightweight: use the narrowest direct proof and do not require independent audit unless the charter or repository policy requires it.
+When the task uses `aad-audit-convergence`, load it and report the charter state, product identity, finding dispositions, and highest evidence-backed readiness state. Otherwise keep completion proportionate to the task and repository policy.
 
 ## Verification modes
 
@@ -81,20 +75,6 @@ Acceptance verification:
 ```
 
 A task is not verified if acceptance criteria have no check or explicit waiver.
-
-## Readiness ladder
-
-Report the highest evidence-backed rung only, in order:
-
-```md
-- implemented: <implementation complete for the chartered target>
-- owner-verified: <fresh owner evidence>
-- independently accepted: <independent audit accepted when required>
-- runtime/full-suite accepted: <relevant runtime and full-suite evidence accepted>
-- merge-ready: <all required preceding rungs and finding dispositions satisfied>
-```
-
-Do not label work `merge-ready` from implementation or a narrow check alone.
 
 ## Failure handling
 

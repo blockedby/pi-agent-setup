@@ -138,10 +138,7 @@ Track:
 - acceptance verification evidence
 - blockers and side findings
 - plan scorecard: completed tasks, satisfied acceptance criteria, passed evidence routes, resolved deviations, open blockers, and final plan result
-- frozen acceptance charter for risky, concurrent, or destructive work: stable criterion/invariant IDs, threat boundaries, evidence routes, executable/product tree identity, scope boundary, and audit limit
-- audit finding IDs and owner classifications: current-goal remediation, noncritical follow-up, or escalation
-- readiness ladder: implemented, owner-verified, independently accepted, runtime/full-suite accepted, merge-ready
-- executable/product tree identity and any bounded docs-only head reconciliation
+- for tasks using `aad-audit-convergence`: charter reference, audit mode, finding IDs/dispositions, product identity or reconciliation, and readiness state
 - final done-state
 
 Do not rewrite history-heavy details into prose. Prefer short, current status entries with links to the detailed report files.
