@@ -12,7 +12,7 @@ AGENT_DIR="${PI_AGENT_DIR:-$LOCAL_USER_HOME/.pi/agent}"
 PI_SETTINGS_FILE="${PI_SETTINGS_FILE:-settings/pi-settings.example.json}"
 PI_VERSION="${PI_VERSION:-latest}"
 CODEX_SUBMODULE="$repo_root/packages/pi-codex"
-BROWSER_SKILL="$repo_root/skills/browser-chrome"
+BROWSER_SKILL="$repo_root/skills/general/browser-chrome"
 SETTINGS_PATH="$AGENT_DIR/settings.json"
 
 case "$PI_SETTINGS_FILE" in
@@ -32,11 +32,9 @@ command -v python3 >/dev/null || { echo "python3 is required" >&2; exit 1; }
 if [ ! -f "$CODEX_SUBMODULE/package.json" ]; then
   git -C "$repo_root" submodule update --init packages/pi-codex
 fi
-if [ ! -f "$BROWSER_SKILL/SKILL.md" ]; then
-  git -C "$repo_root" submodule update --init --recursive skills/browser-chrome
-fi
+pi_setup_initialize_skill_sources "$repo_root" all
 
-pi_setup_validate_assets "$repo_root"
+pi_setup_validate_assets "$repo_root" all
 python3 "$repo_root/scripts/lib/config-json.py" verify-package "$repo_root/package.json"
 python3 "$repo_root/scripts/lib/config-json.py" verify-subagents "$repo_root/settings/pi-subagents.config.json"
 
@@ -62,6 +60,7 @@ echo "Installing pi-codex runtime dependencies"
 (cd "$CODEX_SUBMODULE" && "$NPM_BIN" ci --omit=dev)
 
 pi_setup_install_assets "$repo_root" "$AGENT_DIR"
+pi_setup_install_skills "$repo_root" "$AGENT_DIR" all >/dev/null
 
 if [ ! -f "$SETTINGS_PATH" ]; then
   printf '{\n  "packages": []\n}\n' > "$SETTINGS_PATH"
@@ -78,7 +77,7 @@ python3 "$repo_root/scripts/lib/config-json.py" browser-chrome-mcp \
 pi_setup_secure_assets "$AGENT_DIR" "$LOCAL_USER_HOME"
 
 agent_count="$(find "$repo_root/agents" -maxdepth 1 -type f -name '*.md' | wc -l)"
-skill_count="$(find "$repo_root/skills" -mindepth 1 -maxdepth 1 -type d -exec test -f '{}/SKILL.md' ';' -print | wc -l)"
+skill_count="$(pi_setup_count_skills "$repo_root" all)"
 echo "Installed $agent_count agents and $skill_count skills."
 echo "Pi: $PI_BIN"
 echo "Restart Pi or use /reload to load the updated configuration."

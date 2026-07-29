@@ -1,15 +1,58 @@
 #!/usr/bin/env bash
 
+pi_setup_require_skill_set() {
+  case "${1:-}" in
+    general|aad|all) ;;
+    *) echo "Unknown skill set: ${1:-<missing>} (expected general, aad, or all)" >&2; return 2 ;;
+  esac
+}
+
+pi_setup_initialize_skill_sources() {
+  local repo_root="$1" set_name="$2"
+  pi_setup_require_skill_set "$set_name" || return
+
+  case "$set_name" in
+    general|all)
+      if [ ! -f "$repo_root/skills/general/browser-chrome/SKILL.md" ]; then
+        "${GIT_BIN:-git}" -C "$repo_root" submodule update --init --recursive \
+          skills/general/browser-chrome
+      fi
+      ;;
+  esac
+}
+
+pi_setup_validate_skill_target() {
+  local repo_root="$1" agent_dir="$2"
+  python3 "$repo_root/scripts/lib/skill-assets.py" validate-target "$agent_dir"
+}
+
+pi_setup_validate_skills() {
+  local repo_root="$1" set_name="${2:-all}"
+  pi_setup_require_skill_set "$set_name" || return
+  python3 "$repo_root/scripts/lib/skill-assets.py" validate-profile "$repo_root" "$set_name" >/dev/null
+}
+
+pi_setup_install_skills() {
+  local repo_root="$1" agent_dir="$2" set_name="$3"
+  pi_setup_require_skill_set "$set_name" || return
+  python3 "$repo_root/scripts/lib/skill-assets.py" install "$repo_root" "$agent_dir" "$set_name"
+}
+
+pi_setup_count_skills() {
+  local repo_root="$1" set_name="${2:-all}"
+  pi_setup_require_skill_set "$set_name" || return
+  python3 "$repo_root/scripts/lib/skill-assets.py" validate-source "$repo_root" "$set_name"
+}
+
 pi_setup_validate_assets() {
-  local repo_root="$1" file
+  local repo_root="$1" set_name="${2:-all}" file
   local -a agents=("$repo_root"/agents/*.md)
-  local -a skills=("$repo_root"/skills/*/SKILL.md)
 
   [ -f "$repo_root/APPEND_SYSTEM.md" ] || { echo "Missing APPEND_SYSTEM.md" >&2; return 1; }
   [ -f "$repo_root/settings/pi-subagents.config.json" ] || { echo "Missing pi-subagents config" >&2; return 1; }
 
-  for file in "${agents[@]}" "${skills[@]}"; do
-    [ -f "$file" ] || { echo "Missing agent or skill files" >&2; return 1; }
+  for file in "${agents[@]}"; do
+    [ -f "$file" ] || { echo "Missing agent files" >&2; return 1; }
     grep -Eq '^name:[[:space:]]*[^[:space:]]' "$file" || { echo "Missing name in $file" >&2; return 1; }
     grep -Eq '^description:[[:space:]]*[^[:space:]]' "$file" || { echo "Missing description in $file" >&2; return 1; }
   done
@@ -18,19 +61,24 @@ pi_setup_validate_assets() {
     echo "codex_task must not be exposed by checked-in agents" >&2
     return 1
   fi
+
+  pi_setup_validate_skills "$repo_root" "$set_name"
 }
 
 pi_setup_install_assets() {
   local repo_root="$1" agent_dir="$2"
-  local source target stale
+  local stale
   local -a agents=("$repo_root"/agents/*.md)
   local -a extensions=("$repo_root"/extensions/*.ts)
 
-  [ ! -L "$agent_dir" ] || { echo "Refusing symlinked Pi agent directory: $agent_dir" >&2; return 1; }
+  pi_setup_validate_skill_target "$repo_root" "$agent_dir"
+  for stale in "$agent_dir/agents" "$agent_dir/extensions" "$agent_dir/extensions/subagent"; do
+    [ ! -L "$stale" ] || { echo "Refusing symlinked managed directory: $stale" >&2; return 1; }
+  done
   mkdir -p "$agent_dir/agents" "$agent_dir/extensions/subagent" "$agent_dir/skills"
 
-  # This repository owns aad-* plus chrome-browser-agent. Other user agents and
-  # skills are preserved.
+  # Agent ownership remains namespace-based for compatibility. Skill ownership
+  # is handled separately by the exact set-aware manifest.
   find "$agent_dir/agents" -maxdepth 1 -type f -name 'aad-*.md' -delete
   rm -f "$agent_dir/agents/chrome-browser-agent.md"
   for stale in \
@@ -47,28 +95,6 @@ pi_setup_install_assets() {
   install -m 0600 "${agents[@]}" "$agent_dir/agents/"
   install -m 0600 "${extensions[@]}" "$agent_dir/extensions/"
   install -m 0600 "$repo_root/settings/pi-subagents.config.json" "$agent_dir/extensions/subagent/config.json"
-
-  find "$agent_dir/skills" -mindepth 1 -maxdepth 1 -name 'aad-*' -exec rm -rf -- {} +
-  # These non-aad directories were owned by this repository at 3f4a842 and
-  # have since been removed or replaced. External skills are not touched.
-  for stale in \
-    21st-magic-mcp \
-    acceptance-evidence-gate \
-    agent-pipeline-feedback \
-    backend-api-data-quality \
-    browser-visual-report \
-    devops-runtime-readiness \
-    frontend-ui-quality \
-    visual-composition-quality; do
-    rm -rf "$agent_dir/skills/$stale"
-  done
-  for source in "$repo_root"/skills/*; do
-    [ -f "$source/SKILL.md" ] || continue
-    target="$agent_dir/skills/$(basename "$source")"
-    rm -rf "$target"
-    mkdir -p "$target"
-    rsync -a --delete --exclude='.git' "$source/" "$target/"
-  done
 }
 
 pi_setup_secure_assets() {
@@ -80,4 +106,5 @@ pi_setup_secure_assets() {
   find "$agent_dir/skills" -type f -name '*.sh' -exec chmod 700 {} +
   [ ! -f "$agent_dir/mcp.json" ] || chmod 600 "$agent_dir/mcp.json"
   [ ! -f "$agent_dir/settings.json" ] || chmod 600 "$agent_dir/settings.json"
+  [ ! -f "$agent_dir/.pi-agent-setup-skills.json" ] || chmod 600 "$agent_dir/.pi-agent-setup-skills.json"
 }
