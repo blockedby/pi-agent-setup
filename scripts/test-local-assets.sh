@@ -305,6 +305,18 @@ description: Invalid unsafe name.
 EOF
 expect_install_failure "$frontmatter_repo" "$invalid_target" general
 
+yaml_repo="$tmp_root/yaml-repo"
+cp -a "$fixture" "$yaml_repo"
+sed -i 's/^description:.*/description: malformed: yaml/' \
+  "$yaml_repo/skills/general/group/backend-quality/SKILL.md"
+expect_install_failure "$yaml_repo" "$invalid_target" general
+test ! -e "$invalid_target/.pi-agent-setup-skills.json" || fail "invalid YAML wrote manifest"
+sed -i 's/^description:.*/description: "quoted: yaml"/' \
+  "$yaml_repo/skills/general/group/backend-quality/SKILL.md"
+quoted_target="$tmp_root/quoted-target"
+pi_setup_install_skills "$yaml_repo" "$quoted_target" general >/dev/null
+test -f "$quoted_target/skills/backend-quality/SKILL.md" || fail "quoted YAML scalar was rejected"
+
 mismatch_repo="$tmp_root/mismatch-repo"
 cp -a "$fixture" "$mismatch_repo"
 sed -i 's/name: backend-quality/name: different-name/' \

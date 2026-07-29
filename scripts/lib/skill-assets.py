@@ -142,6 +142,12 @@ def scalar(raw: str, field: str, path: Path) -> str:
         r"(?i:null|true|false|~|[-+]?(?:\d+(?:\.\d*)?|\.\d+))", value
     ):
         raise SkillAssetsError(f"non-string {field} in {path}")
+    # Accept a deliberately small plain-scalar subset whose interpretation is
+    # identical under YAML. A colon followed by whitespace starts a mapping,
+    # and an inline comment would make our raw value differ from Pi's parser.
+    # Authors can quote either form when it is intended as text.
+    if ": " in value or value.endswith(":") or " #" in value or "\t" in value:
+        raise SkillAssetsError(f"unsupported plain-scalar {field} in {path}; quote the value")
     return value
 
 
@@ -158,18 +164,22 @@ def parse_frontmatter(path: Path) -> tuple[str, str]:
         raise SkillAssetsError(f"unterminated YAML frontmatter in {path}") from error
 
     fields: dict[str, str] = {}
+    seen_keys: set[str] = set()
     for line in lines[1:end]:
         if not line.strip() or line.lstrip().startswith("#"):
             continue
         if line[:1].isspace() or ":" not in line:
-            continue
+            raise SkillAssetsError(f"unsupported YAML frontmatter syntax in {path}: {line!r}")
         key, raw = line.split(":", 1)
         key = key.strip()
-        if key not in {"name", "description"}:
-            continue
-        if key in fields:
+        if re.fullmatch(r"[A-Za-z0-9_-]+", key) is None:
+            raise SkillAssetsError(f"invalid frontmatter key in {path}: {key!r}")
+        if key in seen_keys:
             raise SkillAssetsError(f"duplicate {key} in {path}")
-        fields[key] = scalar(raw, key, path)
+        seen_keys.add(key)
+        value = scalar(raw, key, path)
+        if key in {"name", "description"}:
+            fields[key] = value
 
     if "name" not in fields:
         raise SkillAssetsError(f"missing or invalid name in {path}")
