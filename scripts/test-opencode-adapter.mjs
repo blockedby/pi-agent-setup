@@ -11,6 +11,7 @@ import {
   DEFAULT_OPENCODE_SUBAGENT_DEPTH,
   OPENCODE_AGENT_NAMES,
   OPENCODE_BOOTSTRAP_MARKER,
+  OPENCODE_SKILL_ROOTS,
   createPiAgentSetupPlugin,
   extractAndStripFrontmatter,
   loadOpenCodeAgentDefinitions,
@@ -18,6 +19,12 @@ import {
 } from "../.opencode/lib/pi-agent-setup-core.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const rootPackage = JSON.parse(fs.readFileSync(path.join(ROOT, "package.json"), "utf8"));
+assert.deepEqual(
+  rootPackage.pi.skills,
+  OPENCODE_SKILL_ROOTS.map(({ sourceRoot }) => `./${sourceRoot}`),
+  "the root Pi package must compose both logical skill roots",
+);
 
 const pluginEntrypoint = await import("../.opencode/plugins/pi-agent-setup.js");
 assert.deepEqual(Object.keys(pluginEntrypoint), ["PiAgentSetupPlugin"]);
@@ -64,15 +71,15 @@ function makeFixture() {
   );
 
   write(
-    path.join(root, "skills/aad-delegation/SKILL.md"),
+    path.join(root, "skills/aad/workflows/aad-delegation/SKILL.md"),
     "---\nname: aad-slicing-and-delegation\ndescription: Delegation\n---\n\n# Delegation\n",
   );
   write(
-    path.join(root, "skills/aad-delegation/scripts/helper.sh"),
+    path.join(root, "skills/aad/workflows/aad-delegation/scripts/helper.sh"),
     "#!/usr/bin/env bash\necho helper\n",
   );
   write(
-    path.join(root, "skills/browser-chrome/SKILL.md"),
+    path.join(root, "skills/general/browser-chrome/SKILL.md"),
     "---\nname: browser-chrome\ndescription: Browser\n---\n\n# Browser\n",
   );
 
@@ -145,6 +152,23 @@ const cacheBase = fs.mkdtempSync(path.join(os.tmpdir(), "pi-agent-setup-cache-")
 try {
   const definitions = loadOpenCodeAgentDefinitions(fixture);
   assert.deepEqual(Object.keys(definitions), OPENCODE_AGENT_NAMES);
+
+  const browserSkill = path.join(fixture, "skills/general/browser-chrome/SKILL.md");
+  const disabledBrowserSkill = `${browserSkill}.disabled`;
+  fs.renameSync(browserSkill, disabledBrowserSkill);
+  write(
+    path.join(fixture, "skills/browser-chrome/SKILL.md"),
+    "---\nname: browser-chrome\ndescription: Old browser path\n---\n",
+  );
+  assert.equal(
+    loadOpenCodeAgentDefinitions(fixture)["chrome-browser-agent"],
+    undefined,
+    "the legacy browser skill path must not enable the browser agent",
+  );
+  fs.rmSync(path.join(fixture, "skills/browser-chrome"), { recursive: true, force: true });
+  fs.renameSync(disabledBrowserSkill, browserSkill);
+  assert.ok(loadOpenCodeAgentDefinitions(fixture)["chrome-browser-agent"]);
+
   assert.equal(definitions["aad-root-owner"].mode, "subagent");
   assert.equal(definitions["aad-root-owner"].permission["*"], "deny");
   assert.equal(definitions["aad-root-owner"].permission.task["*"], "deny");
@@ -182,9 +206,28 @@ try {
   assert.ok(fs.existsSync(path.join(skillView, "aad-slicing-and-delegation/SKILL.md")));
   assert.ok(fs.existsSync(path.join(skillView, "aad-slicing-and-delegation/scripts/helper.sh")));
   assert.ok(fs.existsSync(path.join(skillView, "browser-chrome/SKILL.md")));
+  const marker = JSON.parse(
+    fs.readFileSync(path.join(skillView, ".pi-agent-setup-skill-view.json"), "utf8"),
+  );
+  assert.equal(marker.fingerprint, path.basename(skillView));
+  assert.deepEqual(marker.skills, [
+    {
+      runtimeName: "aad-slicing-and-delegation",
+      logicalSet: "aad",
+      sourceRelativePath: "skills/aad/workflows/aad-delegation",
+    },
+    {
+      runtimeName: "browser-chrome",
+      logicalSet: "general",
+      sourceRelativePath: "skills/general/browser-chrome",
+    },
+  ]);
   assert.equal(materializeOpenCodeSkillView(fixture, cacheBase), skillView);
 
-  const helper = path.join(fixture, "skills/aad-delegation/scripts/helper.sh");
+  const helper = path.join(
+    fixture,
+    "skills/aad/workflows/aad-delegation/scripts/helper.sh",
+  );
   fs.chmodSync(helper, 0o755);
   const executableSkillView = materializeOpenCodeSkillView(fixture, cacheBase);
   assert.notEqual(executableSkillView, skillView);
@@ -213,6 +256,72 @@ try {
     );
   } finally {
     fs.rmSync(concurrentCacheBase, { recursive: true, force: true });
+  }
+
+  const boundaryFixture = fs.mkdtempSync(
+    path.join(os.tmpdir(), "pi-agent-setup-boundary-fixture-"),
+  );
+  const boundaryCache = fs.mkdtempSync(
+    path.join(os.tmpdir(), "pi-agent-setup-boundary-cache-"),
+  );
+  try {
+    const sourceLeaf = "nested/source-leaf";
+    const skillContent =
+      "---\nname: boundary-skill\ndescription: Boundary cache test\n---\n\n# Boundary\n";
+    write(path.join(boundaryFixture, "skills/general", sourceLeaf, "SKILL.md"), skillContent);
+    const generalView = materializeOpenCodeSkillView(boundaryFixture, boundaryCache);
+
+    fs.mkdirSync(path.join(boundaryFixture, "skills/aad/nested"), { recursive: true });
+    fs.renameSync(
+      path.join(boundaryFixture, "skills/general", sourceLeaf),
+      path.join(boundaryFixture, "skills/aad", sourceLeaf),
+    );
+    const aadView = materializeOpenCodeSkillView(boundaryFixture, boundaryCache);
+    assert.notEqual(aadView, generalView, "moving a skill between sets must invalidate cache");
+    const aadMarker = JSON.parse(
+      fs.readFileSync(path.join(aadView, ".pi-agent-setup-skill-view.json"), "utf8"),
+    );
+    assert.deepEqual(aadMarker.skills, [
+      {
+        runtimeName: "boundary-skill",
+        logicalSet: "aad",
+        sourceRelativePath: "skills/aad/nested/source-leaf",
+      },
+    ]);
+  } finally {
+    fs.rmSync(boundaryFixture, { recursive: true, force: true });
+    fs.rmSync(boundaryCache, { recursive: true, force: true });
+  }
+
+  const collisionFixture = fs.mkdtempSync(
+    path.join(os.tmpdir(), "pi-agent-setup-collision-fixture-"),
+  );
+  const collisionCache = fs.mkdtempSync(
+    path.join(os.tmpdir(), "pi-agent-setup-collision-cache-"),
+  );
+  try {
+    write(
+      path.join(collisionFixture, "skills/general/nested/first/SKILL.md"),
+      "---\nname: duplicate-skill\ndescription: First\n---\n",
+    );
+    write(
+      path.join(collisionFixture, "skills/aad/deeper/second/SKILL.md"),
+      "---\nname: duplicate-skill\ndescription: Second\n---\n",
+    );
+    assert.throws(
+      () => materializeOpenCodeSkillView(collisionFixture, collisionCache),
+      /Duplicate OpenCode skill name duplicate-skill: skills\/general\/nested\/first and skills\/aad\/deeper\/second/,
+    );
+    await assert.rejects(
+      createPiAgentSetupPlugin({
+        packageRoot: collisionFixture,
+        cacheBase: collisionCache,
+      })({}),
+      /Duplicate OpenCode skill name duplicate-skill/,
+    );
+  } finally {
+    fs.rmSync(collisionFixture, { recursive: true, force: true });
+    fs.rmSync(collisionCache, { recursive: true, force: true });
   }
 
   const plugin = createPiAgentSetupPlugin({ packageRoot: fixture, cacheBase });
@@ -314,12 +423,30 @@ try {
   fs.rmSync(cacheBase, { recursive: true, force: true });
 }
 
-// Validate the checked-in repository when the full source tree is available.
-if (fs.existsSync(path.join(ROOT, "agents/aad-root-owner.md"))) {
+// The package/OpenCode branch precedes the source move. Enforce final checked-in source
+// invariants as soon as either nested root is integrated, while fixture coverage stays unconditional.
+const repositoryRootPresence = OPENCODE_SKILL_ROOTS.map(({ sourceRoot }) =>
+  fs.existsSync(path.join(ROOT, sourceRoot)),
+);
+if (repositoryRootPresence.some(Boolean)) {
+  assert.ok(
+    repositoryRootPresence.every(Boolean),
+    "checked-in skill integration must provide both logical roots",
+  );
+}
+
+if (
+  repositoryRootPresence.every(Boolean) &&
+  fs.existsSync(path.join(ROOT, "agents/aad-root-owner.md"))
+) {
   const definitions = loadOpenCodeAgentDefinitions(ROOT);
   for (const name of OPENCODE_AGENT_NAMES.filter((agentName) => agentName !== "chrome-browser-agent")) {
     assert.ok(definitions[name], `missing generated OpenCode agent: ${name}`);
   }
+  const browserSkillExists = fs.existsSync(
+    path.join(ROOT, "skills/general/browser-chrome/SKILL.md"),
+  );
+  assert.equal(Boolean(definitions["chrome-browser-agent"]), browserSkillExists);
   assert.equal(definitions["aad-explorer"].permission.edit, "deny");
   assert.equal(definitions["aad-auditor"].permission.edit, "deny");
 
@@ -327,11 +454,26 @@ if (fs.existsSync(path.join(ROOT, "agents/aad-root-owner.md"))) {
   try {
     const skillView = materializeOpenCodeSkillView(ROOT, repositoryCache);
     assert.ok(skillView, "expected at least one checked-in skill");
-    for (const entry of fs.readdirSync(skillView, { withFileTypes: true })) {
-      if (!entry.isDirectory()) continue;
-      const skillPath = path.join(skillView, entry.name, "SKILL.md");
-      const { frontmatter } = extractAndStripFrontmatter(fs.readFileSync(skillPath, "utf8"));
-      assert.equal(frontmatter.name, entry.name, `skill directory mismatch for ${entry.name}`);
+    const marker = JSON.parse(
+      fs.readFileSync(path.join(skillView, ".pi-agent-setup-skill-view.json"), "utf8"),
+    );
+    for (const skill of marker.skills) {
+      const sourceDirectory = path.join(ROOT, skill.sourceRelativePath);
+      const sourceSkillPath = path.join(sourceDirectory, "SKILL.md");
+      const { frontmatter } = extractAndStripFrontmatter(
+        fs.readFileSync(sourceSkillPath, "utf8"),
+      );
+      assert.equal(
+        path.basename(sourceDirectory),
+        skill.runtimeName,
+        `checked-in skill leaf mismatch for ${skill.sourceRelativePath}`,
+      );
+      assert.equal(frontmatter.name, skill.runtimeName);
+      assert.ok(
+        skill.sourceRelativePath.startsWith(`skills/${skill.logicalSet}/`),
+        `skill set/path mismatch for ${skill.runtimeName}`,
+      );
+      assert.ok(fs.existsSync(path.join(skillView, skill.runtimeName, "SKILL.md")));
     }
   } finally {
     fs.rmSync(repositoryCache, { recursive: true, force: true });

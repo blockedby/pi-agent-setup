@@ -18,7 +18,8 @@
       "./extensions/main-thread-wait-guard.ts"
     ],
     "skills": [
-      "./skills"
+      "./skills/general",
+      "./skills/aad"
     ]
   },
   "dependencies": {
