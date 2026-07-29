@@ -33,9 +33,22 @@ pi_setup_validate_skills() {
 }
 
 pi_setup_install_skills() {
-  local repo_root="$1" agent_dir="$2" set_name="$3"
+  local repo_root="$1" agent_dir="$2" set_name="$3" migration_mode="${4:-}"
   pi_setup_require_skill_set "$set_name" || return
-  python3 "$repo_root/scripts/lib/skill-assets.py" install "$repo_root" "$agent_dir" "$set_name"
+  case "$migration_mode" in
+    "")
+      python3 "$repo_root/scripts/lib/skill-assets.py" install \
+        "$repo_root" "$agent_dir" "$set_name"
+      ;;
+    --adopt-legacy)
+      python3 "$repo_root/scripts/lib/skill-assets.py" install \
+        "$repo_root" "$agent_dir" "$set_name" --adopt-legacy
+      ;;
+    *)
+      echo "Unknown skill migration mode: $migration_mode" >&2
+      return 2
+      ;;
+  esac
 }
 
 pi_setup_count_skills() {
@@ -101,9 +114,8 @@ pi_setup_secure_assets() {
   local agent_dir="$1" user_home="$2"
   [ ! -d "$user_home/.pi" ] || chmod 700 "$user_home/.pi"
   chmod 700 "$agent_dir" "$agent_dir/agents" "$agent_dir/extensions" "$agent_dir/skills"
-  find "$agent_dir/agents" "$agent_dir/extensions" "$agent_dir/skills" -type f -exec chmod 600 {} +
-  find "$agent_dir/skills" -type d -exec chmod 700 {} +
-  find "$agent_dir/skills" -type f -name '*.sh' -exec chmod 700 {} +
+  find "$agent_dir/agents" "$agent_dir/extensions" -type d -exec chmod 700 {} +
+  find "$agent_dir/agents" "$agent_dir/extensions" -type f -exec chmod 600 {} +
   [ ! -f "$agent_dir/mcp.json" ] || chmod 600 "$agent_dir/mcp.json"
   [ ! -f "$agent_dir/settings.json" ] || chmod 600 "$agent_dir/settings.json"
   [ ! -f "$agent_dir/.pi-agent-setup-skills.json" ] || chmod 600 "$agent_dir/.pi-agent-setup-skills.json"

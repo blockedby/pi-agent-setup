@@ -70,7 +70,7 @@ EOF
 }
 
 assert_manifest_set() {
-  local manifest="$1" set_name="$2" expected="$3" cleanup="${4:-1}"
+  local manifest="$1" set_name="$2" expected="$3" cleanup="${4:-0}"
   python3 -c '
 import json, sys
 manifest, set_name, expected, cleanup = sys.argv[1], sys.argv[2], int(sys.argv[3]), int(sys.argv[4])
@@ -82,8 +82,9 @@ assert data["legacyCleanup"][set_name] == cleanup
 }
 
 expect_install_failure() {
-  local source_root="$1" agent_dir="$2" set_name="$3"
-  if pi_setup_install_skills "$source_root" "$agent_dir" "$set_name" >/dev/null 2>&1; then
+  local source_root="$1" agent_dir="$2" set_name="$3" migration_mode="${4:-}"
+  if pi_setup_install_skills \
+    "$source_root" "$agent_dir" "$set_name" "$migration_mode" >/dev/null 2>&1; then
     fail "set=$set_name unexpectedly installed from $source_root"
   fi
 }
@@ -95,6 +96,7 @@ make_repo "$fixture"
 [ "$(pi_setup_count_skills "$fixture" aad)" -eq 6 ] || fail "AAD recursive count is not 6"
 [ "$(pi_setup_count_skills "$fixture" all)" -eq 14 ] || fail "combined recursive count is not 14"
 pi_setup_validate_assets "$fixture" all
+pi_setup_validate_assets "$repo_root" all
 
 # The public entrypoint supports a safe explicit target override and performs
 # no full-setup writes.
@@ -104,8 +106,8 @@ test -f "$cli_agent/skills/browser-chrome/SKILL.md" || fail "CLI general install
 test ! -e "$cli_agent/agents" || fail "CLI skill install created agents"
 assert_manifest_set "$cli_agent/.pi-agent-setup-skills.json" general 8
 
-# General installation is skills-only, preserves unrelated/unselected skills,
-# and applies only the selected set's one-time legacy migration.
+# General installation is skills-only and preserves unrelated/unselected and
+# legacy destinations unless the full updater explicitly adopts its old assets.
 general_agent="$tmp_root/general-agent"
 mkdir -p \
   "$general_agent/skills/custom-skill" \
@@ -131,8 +133,8 @@ test -f "$general_agent/skills/backend-quality/SKILL.md" || fail "general skill 
 cmp -s "$fixture/skills/general/group/backend-quality/support.txt" \
   "$general_agent/skills/backend-quality/support.txt" || fail "general support file changed"
 test -f "$general_agent/skills/browser-chrome/SKILL.md" || fail "browser skill missing"
-test ! -e "$general_agent/skills/aad-quality-backend" || fail "renamed general legacy skill survived"
-test ! -e "$general_agent/skills/backend-api-data-quality" || fail "historical general skill survived"
+test -f "$general_agent/skills/aad-quality-backend/SKILL.md" || fail "public install removed renamed legacy skill"
+test -f "$general_agent/skills/backend-api-data-quality/SKILL.md" || fail "public install removed historical skill"
 test -f "$general_agent/skills/aad-target-branch-preparation/SKILL.md" || fail "unselected legacy skill was removed"
 test -f "$general_agent/skills/aad-delegation/SKILL.md" || fail "unselected owned skill was removed"
 test -f "$general_agent/skills/custom-skill/SKILL.md" || fail "unrelated skill was removed"
@@ -150,12 +152,10 @@ printf 'stale\n' > "$general_agent/skills/backend-quality/stale.txt"
 pi_setup_install_skills "$fixture" "$general_agent" general >/dev/null
 test ! -e "$general_agent/skills/backend-quality/stale.txt" || fail "stale internal file survived"
 
-# Legacy cleanup is explicitly one-time. A later unrelated destination with an
-# old name is not subject to an ongoing deletion policy.
-mkdir -p "$general_agent/skills/aad-quality-backend"
+# Legacy cleanup is restricted to the full updater's explicit adoption mode.
 printf 'new external owner\n' > "$general_agent/skills/aad-quality-backend/SKILL.md"
 pi_setup_install_skills "$fixture" "$general_agent" general >/dev/null
-test -f "$general_agent/skills/aad-quality-backend/SKILL.md" || fail "legacy name was repeatedly deleted"
+test -f "$general_agent/skills/aad-quality-backend/SKILL.md" || fail "public install deleted a legacy name"
 
 # Exact selected-set pruning follows prior manifest ownership.
 prune_repo="$tmp_root/prune-repo"
@@ -214,33 +214,60 @@ pi_setup_install_skills "$fixture" "$legacy_owner_agent" aad >/dev/null
 test -f "$legacy_owner_agent/skills/agent-pipeline-feedback/SKILL.md" || \
   fail "AAD legacy cleanup removed unselected manifest ownership"
 
-# Combined installation publishes all nested sources, performs both explicit
-# migrations, and preserves executable helper scripts.
+# The public installer refuses to overwrite an unowned exact destination,
+# including a newly generalized name even when legacy adoption is requested.
+conflict_agent="$tmp_root/conflict-agent"
+mkdir -p "$conflict_agent/skills/backend-quality"
+printf 'external backend quality\n' > "$conflict_agent/skills/backend-quality/SKILL.md"
+cp "$conflict_agent/skills/backend-quality/SKILL.md" "$tmp_root/backend-quality.before"
+expect_install_failure "$fixture" "$conflict_agent" general
+expect_install_failure "$fixture" "$conflict_agent" all --adopt-legacy
+cmp -s "$tmp_root/backend-quality.before" \
+  "$conflict_agent/skills/backend-quality/SKILL.md" || fail "unowned same-name skill changed"
+test ! -e "$conflict_agent/.pi-agent-setup-skills.json" || fail "conflict wrote ownership manifest"
+
+# Combined full-updater migration publishes all nested sources, adopts only
+# unchanged identities it historically owned, cleans explicit legacy names,
+# and preserves executable helper scripts.
 all_agent="$tmp_root/all-agent"
 mkdir -p \
   "$all_agent/skills/aad-quality-frontend" \
   "$all_agent/skills/aad-target-branch-preparation" \
+  "$all_agent/skills/browser-chrome" \
   "$all_agent/skills/visual-composition-quality"
-pi_setup_install_skills "$fixture" "$all_agent" all >/dev/null
+printf 'old managed browser\n' > "$all_agent/skills/browser-chrome/SKILL.md"
+pi_setup_install_skills "$fixture" "$all_agent" all --adopt-legacy >/dev/null
 [ "$(find "$all_agent/skills" -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 14 ] || fail "all did not flatten 14 skills"
 test ! -e "$all_agent/skills/aad-quality-frontend" || fail "renamed frontend legacy survived"
 test ! -e "$all_agent/skills/aad-target-branch-preparation" || fail "historical AAD legacy survived"
 test ! -e "$all_agent/skills/visual-composition-quality" || fail "historical general legacy survived"
 test -x "$all_agent/skills/aad-git-branching/scripts/prepare-target-branch.sh" || fail "nested helper lost executable mode"
-assert_manifest_set "$all_agent/.pi-agent-setup-skills.json" aad 6
-assert_manifest_set "$all_agent/.pi-agent-setup-skills.json" general 8
+grep -Fq 'name: browser-chrome' "$all_agent/skills/browser-chrome/SKILL.md" || fail "legacy browser was not adopted"
+assert_manifest_set "$all_agent/.pi-agent-setup-skills.json" aad 6 1
+assert_manifest_set "$all_agent/.pi-agent-setup-skills.json" general 8 1
 
 # The full asset path still installs agents/extensions but no longer performs
-# broad skill deletion.
+# broad skill deletion or recursively rewrites unrelated/managed skill modes.
 full_agent="$tmp_root/full-agent"
-mkdir -p "$full_agent/agents" "$full_agent/skills/aad-user-owned"
+mkdir -p \
+  "$full_agent/agents" \
+  "$full_agent/skills/aad-user-owned/bin"
 printf 'custom\n' > "$full_agent/agents/custom-agent.md"
 printf 'stale\n' > "$full_agent/agents/aad-stale.md"
 printf 'user\n' > "$full_agent/skills/aad-user-owned/SKILL.md"
+printf '#!/bin/sh\n' > "$full_agent/skills/aad-user-owned/bin/tool"
+printf '#!/bin/sh\n' > "$full_agent/skills/aad-user-owned/manual.sh"
+chmod 755 "$full_agent/skills/aad-user-owned/bin/tool"
+chmod 644 "$full_agent/skills/aad-user-owned/manual.sh"
 pi_setup_install_assets "$fixture" "$full_agent"
+pi_setup_install_skills "$fixture" "$full_agent" all --adopt-legacy >/dev/null
+pi_setup_secure_assets "$full_agent" "$tmp_root"
 test -f "$full_agent/agents/custom-agent.md" || fail "custom agent was removed"
 test ! -e "$full_agent/agents/aad-stale.md" || fail "stale managed agent survived"
 test -f "$full_agent/skills/aad-user-owned/SKILL.md" || fail "broad aad-* skill deletion remains"
+[ "$(stat -c '%a' "$full_agent/skills/aad-user-owned/bin/tool")" = 755 ] || fail "custom executable mode changed"
+[ "$(stat -c '%a' "$full_agent/skills/aad-user-owned/manual.sh")" = 644 ] || fail "custom shell mode changed"
+[ "$(stat -c '%a' "$full_agent/skills/aad-git-branching/scripts/prepare-target-branch.sh")" = 755 ] || fail "managed helper mode changed"
 
 # Unknown sets fail before target mutation in both the shared function and the
 # public entrypoint.
@@ -317,8 +344,8 @@ test ! -e "$unsafe_destination/.pi-agent-setup-skills.json" || fail "unsafe dest
 
 # The updater consumes the same shared all-set implementation and moved source.
 grep -Fq 'pi_setup_initialize_skill_sources "$repo_root" all' "$repo_root/scripts/update-local.sh" || fail "update-local does not initialize set=all"
-grep -Fq 'pi_setup_install_skills "$repo_root" "$AGENT_DIR" all' "$repo_root/scripts/update-local.sh" || fail "update-local does not install set=all"
-grep -Fq 'skills/general/browser-chrome' "$repo_root/scripts/update-local.sh" || fail "update-local uses old Browser Chrome source"
+grep -Fq 'pi_setup_install_skills "$repo_root" "$AGENT_DIR" all --adopt-legacy' "$repo_root/scripts/update-local.sh" || fail "update-local does not perform bounded legacy adoption"
+grep -Fq 'skills/general/browser-chrome' "$repo_root/scripts/lib/local-assets.sh" || fail "skill source initialization uses the old Browser Chrome path"
 
 if rg -n 'python3?[[:space:]]+-([[:space:]]|$)|<<.*PY' \
   "$repo_root/scripts/update-local.sh" "$repo_root/scripts/lib" -g '*.sh'; then

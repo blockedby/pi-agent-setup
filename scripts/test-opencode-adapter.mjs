@@ -423,22 +423,18 @@ try {
   fs.rmSync(cacheBase, { recursive: true, force: true });
 }
 
-// The package/OpenCode branch precedes the source move. Enforce final checked-in source
-// invariants as soon as either nested root is integrated, while fixture coverage stays unconditional.
-const repositoryRootPresence = OPENCODE_SKILL_ROOTS.map(({ sourceRoot }) =>
-  fs.existsSync(path.join(ROOT, sourceRoot)),
-);
-if (repositoryRootPresence.some(Boolean)) {
+for (const { sourceRoot } of OPENCODE_SKILL_ROOTS) {
   assert.ok(
-    repositoryRootPresence.every(Boolean),
-    "checked-in skill integration must provide both logical roots",
+    fs.existsSync(path.join(ROOT, sourceRoot)),
+    `checked-in skill root is missing: ${sourceRoot}`,
   );
 }
+assert.ok(
+  fs.existsSync(path.join(ROOT, "agents/aad-root-owner.md")),
+  "checked-in AAD agent sources are missing",
+);
 
-if (
-  repositoryRootPresence.every(Boolean) &&
-  fs.existsSync(path.join(ROOT, "agents/aad-root-owner.md"))
-) {
+{
   const definitions = loadOpenCodeAgentDefinitions(ROOT);
   for (const name of OPENCODE_AGENT_NAMES.filter((agentName) => agentName !== "chrome-browser-agent")) {
     assert.ok(definitions[name], `missing generated OpenCode agent: ${name}`);

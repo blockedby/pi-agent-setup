@@ -46,6 +46,19 @@ EXPECTED_INVENTORY = {
 # These names predate the ownership manifest. They are removed once, and only
 # when their replacement set is selected. New removals are driven by manifest
 # ownership rather than by extending this migration list.
+# Existing destinations with these unchanged runtime names were owned by the
+# pre-manifest full updater. Only that updater may adopt them during migration.
+# Newly generalized names are deliberately absent so an unrelated same-name
+# skill is never overwritten.
+LEGACY_ADOPTABLE_NAMES = {
+    "aad": EXPECTED_INVENTORY["aad"],
+    "general": {
+        "browser-chrome",
+        "explanatory-html-pages",
+        "modern-skill-revising",
+    },
+}
+
 LEGACY_NAMES = {
     "aad": (
         "aad-audit-convergence",
@@ -398,7 +411,12 @@ def write_manifest(path: Path, manifest: dict, workspace: Path) -> None:
     os.replace(temporary, path)
 
 
-def install(repo_root: str | Path, agent_dir_value: str | Path, set_name: str) -> int:
+def install(
+    repo_root: str | Path,
+    agent_dir_value: str | Path,
+    set_name: str,
+    adopt_legacy: bool = False,
+) -> int:
     chosen_sets = selected_sets(set_name)
     inventory = discover(repo_root)
     selected = [skill for skill in inventory if skill.set_name in chosen_sets]
@@ -419,10 +437,25 @@ def install(repo_root: str | Path, agent_dir_value: str | Path, set_name: str) -
             "selected skills collide with ownership from an unselected set: " + ", ".join(collisions)
         )
 
+    selected_owned = {
+        name for chosen in chosen_sets for name in manifest["skillSets"][chosen]
+    }
+    skills_dir = agent_dir / "skills"
+    for name, skill in sorted(selected_by_name.items()):
+        destination = skills_dir / name
+        if not os.path.lexists(destination) or name in selected_owned:
+            continue
+        if adopt_legacy and name in LEGACY_ADOPTABLE_NAMES[skill.set_name]:
+            continue
+        raise SkillAssetsError(
+            f"refusing to replace unowned skill destination: {destination}; "
+            "remove it explicitly or use a different agent directory"
+        )
+
     affected: set[str] = set(selected_by_name)
     for chosen in chosen_sets:
         affected.update(manifest["skillSets"][chosen])
-        if manifest["legacyCleanup"][chosen] == 0:
+        if adopt_legacy and manifest["legacyCleanup"][chosen] == 0:
             # A manifest entry is stronger ownership evidence than the
             # migration allowlist. Never let selected-set migration remove a
             # destination explicitly owned by an unselected set.
@@ -436,7 +469,6 @@ def install(repo_root: str | Path, agent_dir_value: str | Path, set_name: str) -
             raise SkillAssetsError(f"refusing symlinked skill destination: {destination}")
 
     agent_dir.mkdir(parents=True, exist_ok=True)
-    skills_dir = agent_dir / "skills"
     skills_dir.mkdir(mode=0o700, exist_ok=True)
     # Recheck after creation to narrow target-path races.
     validate_absolute_target(agent_dir)
@@ -469,7 +501,8 @@ def install(repo_root: str | Path, agent_dir_value: str | Path, set_name: str) -
             updated["skillSets"][chosen] = sorted(
                 skill.name for skill in selected if skill.set_name == chosen
             )
-            updated["legacyCleanup"][chosen] = 1
+            if adopt_legacy:
+                updated["legacyCleanup"][chosen] = 1
         write_manifest(manifest_path, updated, workspace)
     except BaseException:
         for name in reversed(published):
@@ -511,14 +544,17 @@ def main(argv: list[str]) -> None:
             validate_absolute_target(args[0])
         elif command == "inventory" and len(args) == 2:
             print(json.dumps(inventory_payload(args[0], args[1]), indent=2, sort_keys=True))
-        elif command == "install" and len(args) == 3:
-            print(install(args[0], args[1], args[2]))
+        elif command == "install" and len(args) in (3, 4):
+            adopt_legacy = len(args) == 4 and args[3] == "--adopt-legacy"
+            if len(args) == 4 and not adopt_legacy:
+                raise SkillAssetsError(f"unknown install option: {args[3]}")
+            print(install(args[0], args[1], args[2], adopt_legacy=adopt_legacy))
         else:
             raise SkillAssetsError(
                 "usage: skill-assets.py "
                 "<validate-source REPO SET|validate-profile REPO SET|"
                 "validate-target AGENT_DIR|inventory REPO SET|"
-                "install REPO AGENT_DIR SET>"
+                "install REPO AGENT_DIR SET [--adopt-legacy]>"
             )
     except SkillAssetsError as error:
         raise SystemExit(str(error)) from error

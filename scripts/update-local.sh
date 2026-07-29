@@ -12,7 +12,6 @@ AGENT_DIR="${PI_AGENT_DIR:-$LOCAL_USER_HOME/.pi/agent}"
 PI_SETTINGS_FILE="${PI_SETTINGS_FILE:-settings/pi-settings.example.json}"
 PI_VERSION="${PI_VERSION:-latest}"
 CODEX_SUBMODULE="$repo_root/packages/pi-codex"
-BROWSER_SKILL="$repo_root/skills/general/browser-chrome"
 SETTINGS_PATH="$AGENT_DIR/settings.json"
 
 case "$PI_SETTINGS_FILE" in
@@ -26,7 +25,6 @@ if [ ! -f "$SETTINGS_SOURCE" ]; then
   exit 2
 fi
 
-command -v rsync >/dev/null || { echo "rsync is required" >&2; exit 1; }
 command -v python3 >/dev/null || { echo "python3 is required" >&2; exit 1; }
 
 if [ ! -f "$CODEX_SUBMODULE/package.json" ]; then
@@ -60,7 +58,9 @@ echo "Installing pi-codex runtime dependencies"
 (cd "$CODEX_SUBMODULE" && "$NPM_BIN" ci --omit=dev)
 
 pi_setup_install_assets "$repo_root" "$AGENT_DIR"
-pi_setup_install_skills "$repo_root" "$AGENT_DIR" all >/dev/null
+# The pre-manifest updater owned the AAD namespace plus the unchanged general
+# skill identities. Adoption is intentionally limited to this full migration.
+pi_setup_install_skills "$repo_root" "$AGENT_DIR" all --adopt-legacy >/dev/null
 
 if [ ! -f "$SETTINGS_PATH" ]; then
   printf '{\n  "packages": []\n}\n' > "$SETTINGS_PATH"
