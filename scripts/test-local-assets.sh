@@ -50,7 +50,7 @@ EOF
     aad-workflow-feedback; do
     write_skill "$root" aad "$name" "$name"
   done
-  write_skill "$root" common git-branching git-branching
+  write_skill "$root" general git-branching git-branching
   for name in \
     backend-quality \
     completion-verification \
@@ -63,14 +63,14 @@ EOF
   done
   write_skill "$root" general browser-chrome browser-chrome
 
-  mkdir -p "$root/skills/common/git-branching/scripts"
+  mkdir -p "$root/skills/general/git-branching/scripts"
   printf '#!/usr/bin/env bash\necho prepared\n' > \
-    "$root/skills/common/git-branching/scripts/prepare-target-branch.sh"
+    "$root/skills/general/git-branching/scripts/prepare-target-branch.sh"
   printf '#!/usr/bin/env bash\necho synced\n' > \
-    "$root/skills/common/git-branching/scripts/sync-target-branch.sh"
+    "$root/skills/general/git-branching/scripts/sync-target-branch.sh"
   chmod +x \
-    "$root/skills/common/git-branching/scripts/prepare-target-branch.sh" \
-    "$root/skills/common/git-branching/scripts/sync-target-branch.sh"
+    "$root/skills/general/git-branching/scripts/prepare-target-branch.sh" \
+    "$root/skills/general/git-branching/scripts/sync-target-branch.sh"
 }
 
 assert_manifest_set() {
@@ -96,15 +96,14 @@ expect_install_failure() {
 fixture="$tmp_root/repo"
 make_repo "$fixture"
 
-[ "$(pi_setup_count_skills "$fixture" general)" -eq 8 ] || fail "general recursive count is not 8"
-[ "$(pi_setup_count_skills "$fixture" common)" -eq 1 ] || fail "common recursive count is not 1"
+[ "$(pi_setup_count_skills "$fixture" general)" -eq 9 ] || fail "general recursive count is not 9"
 [ "$(pi_setup_count_skills "$fixture" aad)" -eq 5 ] || fail "AAD recursive count is not 5"
 [ "$(pi_setup_count_skills "$fixture" all)" -eq 14 ] || fail "combined recursive count is not 14"
 pi_setup_validate_assets "$fixture" all
 pi_setup_validate_assets "$repo_root" all
-test -x "$repo_root/skills/common/git-branching/scripts/prepare-target-branch.sh" || \
+test -x "$repo_root/skills/general/git-branching/scripts/prepare-target-branch.sh" || \
   fail "checked-in prepare helper is not executable"
-test -x "$repo_root/skills/common/git-branching/scripts/sync-target-branch.sh" || \
+test -x "$repo_root/skills/general/git-branching/scripts/sync-target-branch.sh" || \
   fail "checked-in sync helper is not executable"
 
 # The public entrypoint supports a safe explicit target override and performs
@@ -112,11 +111,9 @@ test -x "$repo_root/skills/common/git-branching/scripts/sync-target-branch.sh" |
 cli_agent="$tmp_root/cli-agent"
 "$fixture/scripts/install-skills.sh" --set general --agent-dir "$cli_agent" >/dev/null
 test -f "$cli_agent/skills/browser-chrome/SKILL.md" || fail "CLI general install missed Browser Chrome"
-"$fixture/scripts/install-skills.sh" --set common --agent-dir "$cli_agent" >/dev/null
-test -f "$cli_agent/skills/git-branching/SKILL.md" || fail "CLI common install missed Git branching"
+test -f "$cli_agent/skills/git-branching/SKILL.md" || fail "CLI general install missed Git branching"
 test ! -e "$cli_agent/agents" || fail "CLI skill install created agents"
-assert_manifest_set "$cli_agent/.pi-agent-setup-skills.json" common 1
-assert_manifest_set "$cli_agent/.pi-agent-setup-skills.json" general 8
+assert_manifest_set "$cli_agent/.pi-agent-setup-skills.json" general 9
 
 # General installation is skills-only and preserves unrelated/unselected and
 # legacy destinations unless the full updater explicitly adopts its old assets.
@@ -140,7 +137,7 @@ cat > "$general_agent/.pi-agent-setup-skills.json" <<'EOF'
 }
 EOF
 
-[ "$(pi_setup_install_skills "$fixture" "$general_agent" general)" -eq 8 ] || fail "general count changed"
+[ "$(pi_setup_install_skills "$fixture" "$general_agent" general)" -eq 9 ] || fail "general count changed"
 test -f "$general_agent/skills/backend-quality/SKILL.md" || fail "general skill missing"
 cmp -s "$fixture/skills/general/group/backend-quality/support.txt" \
   "$general_agent/skills/backend-quality/support.txt" || fail "general support file changed"
@@ -155,7 +152,7 @@ test ! -e "$general_agent/APPEND_SYSTEM.md" || fail "skill-only install copied t
 test ! -e "$general_agent/extensions" || fail "skill-only install created extensions"
 test ! -e "$general_agent/settings.json" || fail "skill-only install created settings"
 test ! -e "$general_agent/mcp.json" || fail "skill-only install created MCP configuration"
-assert_manifest_set "$general_agent/.pi-agent-setup-skills.json" general 8
+assert_manifest_set "$general_agent/.pi-agent-setup-skills.json" general 9
 assert_manifest_set "$general_agent/.pi-agent-setup-skills.json" aad 1 0
 
 # Reinstallation replaces complete owned destinations, including stale support
@@ -181,7 +178,7 @@ fi
 pi_setup_install_skills "$prune_repo" "$general_agent" general >/dev/null
 test ! -e "$general_agent/skills/backend-quality" || fail "removed owned general skill was not pruned"
 test -f "$general_agent/skills/aad-delegation/SKILL.md" || fail "pruning touched unselected AAD skill"
-assert_manifest_set "$general_agent/.pi-agent-setup-skills.json" general 7
+assert_manifest_set "$general_agent/.pi-agent-setup-skills.json" general 8
 
 # AAD-only neither initializes nor installs Browser Chrome. Installing AAD
 # after general remains additive.
@@ -197,23 +194,20 @@ no_browser_repo="$tmp_root/no-browser-repo"
 cp -a "$fixture" "$no_browser_repo"
 rm -rf "$no_browser_repo/skills/general/browser-chrome"
 GIT_BIN="$fake_git" GIT_LOG="$git_log" pi_setup_initialize_skill_sources "$no_browser_repo" aad
-GIT_BIN="$fake_git" GIT_LOG="$git_log" pi_setup_initialize_skill_sources "$no_browser_repo" common
-[ ! -e "$git_log" ] || fail "AAD/common-only initialized Browser Chrome"
+[ ! -e "$git_log" ] || fail "AAD-only initialized Browser Chrome"
 GIT_BIN="$fake_git" GIT_LOG="$git_log" pi_setup_initialize_skill_sources "$no_browser_repo" general
 grep -Fq 'skills/general/browser-chrome' "$git_log" || fail "general did not lazily initialize moved Browser Chrome"
 
 pi_setup_install_skills "$fixture" "$aad_agent" aad >/dev/null
 test -f "$aad_agent/skills/aad-delegation/SKILL.md" || fail "AAD skill missing"
 test ! -e "$aad_agent/skills/browser-chrome" || fail "AAD-only installed Browser Chrome"
-test ! -e "$aad_agent/skills/git-branching" || fail "AAD-only installed common Git branching"
+test ! -e "$aad_agent/skills/git-branching" || fail "AAD-only installed general Git branching"
 assert_manifest_set "$aad_agent/.pi-agent-setup-skills.json" aad 5
-pi_setup_install_skills "$fixture" "$aad_agent" common >/dev/null
 pi_setup_install_skills "$fixture" "$aad_agent" general >/dev/null
 pi_setup_install_skills "$fixture" "$aad_agent" aad >/dev/null
-test -f "$aad_agent/skills/git-branching/SKILL.md" || fail "additive common install missing"
+test -f "$aad_agent/skills/git-branching/SKILL.md" || fail "additive general Git branching missing"
 test -f "$aad_agent/skills/browser-chrome/SKILL.md" || fail "additive general install missing"
-assert_manifest_set "$aad_agent/.pi-agent-setup-skills.json" common 1
-assert_manifest_set "$aad_agent/.pi-agent-setup-skills.json" general 8
+assert_manifest_set "$aad_agent/.pi-agent-setup-skills.json" general 9
 
 # Explicit unselected manifest ownership wins over a selected set's legacy
 # migration allowlist.
@@ -266,8 +260,7 @@ test -x "$all_agent/skills/git-branching/scripts/sync-target-branch.sh" || fail 
 "$all_agent/skills/git-branching/scripts/sync-target-branch.sh" >/dev/null || fail "installed sync helper did not execute"
 grep -Fq 'name: browser-chrome' "$all_agent/skills/browser-chrome/SKILL.md" || fail "legacy browser was not adopted"
 assert_manifest_set "$all_agent/.pi-agent-setup-skills.json" aad 5 1
-assert_manifest_set "$all_agent/.pi-agent-setup-skills.json" common 1 1
-assert_manifest_set "$all_agent/.pi-agent-setup-skills.json" general 8 1
+assert_manifest_set "$all_agent/.pi-agent-setup-skills.json" general 9 1
 
 # The full asset path still installs agents/extensions but no longer performs
 # broad skill deletion or recursively rewrites unrelated/managed skill modes.

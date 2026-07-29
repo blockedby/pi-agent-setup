@@ -84,7 +84,7 @@ function makeFixture() {
     "---\nname: browser-chrome\ndescription: Browser\n---\n\n# Browser\n",
   );
   write(
-    path.join(root, "skills/common/git-branching/SKILL.md"),
+    path.join(root, "skills/general/git-branching/SKILL.md"),
     "---\nname: git-branching\ndescription: Git branching\n---\n\n# Git branching\n",
   );
 
@@ -242,8 +242,8 @@ try {
     },
     {
       runtimeName: "git-branching",
-      logicalSet: "common",
-      sourceRelativePath: "skills/common/git-branching",
+      logicalSet: "general",
+      sourceRelativePath: "skills/general/git-branching",
     },
   ]);
   assert.equal(materializeOpenCodeSkillView(fixture, cacheBase), skillView);

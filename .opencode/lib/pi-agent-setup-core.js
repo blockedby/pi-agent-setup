@@ -19,7 +19,6 @@ export const OPENCODE_AGENT_NAMES = [
 ];
 export const OPENCODE_SKILL_ROOTS = [
   { logicalSet: "general", sourceRoot: "skills/general" },
-  { logicalSet: "common", sourceRoot: "skills/common" },
   { logicalSet: "aad", sourceRoot: "skills/aad" },
 ];
 

@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 
-SETS = ("aad", "common", "general")
+SETS = ("aad", "general")
 SCHEMA_VERSION = 1
 MANIFEST_NAME = ".pi-agent-setup-skills.json"
 NAME_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
@@ -30,7 +30,6 @@ EXPECTED_INVENTORY = {
         "aad-task-package",
         "aad-workflow-feedback",
     },
-    "common": {"git-branching"},
     "general": {
         "backend-quality",
         "browser-chrome",
@@ -38,6 +37,7 @@ EXPECTED_INVENTORY = {
         "devops-quality",
         "explanatory-html-pages",
         "frontend-quality",
+        "git-branching",
         "modern-skill-revising",
         "visual-composition",
     },
@@ -52,7 +52,6 @@ EXPECTED_INVENTORY = {
 # skill is never overwritten.
 LEGACY_ADOPTABLE_NAMES = {
     "aad": EXPECTED_INVENTORY["aad"],
-    "common": set(),
     "general": {
         "browser-chrome",
         "explanatory-html-pages",
@@ -76,9 +75,9 @@ LEGACY_NAMES = {
         "aad-worktree-management",
         "agent-pipeline-feedback",
     ),
-    "common": ("aad-git-branching",),
     "general": (
         "21st-magic-mcp",
+        "aad-git-branching",
         "acceptance-evidence-gate",
         "aad-quality-backend",
         "aad-quality-composition",

@@ -9,7 +9,7 @@ set_name=""
 agent_dir="${PI_AGENT_DIR:-$HOME/.pi/agent}"
 
 usage() {
-  echo "usage: scripts/install-skills.sh --set <general|common|aad|all> [--agent-dir <path>]" >&2
+  echo "usage: scripts/install-skills.sh --set <general|aad|all> [--agent-dir <path>]" >&2
 }
 
 while [ "$#" -gt 0 ]; do

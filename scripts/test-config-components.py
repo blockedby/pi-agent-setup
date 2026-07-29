@@ -82,11 +82,9 @@ with tempfile.TemporaryDirectory() as temporary:
     source_package = read(ROOT / "package.json")
     invalid_skill_roots = [
         ["./skills/general"],
-        ["./skills/common"],
         ["./skills/aad"],
-        ["./skills/general", "./skills/aad"],
         ["./skills"],
-        ["./skills/aad", "./skills/common", "./skills/general"],
+        ["./skills/aad", "./skills/general"],
     ]
     for index, skills in enumerate(invalid_skill_roots):
         candidate = json.loads(json.dumps(source_package))

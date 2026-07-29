@@ -8,8 +8,7 @@ It is personal workflow infrastructure—not a universal installer, hosted servi
 
 - `APPEND_SYSTEM.md` — terminal routing rules loaded by Pi.
 - `agents/` — executable AAD and browser agent sources.
-- `skills/general/` — reusable engineering, verification, browser, explanation, and skill-maintenance capabilities.
-- `skills/common/` — shared operational workflow skills used across agent setups.
+- `skills/general/` — reusable engineering, verification, browser, Git workflow, explanation, and skill-maintenance capabilities.
 - `skills/aad/` — AAD-specific planning, delegation, reporting, and task-package contracts.
 - `.opencode/plugins/pi-agent-setup.js` — OpenCode adapter for the composed AAD setup.
 - `extensions/ready-notify.ts` — optional completion notifications.
@@ -52,14 +51,9 @@ General skills form a reusable foundation:
 | `devops-quality` | Checks deployment and runtime readiness. |
 | `explanatory-html-pages` | Builds clear visual explainers. |
 | `frontend-quality` | Checks frontend implementation quality. |
+| `git-branching` | Prepares, merges, and synchronizes branches and worktrees safely. |
 | `modern-skill-revising` | Rightsizes SOTA-model context. |
 | `visual-composition` | Shapes polished visual composition. |
-
-Common skills provide reusable operational workflow:
-
-| Skill | Purpose |
-| --- | --- |
-| `git-branching` | Prepares, merges, and synchronizes branches and worktrees safely. |
 
 AAD skills provide the workflow overlay:
 
@@ -71,7 +65,7 @@ AAD skills provide the workflow overlay:
 | `aad-task-package` | Manages AAD task-package artifacts. |
 | `aad-workflow-feedback` | Records reusable AAD workflow feedback. |
 
-The supported AAD setup composes all three sets. A general-only setup loads `skills/general/` without the common workflow, AAD agents, routing prompt, task-package convention, or subagent configuration. Skills remain support material; they do not replace agent ownership.
+The supported AAD setup composes both sets. A general-only setup loads `skills/general/` without AAD agents, routing prompt, task-package convention, or subagent configuration. Skills remain support material; they do not replace agent ownership.
 
 Checked-in leaf folder names match their `SKILL.md` runtime names. The category directories are source boundaries only and do not become part of installed or invoked skill names.
 
@@ -88,7 +82,7 @@ The reusable quality and completion skills previously carried AAD-prefixed runti
 | `aad-step-completion` | `completion-verification` |
 | `aad-git-branching` | `git-branching` |
 
-The Git workflow source also moves from `skills/aad/aad-git-branching/` to `skills/common/git-branching/`. The installer removes repository-owned legacy destinations during migration. Compatibility alias skills are intentionally not installed because duplicate descriptions would create ambiguous discovery and two maintained identities.
+The Git workflow source also moves from `skills/aad/aad-git-branching/` to `skills/general/git-branching/`. The installer removes repository-owned legacy destinations during migration. Compatibility alias skills are intentionally not installed because duplicate descriptions would create ambiguous discovery and two maintained identities.
 
 ## Requirements
 
@@ -118,7 +112,7 @@ The installer:
 2. initializes missing `pi-codex` and Browser Chrome submodules;
 3. installs Pi under `$HOME/.local` when needed;
 4. runs `npm ci --omit=dev` for the local `pi-codex` package;
-5. installs the current prompt, agents, all three skill sets, extensions, and `pi-subagents` config;
+5. installs the current prompt, agents, both skill sets, extensions, and `pi-subagents` config;
 6. replaces/prunes exact repository-owned skill identities and managed agent namespaces while preserving unrelated user agents and skills;
 7. updates Pi settings while preserving existing packages and ensuring packages from the selected settings file are present;
 8. configures `browser-chrome-control`, `browser-chrome-headed`, and `browser-chrome-headless` in `mcp.json`.
@@ -148,12 +142,11 @@ Use the skill-only installer when another local agent setup should receive skill
 
 ```bash
 PI_AGENT_DIR="$HOME/.pi/agent" scripts/install-skills.sh --set general
-PI_AGENT_DIR="$HOME/.pi/agent" scripts/install-skills.sh --set common
 PI_AGENT_DIR="$HOME/.pi/agent" scripts/install-skills.sh --set aad
 PI_AGENT_DIR="$HOME/.pi/agent" scripts/install-skills.sh --set all
 ```
 
-`general`, `common`, and `aad` select source sets; `all` composes them. Installing one set does not remove the other set or unrelated user skills. A first skill-only install refuses to overwrite an existing same-name destination that is not recorded in this repository's ownership manifest. The full updater separately adopts only the unchanged identities it owned before the manifest migration. The general set includes the Browser Chrome skill, but this skill-only command does not configure Chrome MCP servers.
+`general` and `aad` select source sets; `all` composes them. Installing one set does not remove the other set or unrelated user skills. A first skill-only install refuses to overwrite an existing same-name destination that is not recorded in this repository's ownership manifest. The full updater separately adopts only the unchanged identities it owned before the manifest migration. The general set includes the Browser Chrome skill, but this skill-only command does not configure Chrome MCP servers.
 
 Agent setups that reference this checkout directly can instead add one root to Pi settings:
 
@@ -163,9 +156,9 @@ Agent setups that reference this checkout directly can instead add one root to P
 }
 ```
 
-Use `<repo>/skills/common` for shared operational workflow and `<repo>/skills/aad` for the overlay root. The checked-in AAD agents require the composed `all` set because they use general capabilities, common Git branching, and the AAD overlay.
+Use `<repo>/skills/aad` for the overlay root. The checked-in AAD agents require the composed `all` set because they use general capabilities, including Git branching, as well as the AAD overlay.
 
-Pi package filters can narrow the root package to `skills/general/**`, but a normal git-package checkout does not initialize the Browser Chrome submodule. It therefore cannot provide the complete eight-skill general set. Use a recursive local clone plus the direct root or skill-only installer when Browser Chrome is required.
+Pi package filters can narrow the root package to `skills/general/**`, but a normal git-package checkout does not initialize the Browser Chrome submodule. It therefore yields eight tracked skills rather than the complete nine-skill general set. Use a recursive local clone plus the direct root or skill-only installer when Browser Chrome is required.
 
 This repository does not publish the sets as independently versioned packages; direct roots are composition boundaries over the same repository revision.
 
@@ -185,7 +178,7 @@ The compatibility adapter targets OpenCode 1.18.2 or newer. Add the git-backed p
 
 Restart OpenCode after changing the config.
 
-The plugin reads the same files under `agents/`, `skills/general/`, `skills/common/`, and `skills/aad/`, registers OpenCode subagents with explicit delegation permissions, materializes all three skill sets into one flat content-addressed cache, and injects an OpenCode tool-mapping bootstrap. It does not copy Pi-specific model IDs; generated subagents inherit the invoking OpenCode model unless the user overrides an agent in `opencode.json`.
+The plugin reads the same files under `agents/`, `skills/general/`, and `skills/aad/`, registers OpenCode subagents with explicit delegation permissions, materializes both skill sets into one flat content-addressed cache, and injects an OpenCode tool-mapping bootstrap. It does not copy Pi-specific model IDs; generated subagents inherit the invoking OpenCode model unless the user overrides an agent in `opencode.json`.
 
 Browser Chrome remains an explicit boundary: the browser agent is registered only when the Browser Chrome skill submodule is present, and OpenCode MCP configuration is still required separately.
 
