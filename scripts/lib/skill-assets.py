@@ -138,7 +138,7 @@ def scalar(raw: str, field: str, path: Path) -> str:
         if not decoded:
             raise SkillAssetsError(f"missing or invalid {field} in {path}")
         return decoded
-    if value[0] in "[{&*!|>@`" or re.fullmatch(
+    if value[0] in "-?:#,%[{]}&*!|>@`" or re.fullmatch(
         r"(?i:null|true|false|~|[-+]?(?:\d+(?:\.\d*)?|\.\d+))", value
     ):
         raise SkillAssetsError(f"non-string {field} in {path}")

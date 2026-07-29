@@ -36,7 +36,8 @@ function write(pathname, content) {
 }
 
 function agentSource(name, tools, extra = "") {
-  return `---\nname: ${name}\ndescription: Test ${name}\ntools: ${tools}\ninheritSkills: true\n${extra}---\n\nYou are ${name}. Ask aad-acceptance-auditor for acceptance.\n`;
+  const inheritedSkills = /(^|\n)inheritSkills:/.test(extra) ? "" : "inheritSkills: true\n";
+  return `---\nname: ${name}\ndescription: Test ${name}\ntools: ${tools}\n${inheritedSkills}${extra}---\n\nYou are ${name}. Ask aad-acceptance-auditor for acceptance.\n`;
 }
 
 function makeFixture() {
@@ -138,12 +139,26 @@ function materializeInChild(fixture, cacheBase) {
 
 {
   const parsed = extractAndStripFrontmatter(
-    "---\r\nname: test-agent\r\ndescription: quoted: value\r\nenabled: true\r\n---\r\nBody\r\n",
+    '---\r\nname: test-agent\r\ndescription: "quoted: value"\r\nenabled: true\r\n---\r\nBody\r\n',
   );
   assert.equal(parsed.frontmatter.name, "test-agent");
   assert.equal(parsed.frontmatter.description, "quoted: value");
   assert.equal(parsed.frontmatter.enabled, true);
   assert.equal(parsed.content, "Body\n");
+  assert.throws(
+    () =>
+      extractAndStripFrontmatter(
+        "---\nname: invalid\ndescription: malformed: yaml\n---\nBody\n",
+      ),
+    /quote the value/,
+  );
+  assert.throws(
+    () =>
+      extractAndStripFrontmatter(
+        "---\nname: invalid\ndescription: # YAML null, not a string\n---\nBody\n",
+      ),
+    /quote the value/,
+  );
 }
 
 const fixture = makeFixture();

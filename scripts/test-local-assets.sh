@@ -311,6 +311,9 @@ sed -i 's/^description:.*/description: malformed: yaml/' \
   "$yaml_repo/skills/general/group/backend-quality/SKILL.md"
 expect_install_failure "$yaml_repo" "$invalid_target" general
 test ! -e "$invalid_target/.pi-agent-setup-skills.json" || fail "invalid YAML wrote manifest"
+sed -i 's/^description:.*/description: # YAML null, not a string/' \
+  "$yaml_repo/skills/general/group/backend-quality/SKILL.md"
+expect_install_failure "$yaml_repo" "$invalid_target" general
 sed -i 's/^description:.*/description: "quoted: yaml"/' \
   "$yaml_repo/skills/general/group/backend-quality/SKILL.md"
 quoted_target="$tmp_root/quoted-target"

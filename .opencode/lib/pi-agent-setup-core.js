@@ -110,18 +110,30 @@ This agent prompt is shared with Pi. Resolve every runtime action through the li
 - Ignore any Pi-specific call shape remaining in prose. Never send Pi-only arguments to an OpenCode tool; follow the live schema.
 `;
 
-function parseScalar(value) {
+function parseScalar(value, key) {
   const trimmed = value.trim();
-  if (
-    trimmed.length >= 2 &&
-    ((trimmed.startsWith('"') && trimmed.endsWith('"')) ||
-      (trimmed.startsWith("'") && trimmed.endsWith("'")))
-  ) {
-    return trimmed.slice(1, -1);
+  if (!trimmed) throw new Error(`Missing frontmatter value for ${key}`);
+  if (trimmed.startsWith('"')) {
+    try {
+      const decoded = JSON.parse(trimmed);
+      if (typeof decoded !== "string") throw new Error("not a string");
+      return decoded;
+    } catch (error) {
+      throw new Error(`Invalid quoted frontmatter value for ${key}: ${error.message}`);
+    }
+  }
+  if (trimmed.startsWith("'")) {
+    if (!/^'(?:[^']|'')*'$/.test(trimmed)) {
+      throw new Error(`Invalid quoted frontmatter value for ${key}`);
+    }
+    return trimmed.slice(1, -1).replaceAll("''", "'");
   }
   if (trimmed === "true") return true;
   if (trimmed === "false") return false;
   if (/^-?\d+$/.test(trimmed)) return Number.parseInt(trimmed, 10);
+  if ("-?:#,%[]{}&*!|>@`".includes(trimmed[0]) || /:(?:\s|$)|\s#/.test(trimmed)) {
+    throw new Error(`Unsupported YAML frontmatter value for ${key}; quote the value`);
+  }
   return trimmed;
 }
 
@@ -132,12 +144,17 @@ export function extractAndStripFrontmatter(content) {
 
   const frontmatter = {};
   for (const line of match[1].split("\n")) {
-    if (!line.trim() || /^\s/.test(line) || line.trimStart().startsWith("#")) continue;
+    if (!line.trim() || line.trimStart().startsWith("#")) continue;
+    if (/^\s/.test(line)) throw new Error(`Unsupported YAML frontmatter syntax: ${line}`);
     const colon = line.indexOf(":");
-    if (colon <= 0) continue;
+    if (colon <= 0) throw new Error(`Unsupported YAML frontmatter syntax: ${line}`);
     const key = line.slice(0, colon).trim();
+    if (!/^[A-Za-z0-9_-]+$/.test(key)) {
+      throw new Error(`Invalid frontmatter key: ${key}`);
+    }
+    if (Object.hasOwn(frontmatter, key)) throw new Error(`Duplicate frontmatter key: ${key}`);
     const value = line.slice(colon + 1);
-    frontmatter[key] = parseScalar(value);
+    frontmatter[key] = parseScalar(value, key);
   }
 
   return { frontmatter, content: match[2] };
