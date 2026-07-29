@@ -55,8 +55,8 @@ Write in clear, simple language throughout. Prefer common words, define necessar
 - On narrow screens, recompose horizontal relationships vertically instead of hiding overflow.
 - Preserve logical reading order when columns stack.
 
-## 5. Handoff without a validation pass
+## 5. Parse, then hand off
 
-Once the page is written, hand it off directly. Unless the user explicitly asks, do not run parsers, linters, tests, browser or rendering checks, link checks, path checks, factual verification, or a separate consistency review.
+Before handoff, parse the HTML and fix any parse errors. This is the only validation required by default. Unless the user explicitly asks, do not run linters, tests, browser or rendering checks, link checks, path checks, factual verification, or a separate consistency review.
 
 Report the created file path, the teaching structure, the language level, and any intentional dependencies. Keep the response short; the page should carry the explanation.
