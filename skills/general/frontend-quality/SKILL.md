@@ -1,15 +1,15 @@
 ---
-name: aad-quality-frontend
+name: frontend-quality
 description: Use when planning, implementing, or reviewing frontend code changes.
 ---
 
 # Frontend UI Quality
 
-Use this skill as a focused checklist for frontend/UI quality. It is not a new agent, workflow, or report format. Record findings in the existing AAD task package and reports.
+Use this skill as a focused checklist for frontend/UI quality. It does not define an agent, workflow, or report format. Record findings in the report or path supplied by the caller.
 
 ## Inputs
 
-- Delegated acceptance criteria and verification plan.
+- Caller-provided acceptance criteria and verification plan.
 - Existing adjacent components, hooks, client services, routes, styles, and tests.
 
 ## Checklist

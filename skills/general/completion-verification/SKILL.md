@@ -1,15 +1,15 @@
 ---
-name: aad-step-completion
-description: Use before claiming completion, closure, readiness, or correctness so AAD work reports results from fresh acceptance and system evidence instead of assumption.
+name: completion-verification
+description: Use before claiming completion, closure, readiness, or correctness so results are grounded in fresh acceptance and system evidence instead of assumption.
 ---
 
-# AAD Verification
+# Completion Verification
 
 ## Overview
 
 Use this skill before claiming that work is complete, fixed, reviewed, or ready.
 
-Evidence comes before claims. Acceptance criteria should map to tests, checks, or explicit manual evidence. When a task package exists summarize it in `<task-package>/plan.md` or edit the relevant report.
+Evidence comes before claims. Acceptance criteria should map to tests, checks, or explicit manual evidence. When the caller supplies a report or evidence path, record the results there.
 
 ## Workflow
 
@@ -18,14 +18,14 @@ Evidence comes before claims. Acceptance criteria should map to tests, checks, o
 3. Select the narrowest fresh command, check, or artifact that directly proves it.
 4. Run that check freshly.
 5. Read the actual result, including failures.
-6. Record the evidence in an acceptance verification entry, preferably in the task package when one exists.
+6. Record the evidence in an acceptance verification entry at the destination supplied by the caller, when one exists.
 7. Only then claim completion, readiness, or closure.
 
 ## Verification modes
 
 ### Targeted verification
 
-Use targeted verification for a plan task, slice, bug fix, or review finding.
+Use targeted verification for a plan task, work item, bug fix, or review finding.
 
 The target should prove the changed path directly:
 

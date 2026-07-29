@@ -1,11 +1,11 @@
 ---
-name: aad-quality-devops
-description: Use when planning, implementing, or reviewing config, environment, deployment, container, CI, startup, or runtime-wiring changes that need readiness evidence within existing AAD reports.
+name: devops-quality
+description: Use when planning, implementing, or reviewing config, environment, deployment, container, CI, startup, or runtime-wiring changes that need readiness evidence.
 ---
 
 # DevOps Runtime Readiness
 
-Use this skill as a focused checklist for runtime and deployment readiness. It is not a new agent, workflow, or report format. Record findings in the existing AAD task package and reports.
+Use this skill as a focused checklist for runtime and deployment readiness. It does not define an agent, workflow, or report format. Record findings in the report or path supplied by the caller.
 
 ## When to use
 
@@ -13,7 +13,7 @@ Use when a task touches environment variables, config loading/validation, Docker
 
 ## Inputs
 
-- Delegated acceptance criteria, deployment assumptions, and verification plan.
+- Caller-provided acceptance criteria, deployment assumptions, and verification plan.
 - Existing env examples/templates, docs, local/dev wiring, CI/secrets expectations, config loaders, container files, and startup scripts.
 
 ## Checklist

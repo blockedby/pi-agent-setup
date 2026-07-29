@@ -96,7 +96,7 @@ After slice owners report back:
 - Do not redefine acceptance criteria without recording the decision and reason.
 - Keep unrelated observations as blockers or follow-up candidates rather than fixing them opportunistically.
 - Prefer explicit routing and evidence over hidden assumptions.
-- Before claiming root completion, use `aad-step-completion`.
+- Before claiming root completion, use `completion-verification`.
 - Before finalizing the root result, use `aad-reporting`.
 
 ## Output expectations

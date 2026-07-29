@@ -1,5 +1,5 @@
 ---
-name: aad-quality-composition
+name: visual-composition
 description: Design, implement, refine, or qualitatively review product-quality visual surfaces by turning a concise brief into coherent composition, reusable design-system decisions, responsive transformations, complete UI states, purposeful motion, resilient content, and clear interaction feedback. Use for landing pages, marketing surfaces, onboarding, dashboards, forms, templates, or other browser-visible UI where hierarchy, visual flow, differentiation, and polish matter.
 ---
 

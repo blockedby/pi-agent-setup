@@ -1,5 +1,5 @@
-[submodule "skills/browser-chrome"]
-	path = skills/browser-chrome
+[submodule "skills/general/browser-chrome"]
+	path = skills/general/browser-chrome
 	url = https://github.com/blockedby/browser-chrome-skill.git
 [submodule "packages/pi-codex"]
 	path = packages/pi-codex

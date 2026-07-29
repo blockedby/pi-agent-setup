@@ -22,10 +22,10 @@ Do not write a note for one-off confusion, ordinary task complexity, speculative
 
 ## Where to write it
 
-Preferred location:
+Use the feedback directory supplied by the caller or repository guidance. For this setup repository, resolve it relative to the active checkout:
 
 ```text
-~/code/tools/pi-agent-setup/feedback/
+<repo>/feedback/
 ```
 
 Use a short, descriptive filename such as:
@@ -34,7 +34,7 @@ Use a short, descriptive filename such as:
 YYYY-MM-DD-short-topic.md
 ```
 
-If that directory is unavailable, skip the note or mention the feedback briefly in your normal report; do not block the task.
+If no feedback directory is supplied or the resolved directory is unavailable, skip the note or mention the feedback briefly in your normal report; do not block the task.
 
 ## Compact template
 

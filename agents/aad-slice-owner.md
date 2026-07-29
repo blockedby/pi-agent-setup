@@ -214,7 +214,7 @@ Do not over-coordinate sub-slices. Resolve overlap during integration.
 - Report local reality clearly enough for the parent owner to integrate it.
 - If safe progress stops because behavior is unclear or broken, investigate it systematically and record the evidence, attempted fixes, and remaining blocker.
 - Handle review findings explicitly: verify each finding, fix accepted issues within scope, and record rejected or deferred findings with reasons.
-- Before claiming completion, use the core AAD skill `aad-step-completion`.
+- Before claiming completion, use the general skill `completion-verification`.
 - Before finalizing your result report, use the core AAD skill `aad-reporting`.
 
 ## Output expectations

@@ -67,9 +67,9 @@ Produce boring, readable, maintainable code that matches the local style.
 
 Load and apply the matching quality skill for the surface you touch, and record the evidence in the provided implementation report rather than inventing a new report format:
 
-- Use `aad-quality-backend` when touching backend, API, storage, jobs, migrations, external integrations, or persisted data.
-- Use `aad-quality-frontend` when touching frontend components, routes, forms, styling, client data fetching, and/or `aad-quality-composition` when implementation affects public page visuals, UI or layout.
-- Use `aad-quality-devops` when touching config, environment variables, deployment manifests, containers, CI, startup, healthchecks, or runtime wiring.
+- Use `backend-quality` when touching backend, API, storage, jobs, migrations, external integrations, or persisted data.
+- Use `frontend-quality` when touching frontend components, routes, forms, styling, client data fetching, and/or `visual-composition` when implementation affects public page visuals, UI or layout.
+- Use `devops-quality` when touching config, environment variables, deployment manifests, containers, CI, startup, healthchecks, or runtime wiring.
 
 ## TDD execution loop
 
