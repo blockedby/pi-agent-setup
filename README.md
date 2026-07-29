@@ -8,8 +8,9 @@ It is personal workflow infrastructure—not a universal installer, hosted servi
 
 - `APPEND_SYSTEM.md` — terminal routing rules loaded by Pi.
 - `agents/` — executable AAD and browser agent sources.
-- `skills/` — checked-in runbooks and the Browser Chrome submodule.
-- `.opencode/plugins/pi-agent-setup.js` — OpenCode adapter for the shared agents and skills.
+- `skills/general/` — reusable engineering, verification, browser, explanation, and skill-maintenance capabilities.
+- `skills/aad/` — AAD-specific planning, delegation, reporting, branching, and task-package contracts.
+- `.opencode/plugins/pi-agent-setup.js` — OpenCode adapter for the composed AAD setup.
 - `extensions/ready-notify.ts` — optional completion notifications.
 - `settings/` — public example Pi and `pi-subagents` configuration.
 - `packages/pi-codex` — local Pi package submodule.
@@ -23,7 +24,7 @@ The terminal assistant handles only trivial one-step work directly. AAD-owned ch
 1. `aad-root-owner` owns unclear, multi-step, multi-slice, or integration-heavy work.
 2. `aad-slice-owner` owns one clear slice.
 3. Owners delegate implementation and supporting evidence while retaining acceptance responsibility.
-4. `aad-step-completion` requires fresh evidence before a done-state claim.
+4. `completion-verification` requires fresh evidence before a done-state claim.
 
 Independent slices may run in parallel only after their dependencies and write boundaries are explicit.
 
@@ -38,35 +39,55 @@ Independent slices may run in parallel only after their dependencies and write b
 | `aad-auditor` | Audits evidence and acceptance. |
 | `chrome-browser-agent` | Runs safe Chrome automation. |
 
-### Skills
+### Skill sets
+
+General skills form a reusable foundation:
+
+| Skill | Purpose |
+| --- | --- |
+| `backend-quality` | Checks backend, API, and data quality. |
+| `browser-chrome` | Routes safe Chrome automation. |
+| `completion-verification` | Requires fresh evidence before completion claims. |
+| `devops-quality` | Checks deployment and runtime readiness. |
+| `explanatory-html-pages` | Builds clear visual explainers. |
+| `frontend-quality` | Checks frontend implementation quality. |
+| `modern-skill-revising` | Rightsizes SOTA-model context. |
+| `visual-composition` | Shapes polished visual composition. |
+
+AAD skills provide the workflow overlay:
 
 | Skill | Purpose |
 | --- | --- |
 | `aad-delegation` | Routes delegated agents safely. |
-| `aad-git-branching` | Prepares, merges, and syncs branches. |
+| `aad-git-branching` | Prepares, merges, and synchronizes AAD branches. |
 | `aad-plan-writing` | Builds and tracks AAD plans. |
-| `aad-quality-backend` | Checks backend, API, and data quality. |
-| `aad-quality-composition` | Shapes polished visual composition. |
-| `aad-quality-devops` | Checks deployment and runtime readiness. |
-| `aad-quality-frontend` | Checks frontend implementation quality. |
-| `aad-reporting` | Produces reusable task reports. |
-| `aad-step-completion` | Verifies evidence before completion. |
-| `aad-task-package` | Manages task-package artifacts. |
-| `aad-workflow-feedback` | Records reusable workflow feedback. |
-| `browser-chrome` | Routes safe Chrome automation. |
-| `explanatory-html-pages` | Builds clear visual explainers. |
-| `modern-skill-revising` | Rightsizes SOTA-model context. |
+| `aad-reporting` | Produces AAD continuation and final reports. |
+| `aad-task-package` | Manages AAD task-package artifacts. |
+| `aad-workflow-feedback` | Records reusable AAD workflow feedback. |
 
-Skills are support material; they do not replace owner responsibility.
+The supported AAD setup composes both sets. A general-only setup loads `skills/general/` without the AAD agents, routing prompt, task-package convention, or subagent configuration. Skills remain support material; they do not replace agent ownership.
 
-Folder names are deployment identities. A skill's runtime name comes from its `SKILL.md` frontmatter, so those names may intentionally differ. The OpenCode adapter materializes a normalized cache view where folder names match runtime names.
+Checked-in leaf folder names match their `SKILL.md` runtime names. The category directories are source boundaries only and do not become part of installed or invoked skill names.
+
+### Runtime-name migration
+
+The reusable quality and completion skills previously carried AAD-prefixed runtime names. Existing external prompts or configuration should use this mapping:
+
+| Previous name | Current name |
+| --- | --- |
+| `aad-quality-backend` | `backend-quality` |
+| `aad-quality-frontend` | `frontend-quality` |
+| `aad-quality-devops` | `devops-quality` |
+| `aad-quality-composition` | `visual-composition` |
+| `aad-step-completion` | `completion-verification` |
+
+The installer removes repository-owned legacy destinations during migration. Compatibility alias skills are intentionally not installed because duplicate descriptions would create ambiguous discovery and two maintained identities.
 
 ## Requirements
 
 - Bash
 - Git
 - Python 3
-- `rsync`
 - Node.js and npm
 - repository submodules
 
@@ -90,8 +111,8 @@ The installer:
 2. initializes missing `pi-codex` and Browser Chrome submodules;
 3. installs Pi under `$HOME/.local` when needed;
 4. runs `npm ci --omit=dev` for the local `pi-codex` package;
-5. installs the current prompt, agents, skills, extension, and `pi-subagents` config;
-6. removes stale files only from repository-owned AAD namespaces while preserving unrelated user agents and skills;
+5. installs the current prompt, agents, both skill sets, extensions, and `pi-subagents` config;
+6. replaces/prunes exact repository-owned skill identities and managed agent namespaces while preserving unrelated user agents and skills;
 7. updates Pi settings while preserving existing packages and ensuring packages from the selected settings file are present;
 8. configures `browser-chrome-control`, `browser-chrome-headed`, and `browser-chrome-headless` in `mcp.json`.
 
@@ -114,6 +135,32 @@ cp settings/pi-settings.example.json settings/pi-settings.local.json
 PI_SETTINGS_FILE=settings/pi-settings.local.json scripts/update-local.sh
 ```
 
+### Reusing one skill set
+
+Use the skill-only installer when another local agent setup should receive skills without this repository's agents, routing prompt, extensions, settings, packages, or MCP configuration:
+
+```bash
+PI_AGENT_DIR="$HOME/.pi/agent" scripts/install-skills.sh --set general
+PI_AGENT_DIR="$HOME/.pi/agent" scripts/install-skills.sh --set aad
+PI_AGENT_DIR="$HOME/.pi/agent" scripts/install-skills.sh --set all
+```
+
+`general` and `aad` select source sets; `all` composes them. Installing one set does not remove the other set or unrelated user skills. A first skill-only install refuses to overwrite an existing same-name destination that is not recorded in this repository's ownership manifest. The full updater separately adopts only the unchanged identities it owned before the manifest migration. The general set includes the Browser Chrome skill, but this skill-only command does not configure Chrome MCP servers.
+
+Agent setups that reference this checkout directly can instead add one root to Pi settings:
+
+```json
+{
+  "skills": ["<repo>/skills/general"]
+}
+```
+
+Use `<repo>/skills/aad` for the overlay root. The checked-in AAD agents require the composed `all` set because they use general quality and verification skills as well as the AAD overlay.
+
+Pi package filters can narrow the root package to `skills/general/**`, but a normal git-package checkout does not initialize the Browser Chrome submodule. It therefore cannot provide the complete eight-skill general set. Use a recursive local clone plus the direct root or skill-only installer when Browser Chrome is required.
+
+This repository does not publish the sets as independently versioned packages; direct roots are composition boundaries over the same repository revision.
+
 ## OpenCode compatibility
 
 The compatibility adapter targets OpenCode 1.18.2 or newer. Add the git-backed plugin to a global or project-level `opencode.json`:
@@ -130,7 +177,7 @@ The compatibility adapter targets OpenCode 1.18.2 or newer. Add the git-backed p
 
 Restart OpenCode after changing the config.
 
-The plugin reads the same files under `agents/` and `skills/`, registers OpenCode subagents with explicit delegation permissions, normalizes skill directory names in a content-addressed cache, and injects an OpenCode tool-mapping bootstrap. It does not copy Pi-specific model IDs; generated subagents inherit the invoking OpenCode model unless the user overrides an agent in `opencode.json`.
+The plugin reads the same files under `agents/`, `skills/general/`, and `skills/aad/`, registers OpenCode subagents with explicit delegation permissions, materializes both skill sets into one flat content-addressed cache, and injects an OpenCode tool-mapping bootstrap. It does not copy Pi-specific model IDs; generated subagents inherit the invoking OpenCode model unless the user overrides an agent in `opencode.json`.
 
 Browser Chrome remains an explicit boundary: the browser agent is registered only when the Browser Chrome skill submodule is present, and OpenCode MCP configuration is still required separately.
 
@@ -138,7 +185,7 @@ See [`docs/opencode.md`](docs/opencode.md) for the mapping, permission model, li
 
 ## Browser tooling
 
-`skills/browser-chrome` is a submodule. The Pi installer copies it into Pi's skill directory and configures three lazy MCP servers:
+`skills/general/browser-chrome` is a submodule. The full Pi installer copies it into Pi's flat skill directory and configures three lazy MCP servers:
 
 - `browser-chrome-control` — selects and coordinates the browser mode;
 - `browser-chrome-headless` — disposable browser state for public and parallel checks;

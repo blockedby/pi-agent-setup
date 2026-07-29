@@ -46,7 +46,7 @@ Useful loop:
 
    ```bash
    head -8 ~/.pi/agent/skills/<skill-name>/SKILL.md
-   head -8 skills/<skill-name>/SKILL.md
+   head -8 skills/<aad-or-general>/<skill-name>/SKILL.md
    ```
 
    Every checked-in skill needs YAML frontmatter with at least `name` and `description`.
@@ -71,7 +71,7 @@ Useful loop:
 
 ## OpenCode adapter policy
 
-Keep `agents/` and `skills/` as the canonical sources. OpenCode compatibility belongs in `.opencode/plugins/pi-agent-setup.js` and deterministic tests, not in hand-maintained duplicate agent or skill trees.
+Keep `agents/`, `skills/aad/`, and `skills/general/` as the canonical sources. General skills must remain free of AAD role, storage, and runtime coupling; the AAD setup composes both roots. OpenCode compatibility belongs in `.opencode/plugins/pi-agent-setup.js` and deterministic tests, not in hand-maintained duplicate agent or skill trees.
 
 The adapter may translate runtime-specific frontmatter, permissions, discovery paths, and tool names. It must preserve explicit user OpenCode overrides, must not silently install browser profiles or MCP servers, and must keep read-only agent restrictions enforceable through OpenCode permissions.
 
