@@ -104,7 +104,7 @@ print_summary() {
 
 if [[ -n "$(git status --porcelain --untracked-files=all)" ]]; then
   stash_created="true"
-  stash_label="aad-target-branch-sync:$(date -u +%Y%m%dT%H%M%SZ):$$"
+  stash_label="git-branching-target-sync:$(date -u +%Y%m%dT%H%M%SZ):$$"
   git stash push --include-untracked -m "$stash_label" >/dev/null
   stash_ref="stash@{0}"
 fi

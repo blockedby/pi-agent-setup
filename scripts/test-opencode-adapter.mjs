@@ -23,7 +23,7 @@ const rootPackage = JSON.parse(fs.readFileSync(path.join(ROOT, "package.json"), 
 assert.deepEqual(
   rootPackage.pi.skills,
   OPENCODE_SKILL_ROOTS.map(({ sourceRoot }) => `./${sourceRoot}`),
-  "the root Pi package must compose both logical skill roots",
+  "the root Pi package must compose all logical skill roots",
 );
 
 const pluginEntrypoint = await import("../.opencode/plugins/pi-agent-setup.js");
@@ -82,6 +82,10 @@ function makeFixture() {
   write(
     path.join(root, "skills/general/browser-chrome/SKILL.md"),
     "---\nname: browser-chrome\ndescription: Browser\n---\n\n# Browser\n",
+  );
+  write(
+    path.join(root, "skills/common/git-branching/SKILL.md"),
+    "---\nname: git-branching\ndescription: Git branching\n---\n\n# Git branching\n",
   );
 
   return root;
@@ -235,6 +239,11 @@ try {
       runtimeName: "browser-chrome",
       logicalSet: "general",
       sourceRelativePath: "skills/general/browser-chrome",
+    },
+    {
+      runtimeName: "git-branching",
+      logicalSet: "common",
+      sourceRelativePath: "skills/common/git-branching",
     },
   ]);
   assert.equal(materializeOpenCodeSkillView(fixture, cacheBase), skillView);

@@ -1,6 +1,6 @@
 # OpenCode compatibility
 
-The repository remains Pi-first. Its checked-in AAD agents and composed general-plus-AAD skill set can also be loaded by OpenCode through the included compatibility plugin.
+The repository remains Pi-first. Its checked-in AAD agents and composed general, common, and AAD skill sets can also be loaded by OpenCode through the included compatibility plugin.
 
 The adapter follows the same general pattern as `obra/superpowers`: keep one source of workflow instructions, then translate runtime-specific discovery, permissions, and tool names at the integration boundary.
 
@@ -32,7 +32,7 @@ At startup, `.opencode/plugins/pi-agent-setup.js`:
 2. strips Pi frontmatter and registers equivalent OpenCode subagents through the `config` hook;
 3. translates Pi tool declarations into deny-by-default OpenCode permissions without weakening stricter global or built-in rules;
 4. applies role-specific OpenCode permissions to delegation and read-only agents;
-5. discovers both `skills/general/` and `skills/aad/` and creates one flat normalized skill view in the OpenCode cache, using each skill's frontmatter `name` as its directory name;
+5. discovers `skills/general/`, `skills/common/`, and `skills/aad/` and creates one flat normalized skill view in the OpenCode cache, using each skill's frontmatter `name` as its directory name;
 6. registers that normalized directory through `config.skills.paths`;
 7. injects a small routing and tool-mapping bootstrap into the conversation.
 
@@ -106,7 +106,7 @@ When this repository is available locally, add only the general root to OpenCode
 }
 ```
 
-This loads the reusable skills without AAD agents or routing. The category directory is not part of any runtime skill name.
+This loads the general capabilities without AAD agents or routing. Add `<repo>/skills/common` as a second path when the setup should also expose the shared `git-branching` workflow. Category directories are not part of runtime skill names.
 
 ## Browser boundary
 
@@ -131,7 +131,7 @@ The OpenCode adapter test verifies:
 - deep handling of partial task overrides;
 - default versus explicit `subagent_depth`;
 - idempotent bootstrap injection;
-- nested general/AAD discovery, cross-set collision handling, and flat normalized skill directories, including a folder/frontmatter-name mismatch;
+- nested general/common/AAD discovery, cross-set collision handling, and flat normalized skill directories, including a folder/frontmatter-name mismatch;
 - set/source-sensitive fingerprints, concurrent cache publication, and mode-sensitive fingerprints;
 - preservation of skill support files.
 

@@ -101,10 +101,10 @@ def verify_package(package_json: Path) -> None:
             "package.json is missing required Pi extensions: "
             + ", ".join(sorted(missing_extensions))
         )
-    required_skill_roots = ["./skills/general", "./skills/aad"]
+    required_skill_roots = ["./skills/general", "./skills/common", "./skills/aad"]
     if pi_config.get("skills") != required_skill_roots:
         raise SystemExit(
-            "package.json Pi skills must declare both composed roots in order: "
+            "package.json Pi skills must declare all composed roots in order: "
             + ", ".join(required_skill_roots)
         )
     if package.get("type") != "module":

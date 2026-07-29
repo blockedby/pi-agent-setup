@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 
-SETS = ("aad", "general")
+SETS = ("aad", "common", "general")
 SCHEMA_VERSION = 1
 MANIFEST_NAME = ".pi-agent-setup-skills.json"
 NAME_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
@@ -25,12 +25,12 @@ GENERAL_COUPLING_PATTERN = re.compile(
 EXPECTED_INVENTORY = {
     "aad": {
         "aad-delegation",
-        "aad-git-branching",
         "aad-plan-writing",
         "aad-reporting",
         "aad-task-package",
         "aad-workflow-feedback",
     },
+    "common": {"git-branching"},
     "general": {
         "backend-quality",
         "browser-chrome",
@@ -52,6 +52,7 @@ EXPECTED_INVENTORY = {
 # skill is never overwritten.
 LEGACY_ADOPTABLE_NAMES = {
     "aad": EXPECTED_INVENTORY["aad"],
+    "common": set(),
     "general": {
         "browser-chrome",
         "explanatory-html-pages",
@@ -75,6 +76,7 @@ LEGACY_NAMES = {
         "aad-worktree-management",
         "agent-pipeline-feedback",
     ),
+    "common": ("aad-git-branching",),
     "general": (
         "21st-magic-mcp",
         "acceptance-evidence-gate",
@@ -251,13 +253,13 @@ def discover(repo_root_value: str | Path) -> list[Skill]:
             if not path_is_within(source_real, source_root.resolve(strict=True)):
                 raise SkillAssetsError(f"skill source escapes its set root: {source}")
             name, _description = parse_frontmatter(skill_file)
-            if set_name == "general":
+            if set_name != "aad":
                 content = skill_file.read_text(encoding="utf-8")
                 match = GENERAL_COUPLING_PATTERN.search(content)
                 if match is not None:
                     line = content[: match.start()].count("\n") + 1
                     raise SkillAssetsError(
-                        f"general skill contains AAD workflow coupling at "
+                        f"{set_name} skill contains AAD workflow coupling at "
                         f"{skill_file}:{line}: {match.group(0)!r}"
                     )
             if source.name != name:

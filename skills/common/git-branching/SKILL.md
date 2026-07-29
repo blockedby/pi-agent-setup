@@ -1,9 +1,9 @@
 ---
-name: aad-git-branching
-description: Use when an AAD owner is finalizing a branch and needs a PR-first workflow for preparing, merging, and synchronizing against an explicit target branch.
+name: git-branching
+description: Use when preparing, finalizing, merging, or synchronizing feature branches and worktrees through a safe PR-first workflow with an explicit target branch.
 ---
 
-# AAD Git Branching
+# Git Branching
 
 ## Overview
 
@@ -11,8 +11,8 @@ Use this skill after the work is implemented and freshly verified, when the feat
 
 Determine the target branch from the PR base or explicit task context; do not assume it is `main`. Treat PR creation as the first finish milestone. After the PR exists, prepare the feature branch against `origin/<target-branch>`, decide whether regression verification must be rerun, and merge from the checkout holding the target branch only when authorized.
 
-- Default base branch for root owned work: explicit user/repository target; otherwise stop rather than guessing.
-- Default base branch for sub-slice work: the parent slice branch.
+- Default base branch for top-level work: explicit user/repository target; otherwise stop rather than guessing.
+- Default base branch for delegated child work: the parent task branch.
 - Default purpose: isolation for meaningful implementation work.
 
 ## Git naming and commits
@@ -63,13 +63,13 @@ If the user supplies a nonconforming branch name or commit subject, ask for conf
 4. Create the worktree under `.worktrees/<branch-or-topic>`.
 5. Report the resulting path and branch clearly.
 
-## Worktrees for delegation
+## Worktrees for delegated child work
 
-For sub-slice implementation work, default to the parent slice branch/worktree as the base, not the target branch. A child sub-slice is part of the parent slice until integrated.
+For delegated implementation that belongs to a parent task, default to the parent branch/worktree as the base, not the repository target branch. The child branch remains part of the parent task until integrated.
 
-Child sub-slice results should merge or otherwise integrate back into the parent slice worktree/branch first. The parent slice owner decides the parent done-state, resolves overlap, reruns needed verification, and prepares the parent branch/PR to the target branch.
+Child results should merge or otherwise integrate back into the parent worktree/branch first. The parent task owner decides the parent done-state, resolves overlap, reruns needed verification, and prepares the parent branch/PR to the target branch.
 
-Do not send a child sub-slice directly to the target branch unless the parent explicitly promotes it to an independent root-level slice.
+Do not send a child branch directly to the repository target branch unless it is explicitly promoted to independent top-level work.
 
 ## Re-run regression rules
 

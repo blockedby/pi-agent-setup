@@ -82,9 +82,11 @@ with tempfile.TemporaryDirectory() as temporary:
     source_package = read(ROOT / "package.json")
     invalid_skill_roots = [
         ["./skills/general"],
+        ["./skills/common"],
         ["./skills/aad"],
+        ["./skills/general", "./skills/aad"],
         ["./skills"],
-        ["./skills/aad", "./skills/general"],
+        ["./skills/aad", "./skills/common", "./skills/general"],
     ]
     for index, skills in enumerate(invalid_skill_roots):
         candidate = json.loads(json.dumps(source_package))
@@ -92,7 +94,7 @@ with tempfile.TemporaryDirectory() as temporary:
         candidate_path = temp / f"package-{index}.json"
         candidate_path.write_text(json.dumps(candidate))
         error = run_failure("verify-package", candidate_path)
-        assert "must declare both composed roots in order" in error
+        assert "must declare all composed roots in order" in error
 
 run("verify-subagents", ROOT / "settings/pi-subagents.config.json")
 print("config component tests passed")

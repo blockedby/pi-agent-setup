@@ -44,13 +44,13 @@ EOF
 
   for name in \
     aad-delegation \
-    aad-git-branching \
     aad-plan-writing \
     aad-reporting \
     aad-task-package \
     aad-workflow-feedback; do
     write_skill "$root" aad "$name" "$name"
   done
+  write_skill "$root" common git-branching git-branching
   for name in \
     backend-quality \
     completion-verification \
@@ -63,14 +63,14 @@ EOF
   done
   write_skill "$root" general browser-chrome browser-chrome
 
-  mkdir -p "$root/skills/aad/aad-git-branching/scripts"
+  mkdir -p "$root/skills/common/git-branching/scripts"
   printf '#!/usr/bin/env bash\necho prepared\n' > \
-    "$root/skills/aad/aad-git-branching/scripts/prepare-target-branch.sh"
+    "$root/skills/common/git-branching/scripts/prepare-target-branch.sh"
   printf '#!/usr/bin/env bash\necho synced\n' > \
-    "$root/skills/aad/aad-git-branching/scripts/sync-target-branch.sh"
+    "$root/skills/common/git-branching/scripts/sync-target-branch.sh"
   chmod +x \
-    "$root/skills/aad/aad-git-branching/scripts/prepare-target-branch.sh" \
-    "$root/skills/aad/aad-git-branching/scripts/sync-target-branch.sh"
+    "$root/skills/common/git-branching/scripts/prepare-target-branch.sh" \
+    "$root/skills/common/git-branching/scripts/sync-target-branch.sh"
 }
 
 assert_manifest_set() {
@@ -97,13 +97,14 @@ fixture="$tmp_root/repo"
 make_repo "$fixture"
 
 [ "$(pi_setup_count_skills "$fixture" general)" -eq 8 ] || fail "general recursive count is not 8"
-[ "$(pi_setup_count_skills "$fixture" aad)" -eq 6 ] || fail "AAD recursive count is not 6"
+[ "$(pi_setup_count_skills "$fixture" common)" -eq 1 ] || fail "common recursive count is not 1"
+[ "$(pi_setup_count_skills "$fixture" aad)" -eq 5 ] || fail "AAD recursive count is not 5"
 [ "$(pi_setup_count_skills "$fixture" all)" -eq 14 ] || fail "combined recursive count is not 14"
 pi_setup_validate_assets "$fixture" all
 pi_setup_validate_assets "$repo_root" all
-test -x "$repo_root/skills/aad/aad-git-branching/scripts/prepare-target-branch.sh" || \
+test -x "$repo_root/skills/common/git-branching/scripts/prepare-target-branch.sh" || \
   fail "checked-in prepare helper is not executable"
-test -x "$repo_root/skills/aad/aad-git-branching/scripts/sync-target-branch.sh" || \
+test -x "$repo_root/skills/common/git-branching/scripts/sync-target-branch.sh" || \
   fail "checked-in sync helper is not executable"
 
 # The public entrypoint supports a safe explicit target override and performs
@@ -111,7 +112,10 @@ test -x "$repo_root/skills/aad/aad-git-branching/scripts/sync-target-branch.sh" 
 cli_agent="$tmp_root/cli-agent"
 "$fixture/scripts/install-skills.sh" --set general --agent-dir "$cli_agent" >/dev/null
 test -f "$cli_agent/skills/browser-chrome/SKILL.md" || fail "CLI general install missed Browser Chrome"
+"$fixture/scripts/install-skills.sh" --set common --agent-dir "$cli_agent" >/dev/null
+test -f "$cli_agent/skills/git-branching/SKILL.md" || fail "CLI common install missed Git branching"
 test ! -e "$cli_agent/agents" || fail "CLI skill install created agents"
+assert_manifest_set "$cli_agent/.pi-agent-setup-skills.json" common 1
 assert_manifest_set "$cli_agent/.pi-agent-setup-skills.json" general 8
 
 # General installation is skills-only and preserves unrelated/unselected and
@@ -193,17 +197,22 @@ no_browser_repo="$tmp_root/no-browser-repo"
 cp -a "$fixture" "$no_browser_repo"
 rm -rf "$no_browser_repo/skills/general/browser-chrome"
 GIT_BIN="$fake_git" GIT_LOG="$git_log" pi_setup_initialize_skill_sources "$no_browser_repo" aad
-[ ! -e "$git_log" ] || fail "AAD-only initialized Browser Chrome"
+GIT_BIN="$fake_git" GIT_LOG="$git_log" pi_setup_initialize_skill_sources "$no_browser_repo" common
+[ ! -e "$git_log" ] || fail "AAD/common-only initialized Browser Chrome"
 GIT_BIN="$fake_git" GIT_LOG="$git_log" pi_setup_initialize_skill_sources "$no_browser_repo" general
 grep -Fq 'skills/general/browser-chrome' "$git_log" || fail "general did not lazily initialize moved Browser Chrome"
 
 pi_setup_install_skills "$fixture" "$aad_agent" aad >/dev/null
 test -f "$aad_agent/skills/aad-delegation/SKILL.md" || fail "AAD skill missing"
 test ! -e "$aad_agent/skills/browser-chrome" || fail "AAD-only installed Browser Chrome"
-assert_manifest_set "$aad_agent/.pi-agent-setup-skills.json" aad 6
+test ! -e "$aad_agent/skills/git-branching" || fail "AAD-only installed common Git branching"
+assert_manifest_set "$aad_agent/.pi-agent-setup-skills.json" aad 5
+pi_setup_install_skills "$fixture" "$aad_agent" common >/dev/null
 pi_setup_install_skills "$fixture" "$aad_agent" general >/dev/null
 pi_setup_install_skills "$fixture" "$aad_agent" aad >/dev/null
+test -f "$aad_agent/skills/git-branching/SKILL.md" || fail "additive common install missing"
 test -f "$aad_agent/skills/browser-chrome/SKILL.md" || fail "additive general install missing"
+assert_manifest_set "$aad_agent/.pi-agent-setup-skills.json" common 1
 assert_manifest_set "$aad_agent/.pi-agent-setup-skills.json" general 8
 
 # Explicit unselected manifest ownership wins over a selected set's legacy
@@ -239,6 +248,7 @@ test ! -e "$conflict_agent/.pi-agent-setup-skills.json" || fail "conflict wrote 
 # and preserves executable helper scripts.
 all_agent="$tmp_root/all-agent"
 mkdir -p \
+  "$all_agent/skills/aad-git-branching" \
   "$all_agent/skills/aad-quality-frontend" \
   "$all_agent/skills/aad-target-branch-preparation" \
   "$all_agent/skills/browser-chrome" \
@@ -246,15 +256,17 @@ mkdir -p \
 printf 'old managed browser\n' > "$all_agent/skills/browser-chrome/SKILL.md"
 pi_setup_install_skills "$fixture" "$all_agent" all --adopt-legacy >/dev/null
 [ "$(find "$all_agent/skills" -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 14 ] || fail "all did not flatten 14 skills"
+test ! -e "$all_agent/skills/aad-git-branching" || fail "renamed Git branching legacy survived"
 test ! -e "$all_agent/skills/aad-quality-frontend" || fail "renamed frontend legacy survived"
 test ! -e "$all_agent/skills/aad-target-branch-preparation" || fail "historical AAD legacy survived"
 test ! -e "$all_agent/skills/visual-composition-quality" || fail "historical general legacy survived"
-test -x "$all_agent/skills/aad-git-branching/scripts/prepare-target-branch.sh" || fail "prepare helper lost executable mode"
-test -x "$all_agent/skills/aad-git-branching/scripts/sync-target-branch.sh" || fail "sync helper lost executable mode"
-"$all_agent/skills/aad-git-branching/scripts/prepare-target-branch.sh" >/dev/null || fail "installed prepare helper did not execute"
-"$all_agent/skills/aad-git-branching/scripts/sync-target-branch.sh" >/dev/null || fail "installed sync helper did not execute"
+test -x "$all_agent/skills/git-branching/scripts/prepare-target-branch.sh" || fail "prepare helper lost executable mode"
+test -x "$all_agent/skills/git-branching/scripts/sync-target-branch.sh" || fail "sync helper lost executable mode"
+"$all_agent/skills/git-branching/scripts/prepare-target-branch.sh" >/dev/null || fail "installed prepare helper did not execute"
+"$all_agent/skills/git-branching/scripts/sync-target-branch.sh" >/dev/null || fail "installed sync helper did not execute"
 grep -Fq 'name: browser-chrome' "$all_agent/skills/browser-chrome/SKILL.md" || fail "legacy browser was not adopted"
-assert_manifest_set "$all_agent/.pi-agent-setup-skills.json" aad 6 1
+assert_manifest_set "$all_agent/.pi-agent-setup-skills.json" aad 5 1
+assert_manifest_set "$all_agent/.pi-agent-setup-skills.json" common 1 1
 assert_manifest_set "$all_agent/.pi-agent-setup-skills.json" general 8 1
 
 # The full asset path still installs agents/extensions but no longer performs
@@ -278,8 +290,8 @@ test ! -e "$full_agent/agents/aad-stale.md" || fail "stale managed agent survive
 test -f "$full_agent/skills/aad-user-owned/SKILL.md" || fail "broad aad-* skill deletion remains"
 [ "$(stat -c '%a' "$full_agent/skills/aad-user-owned/bin/tool")" = 755 ] || fail "custom executable mode changed"
 [ "$(stat -c '%a' "$full_agent/skills/aad-user-owned/manual.sh")" = 644 ] || fail "custom shell mode changed"
-[ "$(stat -c '%a' "$full_agent/skills/aad-git-branching/scripts/prepare-target-branch.sh")" = 755 ] || fail "managed prepare helper mode changed"
-[ "$(stat -c '%a' "$full_agent/skills/aad-git-branching/scripts/sync-target-branch.sh")" = 755 ] || fail "managed sync helper mode changed"
+[ "$(stat -c '%a' "$full_agent/skills/git-branching/scripts/prepare-target-branch.sh")" = 755 ] || fail "managed prepare helper mode changed"
+[ "$(stat -c '%a' "$full_agent/skills/git-branching/scripts/sync-target-branch.sh")" = 755 ] || fail "managed sync helper mode changed"
 
 # Unknown sets fail before target mutation in both the shared function and the
 # public entrypoint.

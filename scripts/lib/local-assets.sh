@@ -2,8 +2,8 @@
 
 pi_setup_require_skill_set() {
   case "${1:-}" in
-    general|aad|all) ;;
-    *) echo "Unknown skill set: ${1:-<missing>} (expected general, aad, or all)" >&2; return 2 ;;
+    general|common|aad|all) ;;
+    *) echo "Unknown skill set: ${1:-<missing>} (expected general, common, aad, or all)" >&2; return 2 ;;
   esac
 }
 
