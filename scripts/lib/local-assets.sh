@@ -26,6 +26,17 @@ pi_setup_validate_skill_target() {
   python3 "$repo_root/scripts/lib/skill-assets.py" validate-target "$agent_dir"
 }
 
+pi_setup_validate_asset_target() {
+  local repo_root="$1" agent_dir="$2" managed
+  pi_setup_validate_skill_target "$repo_root" "$agent_dir"
+  for managed in "$agent_dir/agents" "$agent_dir/extensions" "$agent_dir/extensions/subagent"; do
+    [ ! -L "$managed" ] || {
+      echo "Refusing symlinked managed directory: $managed" >&2
+      return 1
+    }
+  done
+}
+
 pi_setup_validate_skills() {
   local repo_root="$1" set_name="${2:-all}"
   pi_setup_require_skill_set "$set_name" || return
@@ -84,10 +95,7 @@ pi_setup_install_assets() {
   local -a agents=("$repo_root"/agents/*.md)
   local -a extensions=("$repo_root"/extensions/*.ts)
 
-  pi_setup_validate_skill_target "$repo_root" "$agent_dir"
-  for stale in "$agent_dir/agents" "$agent_dir/extensions" "$agent_dir/extensions/subagent"; do
-    [ ! -L "$stale" ] || { echo "Refusing symlinked managed directory: $stale" >&2; return 1; }
-  done
+  pi_setup_validate_asset_target "$repo_root" "$agent_dir"
   mkdir -p "$agent_dir/agents" "$agent_dir/extensions/subagent" "$agent_dir/skills"
 
   # Agent ownership remains namespace-based for compatibility. Skill ownership
@@ -108,6 +116,16 @@ pi_setup_install_assets() {
   install -m 0600 "${agents[@]}" "$agent_dir/agents/"
   install -m 0600 "${extensions[@]}" "$agent_dir/extensions/"
   install -m 0600 "$repo_root/settings/pi-subagents.config.json" "$agent_dir/extensions/subagent/config.json"
+}
+
+pi_setup_install_full_assets() {
+  local repo_root="$1" agent_dir="$2"
+  # Validate every managed target before the first mutation. Skill publication
+  # then runs before agent/extension replacement so ownership conflicts fail
+  # without leaving a partially updated AAD setup.
+  pi_setup_validate_asset_target "$repo_root" "$agent_dir" || return
+  pi_setup_install_skills "$repo_root" "$agent_dir" all --adopt-legacy >/dev/null || return
+  pi_setup_install_assets "$repo_root" "$agent_dir"
 }
 
 pi_setup_secure_assets() {

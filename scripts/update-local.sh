@@ -57,10 +57,9 @@ export PATH="$LOCAL_USER_HOME/.local/bin:$LOCAL_USER_HOME/.vite-plus/bin:$PATH"
 echo "Installing pi-codex runtime dependencies"
 (cd "$CODEX_SUBMODULE" && "$NPM_BIN" ci --omit=dev)
 
-pi_setup_install_assets "$repo_root" "$AGENT_DIR"
 # The pre-manifest updater owned the AAD namespace plus the unchanged general
-# skill identities. Adoption is intentionally limited to this full migration.
-pi_setup_install_skills "$repo_root" "$AGENT_DIR" all --adopt-legacy >/dev/null
+# skill identities. Adoption is intentionally limited to this preflighted full migration.
+pi_setup_install_full_assets "$repo_root" "$AGENT_DIR"
 
 if [ ! -f "$SETTINGS_PATH" ]; then
   printf '{\n  "packages": []\n}\n' > "$SETTINGS_PATH"

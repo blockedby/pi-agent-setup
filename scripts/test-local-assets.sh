@@ -237,6 +237,26 @@ cmp -s "$tmp_root/backend-quality.before" \
   "$conflict_agent/skills/backend-quality/SKILL.md" || fail "unowned same-name skill changed"
 test ! -e "$conflict_agent/.pi-agent-setup-skills.json" || fail "conflict wrote ownership manifest"
 
+# The full updater preflights skill ownership before replacing agents,
+# extensions, or the system prompt.
+full_conflict="$tmp_root/full-conflict-agent"
+mkdir -p \
+  "$full_conflict/agents" \
+  "$full_conflict/extensions" \
+  "$full_conflict/skills/backend-quality"
+printf 'old agent\n' > "$full_conflict/agents/aad-old.md"
+printf 'old extension\n' > "$full_conflict/extensions/old.ts"
+printf 'external backend quality\n' > "$full_conflict/skills/backend-quality/SKILL.md"
+if pi_setup_install_full_assets "$fixture" "$full_conflict" >/dev/null 2>&1; then
+  fail "full updater accepted an unowned selected skill"
+fi
+grep -Fq 'old agent' "$full_conflict/agents/aad-old.md" || fail "full preflight changed agents"
+grep -Fq 'old extension' "$full_conflict/extensions/old.ts" || fail "full preflight changed extensions"
+grep -Fq 'external backend quality' \
+  "$full_conflict/skills/backend-quality/SKILL.md" || fail "full preflight changed the conflicting skill"
+test ! -e "$full_conflict/APPEND_SYSTEM.md" || fail "full preflight installed the system prompt"
+test ! -e "$full_conflict/.pi-agent-setup-skills.json" || fail "full preflight wrote ownership"
+
 # Combined full-updater migration publishes all nested sources, adopts only
 # unchanged identities it historically owned, cleans explicit legacy names,
 # and preserves executable helper scripts.
@@ -275,8 +295,7 @@ printf '#!/bin/sh\n' > "$full_agent/skills/aad-user-owned/bin/tool"
 printf '#!/bin/sh\n' > "$full_agent/skills/aad-user-owned/manual.sh"
 chmod 755 "$full_agent/skills/aad-user-owned/bin/tool"
 chmod 644 "$full_agent/skills/aad-user-owned/manual.sh"
-pi_setup_install_assets "$fixture" "$full_agent"
-pi_setup_install_skills "$fixture" "$full_agent" all --adopt-legacy >/dev/null
+pi_setup_install_full_assets "$fixture" "$full_agent"
 pi_setup_secure_assets "$full_agent" "$tmp_root"
 test -f "$full_agent/agents/custom-agent.md" || fail "custom agent was removed"
 test ! -e "$full_agent/agents/aad-stale.md" || fail "stale managed agent survived"
@@ -376,7 +395,7 @@ test ! -e "$unsafe_destination/.pi-agent-setup-skills.json" || fail "unsafe dest
 
 # The updater consumes the same shared all-set implementation and moved source.
 grep -Fq 'pi_setup_initialize_skill_sources "$repo_root" all' "$repo_root/scripts/update-local.sh" || fail "update-local does not initialize set=all"
-grep -Fq 'pi_setup_install_skills "$repo_root" "$AGENT_DIR" all --adopt-legacy' "$repo_root/scripts/update-local.sh" || fail "update-local does not perform bounded legacy adoption"
+grep -Fq 'pi_setup_install_full_assets "$repo_root" "$AGENT_DIR"' "$repo_root/scripts/update-local.sh" || fail "update-local does not use preflighted full asset installation"
 grep -Fq 'skills/general/browser-chrome' "$repo_root/scripts/lib/local-assets.sh" || fail "skill source initialization uses the old Browser Chrome path"
 
 if rg -n 'python3?[[:space:]]+-([[:space:]]|$)|<<.*PY' \
