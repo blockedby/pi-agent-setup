@@ -348,6 +348,41 @@ try {
     fs.rmSync(collisionCache, { recursive: true, force: true });
   }
 
+  const invalidFixture = fs.mkdtempSync(
+    path.join(os.tmpdir(), "pi-agent-setup-invalid-skill-fixture-"),
+  );
+  const invalidCache = fs.mkdtempSync(
+    path.join(os.tmpdir(), "pi-agent-setup-invalid-skill-cache-"),
+  );
+  try {
+    const missingDescription = path.join(
+      invalidFixture,
+      "skills/general/missing-description/SKILL.md",
+    );
+    write(missingDescription, "---\nname: missing-description\n---\n");
+    assert.throws(
+      () => materializeOpenCodeSkillView(invalidFixture, invalidCache),
+      /skill description is required/i,
+    );
+    fs.rmSync(path.dirname(missingDescription), { recursive: true, force: true });
+
+    write(
+      path.join(invalidFixture, "skills/general/parent/SKILL.md"),
+      "---\nname: parent\ndescription: Parent\n---\n",
+    );
+    write(
+      path.join(invalidFixture, "skills/general/parent/child/SKILL.md"),
+      "---\nname: child\ndescription: Child\n---\n",
+    );
+    assert.throws(
+      () => materializeOpenCodeSkillView(invalidFixture, invalidCache),
+      /Nested OpenCode skill directories are unsafe/,
+    );
+  } finally {
+    fs.rmSync(invalidFixture, { recursive: true, force: true });
+    fs.rmSync(invalidCache, { recursive: true, force: true });
+  }
+
   const plugin = createPiAgentSetupPlugin({ packageRoot: fixture, cacheBase });
   const hooks = await plugin({});
   const config = {

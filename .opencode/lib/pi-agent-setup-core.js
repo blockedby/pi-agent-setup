@@ -474,7 +474,17 @@ function discoverSkills(packageRoot) {
     const absoluteRoot = path.join(packageRoot, root.sourceRoot);
     if (!fs.existsSync(absoluteRoot)) continue;
 
-    for (const sourceDirectory of findSkillDirectories(absoluteRoot)) {
+    const sourceDirectories = findSkillDirectories(absoluteRoot);
+    for (const [index, sourceDirectory] of sourceDirectories.entries()) {
+      for (const otherDirectory of sourceDirectories.slice(index + 1)) {
+        const relative = path.relative(sourceDirectory, otherDirectory);
+        if (relative && !relative.startsWith("..") && !path.isAbsolute(relative)) {
+          throw new OpenCodeSkillDiscoveryError(
+            `Nested OpenCode skill directories are unsafe: ${sourceDirectory} and ${otherDirectory}`,
+          );
+        }
+      }
+
       const skillPath = path.join(sourceDirectory, "SKILL.md");
       const { frontmatter } = extractAndStripFrontmatter(fs.readFileSync(skillPath, "utf8"));
       const runtimeName = frontmatter.name;
@@ -482,6 +492,11 @@ function discoverSkills(packageRoot) {
       if (typeof runtimeName !== "string" || !isSafeSkillName(runtimeName)) {
         throw new OpenCodeSkillDiscoveryError(
           `Invalid OpenCode skill name in ${skillPath}: ${String(runtimeName)}`,
+        );
+      }
+      if (typeof frontmatter.description !== "string" || !frontmatter.description.trim()) {
+        throw new OpenCodeSkillDiscoveryError(
+          `OpenCode skill description is required: ${skillPath}`,
         );
       }
       if (names.has(runtimeName)) {
