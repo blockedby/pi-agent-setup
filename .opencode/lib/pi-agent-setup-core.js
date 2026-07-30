@@ -17,6 +17,10 @@ export const OPENCODE_AGENT_NAMES = [
   "aad-auditor",
   "chrome-browser-agent",
 ];
+export const OPENCODE_SKILL_ROOTS = [
+  { logicalSet: "general", sourceRoot: "skills/general" },
+  { logicalSet: "aad", sourceRoot: "skills/aad" },
+];
 
 const PI_TOOL_TO_PERMISSION = {
   read: "read",
@@ -83,7 +87,7 @@ const AGENT_POLICIES = {
     },
   },
   "chrome-browser-agent": {
-    requiredPaths: ["skills/browser-chrome/SKILL.md"],
+    requiredPaths: ["skills/general/browser-chrome/SKILL.md"],
     permission: {
       task: "deny",
       "browser-chrome-*": "allow",
@@ -106,18 +110,30 @@ This agent prompt is shared with Pi. Resolve every runtime action through the li
 - Ignore any Pi-specific call shape remaining in prose. Never send Pi-only arguments to an OpenCode tool; follow the live schema.
 `;
 
-function parseScalar(value) {
+function parseScalar(value, key) {
   const trimmed = value.trim();
-  if (
-    trimmed.length >= 2 &&
-    ((trimmed.startsWith('"') && trimmed.endsWith('"')) ||
-      (trimmed.startsWith("'") && trimmed.endsWith("'")))
-  ) {
-    return trimmed.slice(1, -1);
+  if (!trimmed) throw new Error(`Missing frontmatter value for ${key}`);
+  if (trimmed.startsWith('"')) {
+    try {
+      const decoded = JSON.parse(trimmed);
+      if (typeof decoded !== "string") throw new Error("not a string");
+      return decoded;
+    } catch (error) {
+      throw new Error(`Invalid quoted frontmatter value for ${key}: ${error.message}`);
+    }
+  }
+  if (trimmed.startsWith("'")) {
+    if (!/^'(?:[^']|'')*'$/.test(trimmed)) {
+      throw new Error(`Invalid quoted frontmatter value for ${key}`);
+    }
+    return trimmed.slice(1, -1).replaceAll("''", "'");
   }
   if (trimmed === "true") return true;
   if (trimmed === "false") return false;
   if (/^-?\d+$/.test(trimmed)) return Number.parseInt(trimmed, 10);
+  if ("-?:#,%[]{}&*!|>@`".includes(trimmed[0]) || /:(?:\s|$)|\s#/.test(trimmed)) {
+    throw new Error(`Unsupported YAML frontmatter value for ${key}; quote the value`);
+  }
   return trimmed;
 }
 
@@ -128,12 +144,17 @@ export function extractAndStripFrontmatter(content) {
 
   const frontmatter = {};
   for (const line of match[1].split("\n")) {
-    if (!line.trim() || /^\s/.test(line) || line.trimStart().startsWith("#")) continue;
+    if (!line.trim() || line.trimStart().startsWith("#")) continue;
+    if (/^\s/.test(line)) throw new Error(`Unsupported YAML frontmatter syntax: ${line}`);
     const colon = line.indexOf(":");
-    if (colon <= 0) continue;
+    if (colon <= 0) throw new Error(`Unsupported YAML frontmatter syntax: ${line}`);
     const key = line.slice(0, colon).trim();
+    if (!/^[A-Za-z0-9_-]+$/.test(key)) {
+      throw new Error(`Invalid frontmatter key: ${key}`);
+    }
+    if (Object.hasOwn(frontmatter, key)) throw new Error(`Duplicate frontmatter key: ${key}`);
     const value = line.slice(colon + 1);
-    frontmatter[key] = parseScalar(value);
+    frontmatter[key] = parseScalar(value, key);
   }
 
   return { frontmatter, content: match[2] };
@@ -426,27 +447,71 @@ function isSafeSkillName(name) {
   return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(name);
 }
 
+class OpenCodeSkillDiscoveryError extends Error {}
+
+function toPosixRelativePath(packageRoot, sourceDirectory) {
+  return path.relative(packageRoot, sourceDirectory).split(path.sep).join("/");
+}
+
+function findSkillDirectories(directory, found = []) {
+  const skillPath = path.join(directory, "SKILL.md");
+  if (fs.existsSync(skillPath)) found.push(directory);
+
+  for (const entry of fs
+    .readdirSync(directory, { withFileTypes: true })
+    .sort((left, right) => left.name.localeCompare(right.name))) {
+    if (entry.name === ".git" || !entry.isDirectory()) continue;
+    findSkillDirectories(path.join(directory, entry.name), found);
+  }
+  return found;
+}
+
 function discoverSkills(packageRoot) {
-  const skillsRoot = path.join(packageRoot, "skills");
-  if (!fs.existsSync(skillsRoot)) return [];
-
   const skills = [];
-  const names = new Set();
-  for (const entry of fs.readdirSync(skillsRoot, { withFileTypes: true })) {
-    const sourceDirectory = path.join(skillsRoot, entry.name);
-    const skillPath = path.join(sourceDirectory, "SKILL.md");
-    if (!fs.existsSync(skillPath)) continue;
+  const names = new Map();
 
-    const { frontmatter } = extractAndStripFrontmatter(fs.readFileSync(skillPath, "utf8"));
-    const runtimeName = frontmatter.name;
-    if (typeof runtimeName !== "string" || !isSafeSkillName(runtimeName)) {
-      throw new Error(`Invalid OpenCode skill name in ${skillPath}: ${String(runtimeName)}`);
+  for (const root of OPENCODE_SKILL_ROOTS) {
+    const absoluteRoot = path.join(packageRoot, root.sourceRoot);
+    if (!fs.existsSync(absoluteRoot)) continue;
+
+    const sourceDirectories = findSkillDirectories(absoluteRoot);
+    for (const [index, sourceDirectory] of sourceDirectories.entries()) {
+      for (const otherDirectory of sourceDirectories.slice(index + 1)) {
+        const relative = path.relative(sourceDirectory, otherDirectory);
+        if (relative && !relative.startsWith("..") && !path.isAbsolute(relative)) {
+          throw new OpenCodeSkillDiscoveryError(
+            `Nested OpenCode skill directories are unsafe: ${sourceDirectory} and ${otherDirectory}`,
+          );
+        }
+      }
+
+      const skillPath = path.join(sourceDirectory, "SKILL.md");
+      const { frontmatter } = extractAndStripFrontmatter(fs.readFileSync(skillPath, "utf8"));
+      const runtimeName = frontmatter.name;
+      const sourceRelativePath = toPosixRelativePath(packageRoot, sourceDirectory);
+      if (typeof runtimeName !== "string" || !isSafeSkillName(runtimeName)) {
+        throw new OpenCodeSkillDiscoveryError(
+          `Invalid OpenCode skill name in ${skillPath}: ${String(runtimeName)}`,
+        );
+      }
+      if (typeof frontmatter.description !== "string" || !frontmatter.description.trim()) {
+        throw new OpenCodeSkillDiscoveryError(
+          `OpenCode skill description is required: ${skillPath}`,
+        );
+      }
+      if (names.has(runtimeName)) {
+        throw new OpenCodeSkillDiscoveryError(
+          `Duplicate OpenCode skill name ${runtimeName}: ${names.get(runtimeName)} and ${sourceRelativePath}`,
+        );
+      }
+      names.set(runtimeName, sourceRelativePath);
+      skills.push({
+        runtimeName,
+        logicalSet: root.logicalSet,
+        sourceRelativePath,
+        sourceDirectory,
+      });
     }
-    if (names.has(runtimeName)) {
-      throw new Error(`Duplicate OpenCode skill name: ${runtimeName}`);
-    }
-    names.add(runtimeName);
-    skills.push({ runtimeName, sourceDirectory });
   }
 
   return skills.sort((left, right) => left.runtimeName.localeCompare(right.runtimeName));
@@ -478,7 +543,9 @@ function hashDirectory(hash, directory, relativePrefix = "") {
 function skillViewFingerprint(skills) {
   const hash = createHash("sha256");
   for (const skill of skills) {
-    hash.update(skill.runtimeName);
+    hash.update(`runtimeName\0${skill.runtimeName}\0`);
+    hash.update(`logicalSet\0${skill.logicalSet}\0`);
+    hash.update(`sourceRelativePath\0${skill.sourceRelativePath}\0`);
     hashDirectory(hash, skill.sourceDirectory);
   }
   return hash.digest("hex").slice(0, 20);
@@ -521,7 +588,11 @@ export function materializeOpenCodeSkillView(
         {
           packageRoot,
           fingerprint,
-          skills: skills.map((skill) => skill.runtimeName),
+          skills: skills.map(({ runtimeName, logicalSet, sourceRelativePath }) => ({
+            runtimeName,
+            logicalSet,
+            sourceRelativePath,
+          })),
         },
         null,
         2,
@@ -574,13 +645,16 @@ export function createPiAgentSetupPlugin({
   cacheBase = defaultCacheBase(),
 } = {}) {
   return async ({ client } = {}) => {
-    let skillView;
+    let skillPaths = [];
     try {
-      skillView = materializeOpenCodeSkillView(packageRoot, cacheBase);
+      const skillView = materializeOpenCodeSkillView(packageRoot, cacheBase);
+      if (skillView) skillPaths = [skillView];
     } catch (error) {
+      if (error instanceof OpenCodeSkillDiscoveryError) throw error;
       await logWarning(client, `Could not materialize normalized skills: ${error.message}`);
-      const directSkills = path.join(packageRoot, "skills");
-      skillView = fs.existsSync(directSkills) ? directSkills : null;
+      skillPaths = OPENCODE_SKILL_ROOTS.map(({ sourceRoot }) =>
+        path.join(packageRoot, sourceRoot),
+      ).filter((sourceRoot) => fs.existsSync(sourceRoot));
     }
 
     const generatedAgents = loadOpenCodeAgentDefinitions(packageRoot);
@@ -588,11 +662,13 @@ export function createPiAgentSetupPlugin({
 
     return {
       config: async (config) => {
-        if (skillView) {
+        if (skillPaths.length > 0) {
           config.skills ||= {};
           config.skills.paths ||= [];
-          if (!config.skills.paths.includes(skillView)) {
-            config.skills.paths.push(skillView);
+          for (const skillPath of skillPaths) {
+            if (!config.skills.paths.includes(skillPath)) {
+              config.skills.paths.push(skillPath);
+            }
           }
         }
 

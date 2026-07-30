@@ -1,6 +1,6 @@
 ---
-name: aad-quality-backend
-description: Use when planning, implementing, or reviewing backend, API, storage, job, migration, or integration changes that need evidence for contracts, validation, auth, data safety, idempotency, and performance within existing AAD reports.
+name: backend-quality
+description: Use when planning, implementing, or reviewing backend, API, storage, job, migration, or integration changes that need evidence for contracts, validation, auth, data safety, idempotency, and performance.
 ---
 
 # Backend API Data Quality
@@ -13,7 +13,7 @@ Use when a task touches API routes/controllers, services, repositories, models, 
 
 ## Inputs
 
-- Delegated acceptance criteria, API/data contract expectations, and verification plan.
+- Caller-provided acceptance criteria, API/data contract expectations, and verification plan.
 - Existing adjacent handlers, services, repositories, schemas/DTOs, auth/permission helpers, transaction patterns, and tests.
 
 ## Checklist

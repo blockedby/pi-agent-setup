@@ -16,6 +16,17 @@ def run(*args: str) -> None:
     subprocess.run([sys.executable, str(TOOL), *map(str, args)], check=True)
 
 
+def run_failure(*args: str) -> str:
+    result = subprocess.run(
+        [sys.executable, str(TOOL), *map(str, args)],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode != 0, f"expected failure for: {args}"
+    return result.stderr
+
+
 def read(path: Path):
     return json.loads(path.read_text())
 
@@ -66,5 +77,22 @@ with tempfile.TemporaryDirectory() as temporary:
     assert servers["browser-chrome-headless"]["args"] == ["headless"]
 
 run("verify-package", ROOT / "package.json")
+with tempfile.TemporaryDirectory() as temporary:
+    temp = Path(temporary)
+    source_package = read(ROOT / "package.json")
+    invalid_skill_roots = [
+        ["./skills/general"],
+        ["./skills/aad"],
+        ["./skills"],
+        ["./skills/aad", "./skills/general"],
+    ]
+    for index, skills in enumerate(invalid_skill_roots):
+        candidate = json.loads(json.dumps(source_package))
+        candidate["pi"]["skills"] = skills
+        candidate_path = temp / f"package-{index}.json"
+        candidate_path.write_text(json.dumps(candidate))
+        error = run_failure("verify-package", candidate_path)
+        assert "must declare all composed roots in order" in error
+
 run("verify-subagents", ROOT / "settings/pi-subagents.config.json")
 print("config component tests passed")

@@ -89,7 +89,8 @@ def install_browser_mcp(target: Path, browser_command: str, control_command: str
 
 def verify_package(package_json: Path) -> None:
     package = load(package_json)
-    extensions = package.get("pi", {}).get("extensions", [])
+    pi_config = package.get("pi", {})
+    extensions = pi_config.get("extensions", [])
     required_extensions = {
         "./extensions/ready-notify.ts",
         "./extensions/main-thread-wait-guard.ts",
@@ -99,6 +100,12 @@ def verify_package(package_json: Path) -> None:
         raise SystemExit(
             "package.json is missing required Pi extensions: "
             + ", ".join(sorted(missing_extensions))
+        )
+    required_skill_roots = ["./skills/general", "./skills/aad"]
+    if pi_config.get("skills") != required_skill_roots:
+        raise SystemExit(
+            "package.json Pi skills must declare all composed roots in order: "
+            + ", ".join(required_skill_roots)
         )
     if package.get("type") != "module":
         raise SystemExit("package.json must use ESM for the OpenCode plugin")

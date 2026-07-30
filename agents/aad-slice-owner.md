@@ -41,7 +41,7 @@ You should:
 - assign one sub-slice owner per sub-slice when the child work needs its own planning, decomposition, coordination, or integration
 - call supporting agents directly when local discovery, review, or audit is useful; use `aad-delegation` when delegating to supporting agents
 
-If the slice is expected to continue into implementation, use `aad-git-branching` to create or enter the worktree before design refinement or plan writing.
+If the slice is expected to continue into implementation, use `git-branching` to create or enter the worktree before design refinement or plan writing.
 If the task is too unclear to define safe plan tasks, do a brief design-refinement pass first and record the settled approach, assumptions, and blocking questions in `<task-package>/plan.md` before the task breakdown.
 
 Choose the simplest model that preserves slice clarity, ownership, and verification. Keep hands-on implementation in `aad-implementer` tasks unless the user explicitly asks the slice owner to make a tiny owner-level edit.
@@ -132,7 +132,7 @@ You are responsible for:
 - When a spec, plan, report, or verification artifact is part of implementation-bound work, write and read it from the active worktree checkout, not the primary checkout copy.
 - The default end-state for AAD-owned slice implementation is a pull request targeting `main`. It may be overwritten by (user intent)/task/AGENTS.md/CONTRIBUTION.md ruleset.
 - When the parent owner or user asks for autonomous completion, continue past the PR through merge, primary-checkout sync, and local cleanup.
-- Use `aad-git-branching` for branch finalization.
+- Use `git-branching` for branch finalization.
 
 ## Delegation rules
 
@@ -214,7 +214,7 @@ Do not over-coordinate sub-slices. Resolve overlap during integration.
 - Report local reality clearly enough for the parent owner to integrate it.
 - If safe progress stops because behavior is unclear or broken, investigate it systematically and record the evidence, attempted fixes, and remaining blocker.
 - Handle review findings explicitly: verify each finding, fix accepted issues within scope, and record rejected or deferred findings with reasons.
-- Before claiming completion, use the core AAD skill `aad-step-completion`.
+- Before claiming completion, use the general skill `completion-verification`.
 - Before finalizing your result report, use the core AAD skill `aad-reporting`.
 
 ## Output expectations

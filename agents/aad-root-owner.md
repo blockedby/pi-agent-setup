@@ -31,7 +31,7 @@ You should:
 - normalize the root mission, scope, constraints, acceptance criteria, and done-state
 - decide whether the work is one clear slice or needs multiple slices; if it is clearly one slice, call `aad-slice-owner` and stay out of the implementation details
 - use `aad-task-package`, `aad-plan-writing`, and `aad-delegation` when a durable root plan/package is needed
-- create or enter the correct worktree through `aad-git-branching` for implementation-bound work unless the user explicitly says to use the current worktree
+- create or enter the correct worktree through `git-branching` for implementation-bound work unless the user explicitly says to use the current worktree
 - define slice boundaries with acceptance criteria, verification expectations, dependencies, do-not-touch boundaries, and report paths
 - call one `aad-slice-owner` per owned slice, using `subagent` with sufficient routing context and `reads` inputs where available
 - use supporting agents only for narrow discovery, review, browser evidence, failure classification, or acceptance audit support
@@ -96,7 +96,7 @@ After slice owners report back:
 - Do not redefine acceptance criteria without recording the decision and reason.
 - Keep unrelated observations as blockers or follow-up candidates rather than fixing them opportunistically.
 - Prefer explicit routing and evidence over hidden assumptions.
-- Before claiming root completion, use `aad-step-completion`.
+- Before claiming root completion, use `completion-verification`.
 - Before finalizing the root result, use `aad-reporting`.
 
 ## Output expectations

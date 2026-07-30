@@ -39,7 +39,7 @@ branch_name="$(git branch --show-current)"
   exit 1
 }
 
-state_file="$(git rev-parse --git-path aad-target-branch-prepare.state)"
+state_file="$(git rev-parse --git-path git-branching-target-prepare.state)"
 rebase_merge_dir="$(git rev-parse --git-path rebase-merge)"
 rebase_apply_dir="$(git rev-parse --git-path rebase-apply)"
 target_ref="origin/$base_branch"

@@ -1,6 +1,6 @@
 # OpenCode compatibility
 
-The repository remains Pi-first, but its checked-in AAD agent prompts and skills can also be loaded by OpenCode through the included compatibility plugin.
+The repository remains Pi-first. Its checked-in AAD agents and composed general and AAD skill sets can also be loaded by OpenCode through the included compatibility plugin.
 
 The adapter follows the same general pattern as `obra/superpowers`: keep one source of workflow instructions, then translate runtime-specific discovery, permissions, and tool names at the integration boundary.
 
@@ -32,7 +32,7 @@ At startup, `.opencode/plugins/pi-agent-setup.js`:
 2. strips Pi frontmatter and registers equivalent OpenCode subagents through the `config` hook;
 3. translates Pi tool declarations into deny-by-default OpenCode permissions without weakening stricter global or built-in rules;
 4. applies role-specific OpenCode permissions to delegation and read-only agents;
-5. creates a normalized skill view in the OpenCode cache, using each skill's frontmatter `name` as its directory name;
+5. discovers both `skills/general/` and `skills/aad/` and creates one flat normalized skill view in the OpenCode cache, using each skill's frontmatter `name` as its directory name;
 6. registers that normalized directory through `config.skills.paths`;
 7. injects a small routing and tool-mapping bootstrap into the conversation.
 
@@ -53,7 +53,7 @@ It is derived data and does not modify the checkout.
 | `aad-implementer` | `subagent` | Cannot create child agents. |
 | `aad-explorer` | `subagent` | File edits and child agents are denied; shell commands require approval. |
 | `aad-auditor` | `subagent` | File edits and child agents are denied; shell and browser MCP use require approval. |
-| `chrome-browser-agent` | `subagent` | Registered only when `skills/browser-chrome/SKILL.md` is present. |
+| `chrome-browser-agent` | `subagent` | Registered only when `skills/general/browser-chrome/SKILL.md` is present. |
 
 The adapter intentionally does not copy Pi model IDs into OpenCode. OpenCode subagents inherit the invoking primary agent's model unless the user supplies an override. This keeps the package provider-neutral and avoids failing on a Pi-specific model alias.
 
@@ -92,9 +92,25 @@ The shared prompts still describe the Pi execution protocol. The OpenCode adapte
 
 `PI_RESULT` remains a text protocol in reports. It is not treated as a runtime-specific tool call.
 
+## General skills without the AAD plugin
+
+The plugin is intentionally the composed AAD profile: besides skills, it registers AAD agents, permission boundaries, subagent depth, and the AAD routing bootstrap. A general-only OpenCode setup should not load it.
+
+When this repository is available locally, add only the general root to OpenCode's native skill paths:
+
+```json
+{
+  "skills": {
+    "paths": ["<repo>/skills/general"]
+  }
+}
+```
+
+This loads the reusable capabilities, including `git-branching`, without AAD agents or routing. The category directory is not part of any runtime skill name.
+
 ## Browser boundary
 
-The plugin does not install or configure Chrome, browser profiles, or MCP servers. The browser agent is exposed only when the Browser Chrome skill submodule is present in the installed package. Its MCP tools must still be configured separately in OpenCode.
+The plugin does not install or configure Chrome, browser profiles, or MCP servers. The browser agent is exposed only when the Browser Chrome skill submodule is present at `skills/general/browser-chrome`. Its MCP tools must still be configured separately in OpenCode.
 
 Do not assume that Bun or another git-package installer initialized repository submodules. For a browser-enabled local package, clone this repository with submodules and point OpenCode at that local package path.
 
@@ -115,8 +131,8 @@ The OpenCode adapter test verifies:
 - deep handling of partial task overrides;
 - default versus explicit `subagent_depth`;
 - idempotent bootstrap injection;
-- normalized skill directories, including a folder/frontmatter-name mismatch;
-- concurrent cache publication and mode-sensitive fingerprints;
+- nested general/AAD discovery, cross-set collision handling, and flat normalized skill directories, including a folder/frontmatter-name mismatch;
+- set/source-sensitive fingerprints, concurrent cache publication, and mode-sensitive fingerprints;
 - preservation of skill support files.
 
 ## Limitations

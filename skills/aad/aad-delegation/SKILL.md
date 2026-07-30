@@ -128,7 +128,7 @@ Use this packet shape and fill all applicable fields:
 - reads: <plan/report files to pass into the agent context automatically>
 - progress: <true for aad-implementer or long-running work>
 - async: <whether the whole run continues in the background; true only for long-running work with report path and completion signal>
-- worktree: <avoid for AAD implementation slices; use aad-git-branching instead>
+- worktree: <avoid for AAD implementation slices; use git-branching instead>
 ```
 
 Pass all applicable fields. Supporting agents may refine their local target, but they do not redefine routing or ownership boundaries.
@@ -164,7 +164,7 @@ Pass all applicable fields. Supporting agents may refine their local target, but
 - serializing ready tasks that are explicitly marked safe to run in parallel
 - running tasks in parallel when they share unsettled contracts
 - treating non-blocking observations as permission to refactor
-- using pi-subagents `worktree: true` for AAD implementation slices; use `aad-git-branching` so parent/child worktree lineage stays explicit
+- using pi-subagents `worktree: true` for AAD implementation slices; use `git-branching` so parent/child worktree lineage stays explicit
 
 ## Progress and async contract
 
