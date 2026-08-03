@@ -21,10 +21,6 @@ Evidence comes before claims. Acceptance criteria should map to tests, checks, o
 6. Record the evidence in an acceptance verification entry at the destination supplied by the caller, when one exists.
 7. Only then claim completion, readiness, or closure.
 
-## Acceptance convergence
-
-When the task uses `aad-audit-convergence`, load it and report the charter state, product identity, finding dispositions, and highest evidence-backed readiness state. Otherwise keep completion proportionate to the task and repository policy.
-
 ## Verification modes
 
 ### Targeted verification

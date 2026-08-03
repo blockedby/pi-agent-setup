@@ -24,6 +24,7 @@ GENERAL_COUPLING_PATTERN = re.compile(
 )
 EXPECTED_INVENTORY = {
     "aad": {
+        "aad-audit-convergence",
         "aad-delegation",
         "aad-plan-writing",
         "aad-reporting",

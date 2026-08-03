@@ -12,7 +12,7 @@ const root = path.resolve(
 );
 const helperPath = path.join(
   root,
-  "skills/aad-task-package/scripts/create-task-package.sh",
+  "skills/aad/aad-task-package/scripts/create-task-package.sh",
 );
 const fixture = fs.mkdtempSync(path.join(os.tmpdir(), "aad-task-package-"));
 

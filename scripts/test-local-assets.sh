@@ -43,6 +43,7 @@ EOF
   printf 'export default {}\n' > "$root/extensions/example.ts"
 
   for name in \
+    aad-audit-convergence \
     aad-delegation \
     aad-plan-writing \
     aad-reporting \
@@ -97,8 +98,8 @@ fixture="$tmp_root/repo"
 make_repo "$fixture"
 
 [ "$(pi_setup_count_skills "$fixture" general)" -eq 9 ] || fail "general recursive count is not 9"
-[ "$(pi_setup_count_skills "$fixture" aad)" -eq 5 ] || fail "AAD recursive count is not 5"
-[ "$(pi_setup_count_skills "$fixture" all)" -eq 14 ] || fail "combined recursive count is not 14"
+[ "$(pi_setup_count_skills "$fixture" aad)" -eq 6 ] || fail "AAD recursive count is not 6"
+[ "$(pi_setup_count_skills "$fixture" all)" -eq 15 ] || fail "combined recursive count is not 15"
 pi_setup_validate_assets "$fixture" all
 pi_setup_validate_assets "$repo_root" all
 test -x "$repo_root/skills/general/git-branching/scripts/prepare-target-branch.sh" || \
@@ -202,7 +203,7 @@ pi_setup_install_skills "$fixture" "$aad_agent" aad >/dev/null
 test -f "$aad_agent/skills/aad-delegation/SKILL.md" || fail "AAD skill missing"
 test ! -e "$aad_agent/skills/browser-chrome" || fail "AAD-only installed Browser Chrome"
 test ! -e "$aad_agent/skills/git-branching" || fail "AAD-only installed general Git branching"
-assert_manifest_set "$aad_agent/.pi-agent-setup-skills.json" aad 5
+assert_manifest_set "$aad_agent/.pi-agent-setup-skills.json" aad 6
 pi_setup_install_skills "$fixture" "$aad_agent" general >/dev/null
 pi_setup_install_skills "$fixture" "$aad_agent" aad >/dev/null
 test -f "$aad_agent/skills/git-branching/SKILL.md" || fail "additive general Git branching missing"
@@ -269,7 +270,7 @@ mkdir -p \
   "$all_agent/skills/visual-composition-quality"
 printf 'old managed browser\n' > "$all_agent/skills/browser-chrome/SKILL.md"
 pi_setup_install_skills "$fixture" "$all_agent" all --adopt-legacy >/dev/null
-[ "$(find "$all_agent/skills" -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 14 ] || fail "all did not flatten 14 skills"
+[ "$(find "$all_agent/skills" -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 15 ] || fail "all did not flatten 15 skills"
 test ! -e "$all_agent/skills/aad-git-branching" || fail "renamed Git branching legacy survived"
 test ! -e "$all_agent/skills/aad-quality-frontend" || fail "renamed frontend legacy survived"
 test ! -e "$all_agent/skills/aad-target-branch-preparation" || fail "historical AAD legacy survived"
@@ -279,7 +280,7 @@ test -x "$all_agent/skills/git-branching/scripts/sync-target-branch.sh" || fail 
 "$all_agent/skills/git-branching/scripts/prepare-target-branch.sh" >/dev/null || fail "installed prepare helper did not execute"
 "$all_agent/skills/git-branching/scripts/sync-target-branch.sh" >/dev/null || fail "installed sync helper did not execute"
 grep -Fq 'name: browser-chrome' "$all_agent/skills/browser-chrome/SKILL.md" || fail "legacy browser was not adopted"
-assert_manifest_set "$all_agent/.pi-agent-setup-skills.json" aad 5 1
+assert_manifest_set "$all_agent/.pi-agent-setup-skills.json" aad 6 1
 assert_manifest_set "$all_agent/.pi-agent-setup-skills.json" general 9 1
 
 # The full asset path still installs agents/extensions but no longer performs
