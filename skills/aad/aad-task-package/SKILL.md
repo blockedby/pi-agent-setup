@@ -23,6 +23,15 @@ Example:
 .pi/aad/tasks/2026-05-22-add-invoices-page/
 ```
 
+## Ledger and publication roles
+
+Keep these roles distinct when repository policy requires public/tracked task documents:
+
+- **Ignored canonical ledger:** `.pi/aad/tasks/<task>/` (or another path proven ignored) is the sole per-result routing ledger. Raw child reports, progress, repeated verification logs, finding dispositions, and current execution state live here.
+- **Tracked phase publication:** a repository plan/report path is a sanitized phase-boundary snapshot for collaborators and history. It is not a second routing ledger, does not receive raw child progress by default, and must not create a new exact-head audit target after every child result.
+
+Record the tracked publication path, when any, in the ignored canonical plan. Before routing raw output, prove the ledger path is ignored with `git check-ignore`; directory naming alone is not proof. If the default path is not ignored, add the repository ignore rule or choose another ignored canonical location. An explicit unignored `--location` creates a tracked publication artifact, not the canonical per-result ledger.
+
 ## Directory structure
 
 Use this structure unless the repo has a stricter convention:
@@ -61,7 +70,7 @@ The first root or slice owner receiving an owned job checks for a supplied or re
 
 ### Creation helper
 
-Resolve [`scripts/create-task-package.sh`](scripts/create-task-package.sh) relative to the directory containing this `SKILL.md`. The helper creates the standard directories plus draft `README.md` and `plan.md` files. It refuses to overwrite an existing package.
+Resolve [`scripts/create-task-package.sh`](scripts/create-task-package.sh) relative to the directory containing this `SKILL.md`. The helper creates the standard directories plus draft `README.md` and `plan.md` files. It refuses to overwrite an existing package. Inside a Git worktree, the default location also refuses creation unless `git check-ignore` proves it is ignored. Its output reports `ledger_mode=ignored-canonical`, `tracked-publication`, or `outside-git`.
 
 Use the default `.pi/aad/tasks` location:
 
@@ -85,7 +94,7 @@ The resulting path is `<location>/YYYY-MM-DD-<task-slug>/`. `--name` is optional
 Creation checklist:
 
 1. Search the delegated context and active worktree for the supplied or current task package.
-2. If no plan exists, choose a short, stable lowercase kebab-case task slug and run the bundled creation helper, using `.pi/aad/tasks` unless the owner provides a repo-specific parent path.
+2. If no plan exists, choose a short, stable lowercase kebab-case task slug and run the bundled creation helper. Use `.pi/aad/tasks` for the ignored canonical ledger after proving it is ignored. Treat an explicit unignored repository path as tracked phase publication and keep routing/raw execution state in the ignored canonical ledger.
 3. Review and complete the generated `README.md`, which includes:
    - task name
    - status
@@ -95,7 +104,7 @@ Creation checklist:
    - report index
 4. Review and complete the generated `plan.md` with the active plan coordinator, current task intake, repo orientation, reuse discovery, missing pieces, plan tasks, dependency graph, agent order, and execution ledger.
 5. Add task-specific files under the generated `reports/`, `verification/`, `artifacts/`, and `progress/` directories as needed.
-6. Commit and push the initial task package when it uses an owner-provided tracked repository path and an early draft PR is being opened.
+6. When it uses an owner-provided tracked repository path and an early draft PR is being opened, include the initial task package in the charter/planning phase batch. Do not create a commit for each later result.
 
 ## Canonical plan coordination
 
@@ -103,7 +112,9 @@ For non-trivial delegated work, use `<task-package>/plan.md` as the one file-bac
 
 Only the active plan coordinator updates the canonical ledger. A coordination transfer must be recorded in the plan before a different owner edits it. Receiving the whole plan or one plan section for execution does not by itself transfer coordination.
 
-Each child receives a distinct, file-backed report path and, for non-trivial work, a distinct progress path under the task package. A child may append dated status/comments only to its own supplied report/progress file; it must not edit the plan or another child file unless coordination was explicitly transferred. The active coordinator updates the ledger after reading those canonical child files. The default `.pi/` task package is ignored canonical AAD state and is not committed. Pi-subagents 0.34 still creates `.pi-subagents/` debug artifacts upstream; that compatibility path is also ignored and is not the canonical ledger. For trivial one-step work, omit the task package and return a concise inline result.
+Each child receives a distinct, file-backed report path and, for non-trivial work, a distinct progress path under the task package. A child may append dated status/comments only to its own supplied report/progress file; it must not edit the plan or another child file unless coordination was explicitly transferred. The active coordinator reads those canonical child files. The default `.pi/` task package is ignored canonical AAD state: keep it as the per-result ledger. Pi-subagents 0.34 still creates `.pi-subagents/` debug artifacts upstream; that compatibility path is also ignored and is not the canonical ledger. For trivial one-step work, omit the task package and return a concise inline result.
+
+When repository policy additionally requires tracked task documents, record that publication path in the ignored canonical plan. Keep raw child reports, progress, and repeated verification logs in the ignored canonical package unless a specific tracked artifact is required. Consolidate the ignored ledger into the tracked phase publication only at phase boundaries—charter/planning, integrated implementation, baseline finding disposition, closure or escalation, and final result—and commit at most that phase batch. The tracked publication is never the per-result routing ledger and must not create a new exact-head audit target per child result.
 
 Before relying on harness inline output, a parent reads the child's routed report and progress files when provided. Inline output, transient run IDs, and temporary harness artifact paths are convenience signals, not the acceptance record.
 
@@ -127,6 +138,7 @@ Track:
 - acceptance verification evidence
 - blockers and side findings
 - plan scorecard: completed tasks, satisfied acceptance criteria, passed evidence routes, resolved deviations, open blockers, and final plan result
+- for tasks using `aad-audit-convergence`: charter reference, audit mode, finding IDs/dispositions, product identity or reconciliation, and readiness state
 - final done-state
 
 Do not rewrite history-heavy details into prose. Prefer short, current status entries with links to the detailed report files.
@@ -144,7 +156,7 @@ Report path: <task-package>/reports/<agent-or-task>.md
 Verification path: <task-package>/verification/<file>.md, when relevant
 ```
 
-If a report path is provided, write or update that file before returning. If no task package is provided for non-trivial routed work, create or infer the task package through this skill before delegation. For trivial work, return the report inline and say no task package was used.
+If a report path is provided, write or update that file before returning. If repository policy requires a tracked task document, prefer routing raw child/progress output to the ignored canonical package and let the coordinator publish a consolidated tracked phase report; use an explicitly supplied tracked report path when that artifact itself is required. If no task package is provided for non-trivial routed work, create or infer the task package through this skill before delegation. For trivial work, return the report inline and say no task package was used.
 
 ## Agent report defaults
 
@@ -168,6 +180,7 @@ If a report path is provided, write or update that file before returning. If no 
 - Prefer appending/updating the relevant report over scattering new files.
 - Use `progress/` for internal agent progress notes; progress files are allowed to be rougher than final reports but must not contain secrets.
 - If a file already contains another agent's report, append a timestamped section instead of overwriting it.
+- Default ignored task state may be updated per result. When tracked task documents are also required, keep raw progress/repeated evidence in the ignored canonical package and batch consolidated durable plan/report updates at phase boundaries; do not create a new tracked commit or exact-head audit target for each result.
 
 ## Early draft PR convention
 
@@ -175,7 +188,7 @@ For implementation-bound root slice work:
 
 1. Create/enter the worktree.
 2. Create the task package and initial plan.
-3. Commit and push the task package only when it uses an owner-provided tracked repository path.
+3. When it uses an owner-provided tracked repository path, batch the task package with the charter/planning phase; do not commit it separately for each routed result.
 4. Open a draft PR early, unless the user or repo policy says not to.
 5. Continue dispatching agents and updating task package artifacts through the PR branch.
 

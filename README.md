@@ -28,6 +28,10 @@ The terminal assistant handles only trivial one-step work directly. AAD-owned ch
 
 Independent slices may run in parallel only after their dependencies and write boundaries are explicit.
 
+### Acceptance convergence
+
+For high-risk work, `aad-audit-convergence` freezes acceptance before implementation and provides a finite baseline/closure audit route, product identity, and readiness states. Low-risk work remains proportionate and lightweight.
+
 ### Agents
 
 | Agent | Role |

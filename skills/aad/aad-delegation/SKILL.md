@@ -32,7 +32,7 @@ An owner should separate decomposition from scheduling: slices define scope and 
 ## Delegate to subagents when
 
 - deep or shallow exploration needs; many files or big log analysis needs; `aad-explorer` agent is always much cheaper and faster then direct tools calling
-- `aad-auditor` subagents could run in parallel while independent test failures whose root causes and file ownership are distinct; they can provide separate verification in dimensions such as correctness, security, performance, accessibility, and reproduction 
+- an `aad-auditor` can execute a mode defined by `aad-audit-convergence`; do not parallelize or improvise extra audits
 - producing bounded “sidecar” work that can run while the parent performs useful local work.
 - narrow discovery is cheaper than holding it in owner context
 - calling many MCP tools or cli repeated calls to keep usefull context in owner's thread rather than tool calls metadata;
@@ -115,6 +115,8 @@ Use this packet shape and fill all applicable fields:
 
 ## Execution target
 - Plan task goal: <specific delegated goal>
+- Acceptance charter: <path/section / low-risk criteria / not applicable>
+- Audit mode: <baseline / closure with finding IDs / docs-reconcile / not applicable>
 - Acceptance criteria: <criteria or plan references>
 - Test plan: <positive/negative/edge/manual checks or plan references>
 - Task relationships: <Depends on / Blocks / Can run in parallel with>
@@ -131,12 +133,12 @@ Use this packet shape and fill all applicable fields:
 - worktree: <avoid for AAD implementation slices; use git-branching instead>
 ```
 
-Pass all applicable fields. Supporting agents may refine their local target, but they do not redefine routing or ownership boundaries.
+Pass all applicable fields. When an audit mode is present, load `aad-audit-convergence`; supporting agents do not expand its charter, and owners retain finding disposition.
 
 ## Delegation checklist
 
 - [ ] Read `<task-package>/plan.md` and confirm the delegated agent-order entry is ready.
-- [ ] Confirm acceptance criteria, evidence route, test plan, dependencies, executor, plan context, report/progress paths, and boundaries are present.
+- [ ] Confirm the acceptance target and, when `aad-audit-convergence` applies, its charter reference and audit mode; also pass the evidence route, dependencies, report paths, and boundaries.
 - [ ] Pass the whole plan or a self-contained assigned section with every referenced dependency and constraint.
 - [ ] Decide whether the work stays whole or should be sliced.
 - [ ] If slicing, define one owner per slice or sub-slice.
@@ -163,6 +165,7 @@ Pass all applicable fields. Supporting agents may refine their local target, but
 - treating slices as execution waves or creating slices merely to manufacture parallelism
 - serializing ready tasks that are explicitly marked safe to run in parallel
 - running tasks in parallel when they share unsettled contracts
+- violating the audit modes, scope, or terminal states defined by `aad-audit-convergence`
 - treating non-blocking observations as permission to refactor
 - using pi-subagents `worktree: true` for AAD implementation slices; use `git-branching` so parent/child worktree lineage stays explicit
 

@@ -18,6 +18,7 @@ EOF
 }
 
 location=".pi/aad/tasks"
+location_explicit=0
 package_date="$(date -u +%F)"
 slug=""
 task_name=""
@@ -46,6 +47,7 @@ while [[ $# -gt 0 ]]; do
         exit 1
       }
       location="$2"
+      location_explicit=1
       shift 2
       ;;
     --date)
@@ -95,6 +97,22 @@ location="${location%/}"
   printf '%s\n' '--location must not be empty' >&2
   exit 1
 }
+
+ledger_mode="outside-git"
+if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  if git check-ignore -q -- "$location/"; then
+    ledger_mode="ignored-canonical"
+  elif [[ "$location_explicit" -eq 0 ]]; then
+    cat >&2 <<EOF
+Default task ledger is not ignored: $location/
+Add .pi/aad/ to the repository ignore rules, configure an ignored location,
+or pass --location explicitly for a tracked phase-publication artifact.
+EOF
+    exit 3
+  else
+    ledger_mode="tracked-publication"
+  fi
+fi
 
 if [[ -z "$task_name" ]]; then
   task_name="$(
@@ -268,5 +286,6 @@ staging_dir=""
 trap - EXIT
 
 printf 'task_package=%s\n' "$package_dir"
+printf 'ledger_mode=%s\n' "$ledger_mode"
 printf 'readme=%s/README.md\n' "$package_dir"
 printf 'plan=%s/plan.md\n' "$package_dir"

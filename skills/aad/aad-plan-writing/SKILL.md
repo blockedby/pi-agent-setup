@@ -22,12 +22,14 @@ Use this skill for every AAD-owned job. If the design is not settled enough to d
    - out-of-scope boundaries
    - done-state
    - known constraints and blocking unknowns
-4. Identify the files, components, services, data models, APIs, tests, or docs likely to change.
-5. Identify existing patterns or reusable implementations the plan should follow.
-6. Define the ownership model:
+   - risk level: low-risk or risky/concurrent/destructive
+4. When the risk gate in `aad-audit-convergence` applies, load it and record its frozen charter before implementation or concurrent dispatch.
+5. Identify the files, components, services, data models, APIs, tests, or docs likely to change.
+6. Identify existing patterns or reusable implementations the plan should follow.
+7. Define the ownership model:
    - stays whole under the current owner
    - or splits into named slices with clear boundaries
-7. Write or update `<task-package>/plan.md` with:
+8. Write or update `<task-package>/plan.md` with:
    - active plan coordinator
    - goal
    - scope and do-not-touch boundaries
@@ -36,9 +38,9 @@ Use this skill for every AAD-owned job. If the design is not settled enough to d
    - task dependencies
    - agent order, their delegation role
    - report paths for delegated agents
-8. Check plan readiness before delegation: every task has a goal, acceptance criteria, evidence route, test plan, dependencies, executor, agent-order entry, plan context to pass, report path, and do-not-touch boundaries where relevant.
-9. Execute only ready work in the recorded agent order and update task status, evidence, blockers, follow-ups, deviations, and future order after every routed result.
-10. Before done-state, audit every task and acceptance criterion against fresh evidence and write the plan scorecard.
+9. Check plan readiness before delegation: every task has a goal, acceptance criteria, evidence route, test plan, dependencies, executor, agent-order entry, plan context to pass, report path, and do-not-touch boundaries where relevant.
+10. Execute only ready work in the recorded agent order. Keep the ignored canonical task package as the sole per-result routing ledger; batch any tracked phase-publication updates at phase boundaries instead of committing per routed result.
+11. Before done-state, audit every task and acceptance criterion against fresh evidence and write the plan scorecard and readiness ladder.
 
 ## Mandatory planning lifecycle
 
@@ -49,9 +51,9 @@ Every root or slice owner must:
 3. **Gate** — stop implementation dispatch until the plan is complete enough to execute and verify.
 4. **Order** — record which agent acts first, which agents depend on earlier results, which may overlap, and what plan context each receives.
 5. **Route** — pass the whole plan or the exact assigned section plus every referenced dependency and contract field.
-6. **Update** — the active plan coordinator records child results, task status, evidence, blockers, deviations, and any changed order before subsequent routing.
-7. **Audit** — compare the integrated result with every task and acceptance criterion.
-8. **Score** — write the plan scorecard before any unqualified completion claim.
+6. **Update** — the active plan coordinator records child results, task status, evidence, blockers, deviations, and any changed order in the ignored canonical ledger before subsequent routing. When repository policy requires tracked task documents, publish only consolidated phase snapshots (charter/planning, integrated implementation, baseline disposition, closure or escalation, final result); the tracked publication is not a second routing ledger.
+7. **Audit** — compare the integrated result with every task and criterion. When `aad-audit-convergence` applies, follow its audit state machine and budget.
+8. **Score** — write the plan scorecard and readiness ladder before any unqualified completion claim.
 
 The first owner called is the initial plan coordinator when no plan exists. An owner receiving an existing plan does not replace it. Delegated children write their assigned report/progress files; they edit the plan only after an explicit coordination transfer recorded in the plan.
 
@@ -209,6 +211,9 @@ Before an owner claims done-state, append or update:
 - Evidence routes passed: <passed>/<total>
 - Deviations resolved or explicitly accepted: <resolved>/<total>
 - Open blockers: <count>
+- Readiness rung reached: <implemented / owner-verified / independently accepted / runtime/full-suite accepted / merge-ready>
+- Executable/product tree identity: <accepted identity / not applicable>
+- Head reconciliation: <not needed / bounded docs-only passed / executable-product change requires reassessment>
 - Final plan result: <pass / partial / fail / blocked>
 ```
 
@@ -223,8 +228,8 @@ Each total must link to the corresponding plan task, criterion, evidence, or dev
 - Record every delegated call in `Agent order`, including prerequisites, safe concurrency, plan context, and return path.
 - Follow ready plan tasks and order entries instead of inventing unrecorded work during execution.
 - Pass the whole plan or a self-contained assigned section to every child; never pass an isolated task that omits referenced dependencies or constraints.
-- Update the plan after every routed result and before acting on a changed scope, acceptance criterion, dependency, executor, agent order, or verification route.
-- Audit and score the completed work against the plan before done-state.
+- Keep the ignored canonical ledger current after each routed result. When tracked task documents are required, batch consolidated phase-publication updates rather than creating a tracked write, commit, or exact-head audit target for each result; record a changed scope, acceptance criterion, dependency, executor, agent order, or verification route in the ignored ledger before acting on it.
+- Audit and score completed work before done-state. When `aad-audit-convergence` applies, preserve its charter, budget, finding dispositions, product identity, and readiness state.
 - Prefer one owner carrying the work when one owner can do it cheaply.
 - Do not inject mandatory review loops or external workflow skills.
 - Make verification explicit for each meaningful checkpoint.

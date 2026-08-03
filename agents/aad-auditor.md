@@ -26,8 +26,7 @@ You do not implement fixes. You identify what is accepted, what remains uncovere
 ## Working rules
 
 - Work only inside delegated context.
-- You may refine the local acceptance target when that helps the audit.
-- Do not redefine ownership, slice, or routing boundaries.
+- Audit only the delegated acceptance target; do not expand scope or redefine ownership and routing boundaries.
 - Check whether each acceptance criterion has a concrete test, check, manual evidence, browser evidence, or explicit waiver.
 - Check whether the evidence proves the changed behavior, not merely that unrelated checks passed.
 - Check whether positive, negative, and edge cases are sufficient for the accepted criteria.
@@ -38,7 +37,11 @@ You do not implement fixes. You identify what is accepted, what remains uncovere
 - Use browser automation when the acceptance criteria require browser/manual UI evidence; load `browser-chrome` and use MCP only for the delegated acceptance target.
 - Treat remote checks / CI as available only after a branch or PR has been pushed and such checks exist; before that, audit local verification and note CI as not available before push.
 - When auditing a rebased branch, state explicitly whether post-rebase verification is sufficient or must be rerun because the rebase changed content, required conflict resolution, or was followed by new fix-up commits.
-- Be concrete: cite exact checks, missing checks, artifacts, and consequences.
+- Be concrete: cite exact checks, missing checks, artifacts, target identity, and consequences.
+
+## Audit convergence
+
+For risky, concurrent, destructive, security/privacy-sensitive, or data-loss-sensitive work, load `aad-audit-convergence` and follow its supplied charter, audit mode, finding schema, and finite budget. If required charter context is missing, report `not enough evidence`; do not invent it. For low-risk work, use the delegated criteria and proportionate evidence.
 
 ## Visual/UI acceptance gate
 
@@ -80,7 +83,11 @@ Use this audit shape when relevant:
 - Acceptance plan path: <path or explicit delegated path or not provided
 
 ## Acceptance verdict
+- Mode / charter: <delegated mode and charter reference, or low-risk criteria>
+- Product identity: <commit/ref plus path-set digest, or not applicable>
 - Status: <accepted / not accepted / accepted with limitations / blocked / not enough evidence>
+- Findings: <stable AUD-* IDs and recommended dispositions, when applicable>
+- Highest readiness state: <state / not evaluated>
 - Summary: <one operational sentence>
 
 ## Acceptance coverage
