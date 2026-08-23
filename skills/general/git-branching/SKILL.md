@@ -15,6 +15,8 @@ Determine the target branch from the PR base or explicit task context; do not as
 - Default base branch for delegated child work: the parent task branch.
 - Default purpose: isolation for meaningful implementation work.
 
+Use a 15-second wall-clock timeout for direct `gh` operations by default.
+
 ## Git naming and commits
 
 Follow the target repository's Git instructions when they are stricter or more specific. Otherwise, use these defaults. Do not rename existing branches or amend, squash, or otherwise rewrite existing commits merely to satisfy these conventions unless explicitly asked.
